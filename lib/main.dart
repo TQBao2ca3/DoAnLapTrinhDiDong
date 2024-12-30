@@ -4,13 +4,14 @@ import 'package:phoneshop/models/Product.dart';
 import 'package:phoneshop/pages/CartPage.dart';
 import 'package:phoneshop/pages/Homepage.dart';
 import 'package:phoneshop/pages/ItemPage.dart';
+import 'package:phoneshop/pages/UserAuthentication.dart';
 
 void main() {
   runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  final Cart cart = Cart();  // Sử dụng Cart từ models/cart.dart
+  final Cart cart = Cart(); // Sử dụng Cart từ models/cart.dart
 
   @override
   Widget build(BuildContext context) {
@@ -24,8 +25,9 @@ class MyApp extends StatelessWidget {
         '/': (context) => HomePage(cart: cart),
         'cartPage': (context) => CartPage(cart: cart),
         'itemPage': (context) => ItemPage(
-          product: ModalRoute.of(context)!.settings.arguments as Product,
-        ),
+              product: ModalRoute.of(context)!.settings.arguments as Product,
+            ),
+        'userAuthentication': (context) => UserAuthentication(),
       },
     );
   }
