@@ -9,10 +9,10 @@ class CategoriesWidget extends StatelessWidget {
       scrollDirection: Axis.horizontal,
       child: Row(
         children: [
-          categoryItem(context, "Iphone", "images/1.png"),
-          categoryItem(context, "SamSung", "images/2.png"),
-          categoryItem(context, "Oppo", "images/3.png"),
-          categoryItem(context, "Redmi", "images/10.png"),
+          categoryItem(context, "Iphone", "assets/images/1.png"),
+          categoryItem(context, "SamSung", "assets/images/2.png"),
+          categoryItem(context, "Oppo", "assets/images/3.png"),
+          categoryItem(context, "Redmi", "assets/images/10.png"),
         ],
       ),
     );

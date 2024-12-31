@@ -8,7 +8,7 @@ class ItemsWidget extends StatelessWidget {
       title: "iPhone 16 Pro Max 256GB",
       description:
           "iPhone 16 Pro Max sở hữu màn hình 6.9 inch với công nghệ ProMotion, mang lại trải nghiệm hiển thị mượt mà và sắc nét, lý tưởng cho giải trí và làm việc.",
-      image: "images/1.png",
+      image: "assets/images/1.png",
       price: 33990000,
       discount: 10,
     ),
@@ -16,7 +16,7 @@ class ItemsWidget extends StatelessWidget {
       title: "ADIDAS SPIRITAIN 2.0",
       description:
           "Giày chạy ADIDAS SPIRITAIN 2.0 mang phong cách năng động thể thao, thời thượng đa màu sắc.",
-      image: "images/2.png",
+      image: "assets/images/2.png",
       price: 2500000,
       discount: 15,
     ),
@@ -24,7 +24,7 @@ class ItemsWidget extends StatelessWidget {
       title: "JORDAN 1 HI CO JAPAN MIDNIGHT NAVY",
       description:
           "Giày JORDAN 1 HI CO JAPAN MIDNIGHT NAVY là một trong những đôi giày được săn đón nhất hiện nay với phong cách trẻ trung và năng động.",
-      image: "images/3.png",
+      image: "assets/images/3.png",
       price: 10500000,
       discount: 5,
     ),
@@ -32,7 +32,7 @@ class ItemsWidget extends StatelessWidget {
       title: "AIR JORDAN 1 HIGH OG",
       description:
           "AIR JORDAN 1 HIGH OG là một đôi giày đẹp nhất, trẻ trung và dễ dàng phối với nhiều trang phục khác nhau.",
-      image: "images/4.png",
+      image: "assets/images/4.png",
       price: 9500000,
       discount: 5,
     ),
@@ -40,7 +40,7 @@ class ItemsWidget extends StatelessWidget {
       title: "NIKE AIR MAX 1 SHIMA SHIMA",
       description:
           "Giày NIKE AIR MAX 1 SHIMA SHIMA mang phong cách tối giản nhưng vẫn đậm chất thể thao, phù hợp với những ai yêu thích sự thoải mái và phong cách.",
-      image: "images/5.png",
+      image: "assets/images/5.png",
       price: 3200000,
       discount: 10,
     ),
@@ -48,7 +48,7 @@ class ItemsWidget extends StatelessWidget {
       title: "NIKE PEGASUS 40",
       description:
           "NIKE PEGASUS 40 có phong cách thiết kế độc đáo thu hút mọi ánh nhìn, được trang bị công nghệ đệm tiên tiến, đem lại sự thoải mái tối ưu khi chạy.",
-      image: "images/6.png",
+      image: "assets/images/6.png",
       price: 2900000,
       discount: 3,
     ),
@@ -56,7 +56,7 @@ class ItemsWidget extends StatelessWidget {
       title: "YEEZY BOOST 350 V2",
       description:
           "Giày YEEZY BOOST 350 V2 mang lại sự kết hợp hoàn hảo giữa phong cách thời trang và tính năng thoải mái vượt trội, phù hợp cho mọi hoàn cảnh.",
-      image: "images/7.png",
+      image: "assets/images/7.png",
       price: 5500000,
       discount: 5,
     ),
@@ -64,7 +64,7 @@ class ItemsWidget extends StatelessWidget {
       title: "YEEZY BOOST 350 PIRATE BLACK",
       description:
           "YEEZY BOOST 350 PIRATE BLACK là đôi giày được yêu thích với phong cách mạnh mẽ và gam màu đen chủ đạo, tạo nên sự ấn tượng không thể chối từ.",
-      image: "images/8.png",
+      image: "assets/images/8.png",
       price: 15000000,
       discount: 8,
     ),
@@ -72,7 +72,7 @@ class ItemsWidget extends StatelessWidget {
       title: "YEEZY BOOST 700 V2 STATIC",
       description:
           "Giày YEEZY BOOST 700 V2 STATIC có thiết kế hầm hố và sang trọng, kết hợp với sự thoải mái tuyệt vời, là sự lựa chọn hoàn hảo cho những người yêu thích phong cách đường phố.",
-      image: "images/9.png",
+      image: "assets/images/9.png",
       price: 12000000,
       discount: 6,
     ),
@@ -80,7 +80,7 @@ class ItemsWidget extends StatelessWidget {
       title: "YEEZY SLIDE DARK ONYX",
       description:
           "YEEZY SLIDE DARK ONYX là đôi dép đơn giản nhưng không kém phần nổi bật, với thiết kế mềm mại và tông màu đen mạnh mẽ, lý tưởng cho những ngày thư giãn.",
-      image: "images/10.png",
+      image: "assets/images/10.png",
       price: 3600000,
       discount: 5,
     ),
