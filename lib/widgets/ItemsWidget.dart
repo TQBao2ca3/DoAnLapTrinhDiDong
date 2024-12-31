@@ -3,7 +3,6 @@ import 'package:phoneshop/models/Product.dart';
 import 'package:phoneshop/pages/ItemPage.dart';
 
 class ItemsWidget extends StatelessWidget {
-  
   final List<Product> products = [
     Product(
       title: "iPhone 16 Pro Max 256GB",
@@ -87,21 +86,23 @@ class ItemsWidget extends StatelessWidget {
     ),
   ];
 
+  ItemsWidget({super.key});
+
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     int crossAxisCount = (screenWidth ~/ 200);
-    double childAspectRatio = 0.60; 
+    double childAspectRatio = 0.60;
 
     return GridView.count(
       crossAxisCount: crossAxisCount,
       childAspectRatio: childAspectRatio,
       shrinkWrap: true,
-      physics: NeverScrollableScrollPhysics(),
+      physics: const NeverScrollableScrollPhysics(),
       children: products.map((product) {
         return Container(
-          padding: EdgeInsets.all(8),
-          margin: EdgeInsets.symmetric(vertical: 8, horizontal: 10),
+          padding: const EdgeInsets.all(8),
+          margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(15),
@@ -113,21 +114,21 @@ class ItemsWidget extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Container(
-                    padding: EdgeInsets.all(5),
+                    padding: const EdgeInsets.all(5),
                     decoration: BoxDecoration(
                       color: Colors.red,
                       borderRadius: BorderRadius.circular(15),
                     ),
                     child: Text(
                       "-${product.discount}%",
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 14,
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                   ),
-                  Icon(
+                  const Icon(
                     Icons.favorite_border,
                     color: Colors.red,
                   ),
@@ -143,7 +144,7 @@ class ItemsWidget extends StatelessWidget {
                   );
                 },
                 child: Container(
-                  margin: EdgeInsets.only(top: 10, bottom: 10),
+                  margin: const EdgeInsets.only(top: 10, bottom: 10),
                   child: Center(
                     child: Image.asset(
                       product.image,
@@ -156,17 +157,17 @@ class ItemsWidget extends StatelessWidget {
               ),
               Text(
                 product.title,
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 16,
                   color: Color(0xFF4C53A5),
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              SizedBox(height: 5),
+              const SizedBox(height: 5),
               Expanded(
                 child: Text(
                   product.description,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 12,
                     color: Colors.black,
                   ),
@@ -175,19 +176,19 @@ class ItemsWidget extends StatelessWidget {
                 ),
               ),
               Padding(
-                padding: EdgeInsets.symmetric(vertical: 10),
+                padding: const EdgeInsets.symmetric(vertical: 10),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
                       "${product.price.toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d)(?=(\d{3})+(?!\d))'), (match) => '${match[1]}.')} đ",
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.bold,
                         color: Colors.red,
                       ),
                     ),
-                    Text(
+                    const Text(
                       "Đã bán 15,2k",
                       style: TextStyle(
                         fontSize: 10,

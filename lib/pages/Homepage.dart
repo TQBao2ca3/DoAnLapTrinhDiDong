@@ -9,31 +9,34 @@ import 'package:phoneshop/widgets/ItemsWidget.dart';
 class HomePage extends StatelessWidget {
   final Cart cart;
 
-  HomePage({Key? key, required this.cart}) : super(key: key);
+  const HomePage({super.key, required this.cart});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(  // Thêm SafeArea
+      body: SafeArea(
+        // Thêm SafeArea
         child: Column(
           children: [
             HomeAppBar(tooltipMessage: "Nhấn để xem giỏ hàng"),
             Expanded(
               child: Container(
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                   color: Color(0xFFEDECF2),
                   borderRadius: BorderRadius.only(
                     topLeft: Radius.circular(35),
                     topRight: Radius.circular(35),
                   ),
                 ),
-                child: ListView(  // Thay SingleChildScrollView bằng ListView
-                  padding: EdgeInsets.only(top: 15),
+                child: ListView(
+                  // Thay SingleChildScrollView bằng ListView
+                  padding: const EdgeInsets.only(top: 15),
                   children: [
-                    Padding(  // Wrap search bar trong Padding
-                      padding: EdgeInsets.symmetric(horizontal: 15),
+                    Padding(
+                      // Wrap search bar trong Padding
+                      padding: const EdgeInsets.symmetric(horizontal: 15),
                       child: Container(
-                        padding: EdgeInsets.symmetric(horizontal: 15),
+                        padding: const EdgeInsets.symmetric(horizontal: 15),
                         height: 50,
                         decoration: BoxDecoration(
                           color: Colors.white,
@@ -41,15 +44,16 @@ class HomePage extends StatelessWidget {
                         ),
                         child: Row(
                           children: [
-                            Expanded(  // Thay Container width cố định bằng Expanded
+                            Expanded(
+                              // Thay Container width cố định bằng Expanded
                               child: TextFormField(
-                                decoration: InputDecoration(
+                                decoration: const InputDecoration(
                                   border: InputBorder.none,
                                   hintText: " Bạn đang tìm gì...?",
                                 ),
                               ),
                             ),
-                            Icon(
+                            const Icon(
                               Icons.camera_alt,
                               size: 27,
                               color: Colors.lightBlue,
@@ -58,7 +62,7 @@ class HomePage extends StatelessWidget {
                         ),
                       ),
                     ),
-                    Padding(
+                    const Padding(
                       padding: EdgeInsets.symmetric(
                         vertical: 20,
                         horizontal: 10,
@@ -73,8 +77,9 @@ class HomePage extends StatelessWidget {
                       ),
                     ),
                     CategoriesWidget(),
-                    Padding(
-                      padding: EdgeInsets.symmetric(vertical: 20, horizontal: 10),
+                    const Padding(
+                      padding:
+                          EdgeInsets.symmetric(vertical: 20, horizontal: 10),
                       child: Text(
                         "Top Bán Chạy",
                         style: TextStyle(
@@ -85,7 +90,8 @@ class HomePage extends StatelessWidget {
                       ),
                     ),
                     ItemsWidget(),
-                    SizedBox(height: 80),  // Thêm space cho bottom navigation bar
+                    const SizedBox(
+                        height: 80), // Thêm space cho bottom navigation bar
                   ],
                 ),
               ),
@@ -98,7 +104,7 @@ class HomePage extends StatelessWidget {
         onTap: (index) {},
         height: 70,
         color: Colors.lightBlue,
-        items: [
+        items: const [
           Icon(
             Icons.home,
             size: 30,

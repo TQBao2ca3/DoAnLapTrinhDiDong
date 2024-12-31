@@ -1,23 +1,23 @@
 import 'package:flutter/material.dart';
 
 class HomeAppBar extends StatelessWidget {
-  final String tooltipMessage; 
+  final String tooltipMessage;
 
-  HomeAppBar({Key? key, required this.tooltipMessage}) : super(key: key);
+  const HomeAppBar({super.key, required this.tooltipMessage});
 
   @override
   Widget build(BuildContext context) {
     return Container(
       color: Colors.lightBlue,
-      padding: EdgeInsets.all(25),
+      padding: const EdgeInsets.all(25),
       child: Row(
         children: [
-          Icon(
+          const Icon(
             Icons.sort,
             size: 30,
             color: Color(0xFF4C53A5),
           ),
-          Padding(
+          const Padding(
             padding: EdgeInsets.only(left: 20),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -36,14 +36,15 @@ class HomeAppBar extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 10,
                     fontWeight: FontWeight.bold,
-                    color: Colors.black, 
+                    color: Colors.black,
                   ),
                 ),
               ],
             ),
           ),
-          Spacer(),
-          Stack(
+          const Spacer(),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
             children: [
               Tooltip(
                 message: tooltipMessage,
@@ -62,14 +63,25 @@ class HomeAppBar extends StatelessWidget {
                 right: 0,
                 top: 0,
                 child: Container(
-                  width: 13, 
+                  width: 13,
                   height: 13,
-                  decoration: BoxDecoration(
-                    color: const Color.fromARGB(255, 206, 79, 70),
+                  decoration: const BoxDecoration(
+                    color: Color.fromARGB(255, 206, 79, 70),
                     shape: BoxShape.circle,
                   ),
                 ),
               ),
+              const SizedBox(width: 10),
+              TextButton(
+                  onPressed: () {
+                    Navigator.pushNamed(context, 'userAuthentication');
+                  },
+                  style: TextButton.styleFrom(
+                    iconColor: Colors.white,
+                    fixedSize: const Size(40, 40),
+                  ),
+                  child:
+                      const Icon(Icons.person, size: 30, color: Colors.white)),
             ],
           ),
         ],

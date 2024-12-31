@@ -1,48 +1,49 @@
 import 'package:flutter/material.dart';
 
 class CartAppBar extends StatelessWidget {
-  final int itemCount; 
-  CartAppBar({Key? key, required this.itemCount}) : super(key: key);
+  final int itemCount;
+  const CartAppBar({super.key, required this.itemCount});
 
   @override
   Widget build(BuildContext context) {
     return Container(
       color: Colors.white,
-      padding: EdgeInsets.all(25),
+      padding: const EdgeInsets.all(25),
       child: Row(
         children: [
           InkWell(
             onTap: () {
               Navigator.pop(context);
             },
-            child: Icon(
+            child: const Icon(
               Icons.arrow_back,
               size: 30,
               color: Color(0xFF4C53A5),
             ),
           ),
           Padding(
-            padding: EdgeInsets.only(left: 20),
+            padding: const EdgeInsets.only(left: 20),
             child: Row(
               children: [
-                Text(
+                const Text(
                   "Giỏ hàng",
                   style: TextStyle(
                     fontSize: 23,
                     fontWeight: FontWeight.bold,
-                   color: Colors.lightBlue,
+                    color: Colors.lightBlue,
                   ),
                 ),
-                SizedBox(width: 5), 
+                const SizedBox(width: 5),
                 Container(
-                  padding: EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                   decoration: BoxDecoration(
-                    color: Color.fromARGB(255, 20, 173, 161), 
+                    color: const Color.fromARGB(255, 20, 173, 161),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
                     itemCount.toString(),
-                    style: TextStyle(
+                    style: const TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
                     ),
@@ -51,8 +52,8 @@ class CartAppBar extends StatelessWidget {
               ],
             ),
           ),
-          Spacer(),
-          Icon(
+          const Spacer(),
+          const Icon(
             Icons.more_vert,
             size: 30,
             color: Color(0xFF4C53A5),

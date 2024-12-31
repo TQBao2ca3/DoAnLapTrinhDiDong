@@ -11,7 +11,9 @@ void main() {
 }
 
 class MyApp extends StatelessWidget {
-  final Cart cart = Cart(); // Sử dụng Cart từ models/cart.dart
+  final Cart cart = Cart();
+
+  MyApp({super.key}); // Sử dụng Cart từ models/cart.dart
 
   @override
   Widget build(BuildContext context) {
@@ -20,14 +22,14 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         scaffoldBackgroundColor: Colors.white,
       ),
-      initialRoute: '/',
+      initialRoute: 'userAuthentication',
       routes: {
         '/': (context) => HomePage(cart: cart),
         'cartPage': (context) => CartPage(cart: cart),
         'itemPage': (context) => ItemPage(
               product: ModalRoute.of(context)!.settings.arguments as Product,
             ),
-        'userAuthentication': (context) => UserAuthentication(),
+        'userAuthentication': (context) => const UserAuthentication(),
       },
     );
   }

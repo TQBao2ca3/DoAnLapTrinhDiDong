@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 class CategoriesWidget extends StatelessWidget {
+  const CategoriesWidget({super.key});
+
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
@@ -21,12 +23,13 @@ class CategoriesWidget extends StatelessWidget {
       onTap: () {
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => ProductListScreen(categoryName: name)),
+          MaterialPageRoute(
+              builder: (context) => ProductListScreen(categoryName: name)),
         );
       },
       child: Container(
-        margin: EdgeInsets.symmetric(horizontal: 10),
-        padding: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+        margin: const EdgeInsets.symmetric(horizontal: 10),
+        padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(20),
@@ -39,10 +42,10 @@ class CategoriesWidget extends StatelessWidget {
               width: 40,
               height: 40,
             ),
-            SizedBox(width: 10),
+            const SizedBox(width: 10),
             Text(
               name,
-              style: TextStyle(
+              style: const TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 16,
                 color: Color(0xFF4C53A5),
@@ -57,7 +60,7 @@ class CategoriesWidget extends StatelessWidget {
 
 class ProductListScreen extends StatelessWidget {
   final String categoryName;
-  ProductListScreen({required this.categoryName});
+  const ProductListScreen({super.key, required this.categoryName});
 
   @override
   Widget build(BuildContext context) {

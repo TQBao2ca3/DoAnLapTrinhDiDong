@@ -3,19 +3,19 @@ import 'package:phoneshop/models/Cart.dart';
 import 'package:phoneshop/models/Product.dart';
 import 'package:phoneshop/widgets/CartAppBar.dart';
 import 'package:phoneshop/widgets/CartBottomNavBar.dart';
-import 'package:intl/intl.dart'; 
+import 'package:intl/intl.dart';
 
 class CartPage extends StatefulWidget {
   final Cart cart;
 
-  CartPage({Key? key, required this.cart}) : super(key: key);
+  const CartPage({super.key, required this.cart});
 
   @override
   _CartPageState createState() => _CartPageState();
 }
 
 class _CartPageState extends State<CartPage> {
-  List<int> _selectedProductIndices = [];
+  final List<int> _selectedProductIndices = [];
 
   void _toggleProductSelection(int index) {
     setState(() {
@@ -46,23 +46,23 @@ class _CartPageState extends State<CartPage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text("Xác nhận xóa"),
-          content: Text("Bạn có chắc chắn muốn xóa sản phẩm này không?"),
+          title: const Text("Xác nhận xóa"),
+          content: const Text("Bạn có chắc chắn muốn xóa sản phẩm này không?"),
           actions: [
             TextButton(
-              child: Text("Hủy"),
+              child: const Text("Hủy"),
               onPressed: () {
-                Navigator.of(context).pop(); 
+                Navigator.of(context).pop();
               },
             ),
             TextButton(
-              child: Text("Xóa"),
+              child: const Text("Xóa"),
               onPressed: () {
                 setState(() {
                   widget.cart.items.removeAt(index);
-                  _selectedProductIndices.remove(index); 
+                  _selectedProductIndices.remove(index);
                 });
-                Navigator.of(context).pop(); 
+                Navigator.of(context).pop();
               },
             ),
           ],
@@ -83,18 +83,20 @@ class _CartPageState extends State<CartPage> {
     }
     return total;
   }
+
   @override
   Widget build(BuildContext context) {
     List<Product> cartItems = widget.cart.items;
     return Scaffold(
-      body: SafeArea(  // Thêm SafeArea để tránh tràn notch
+      body: SafeArea(
+        // Thêm SafeArea để tránh tràn notch
         child: Column(
           children: [
             CartAppBar(itemCount: cartItems.length),
             Expanded(
               child: Container(
-                padding: EdgeInsets.only(top: 15),
-                decoration: BoxDecoration(
+                padding: const EdgeInsets.only(top: 15),
+                decoration: const BoxDecoration(
                   color: Color(0xFFEDECF2),
                   borderRadius: BorderRadius.only(
                     topLeft: Radius.circular(35),
@@ -102,97 +104,107 @@ class _CartPageState extends State<CartPage> {
                   ),
                 ),
                 child: cartItems.isEmpty
-                    ? Center(
-                  child: Padding(
-                    padding: const EdgeInsets.all(30.0),
-                    child: Text(
-                      "Giỏ hàng của bạn đang trống.",
-                      style: TextStyle(fontSize: 18),
-                    ),
-                  ),
-                )
-                    : ListView.builder(
-                  padding: EdgeInsets.only(bottom: 80), // Thêm padding bottom để tránh bị che bởi CartBottomNavBar
-                  itemCount: cartItems.length,
-                  itemBuilder: (context, index) {
-                    Product product = cartItems[index];
-                    double totalPrice = product.price.toDouble() * product.quantity;
-
-                    return Card(
-                      margin: EdgeInsets.symmetric(vertical: 8, horizontal: 10),
-                      child: ListTile(
-                        contentPadding: EdgeInsets.all(10),
-                        leading: Container( // Wrap Row trong Container với width cố định
-                          width: 120,
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Checkbox(
-                                value: _selectedProductIndices.contains(index),
-                                onChanged: (bool? value) {
-                                  _toggleProductSelection(index);
-                                },
-                              ),
-                              SizedBox(
-                                width: 60,
-                                height: 60,
-                                child: Image.asset(product.image),
-                              ),
-                            ],
+                    ? const Center(
+                        child: Padding(
+                          padding: EdgeInsets.all(30.0),
+                          child: Text(
+                            "Giỏ hàng của bạn đang trống.",
+                            style: TextStyle(fontSize: 18),
                           ),
                         ),
-                        title: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              product.title,
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            Text("Size: ${product.size}"),
-                          ],
-                        ),
-                        subtitle: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              _formatCurrency(totalPrice),
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: Colors.red,
+                      )
+                    : ListView.builder(
+                        padding: const EdgeInsets.only(
+                            bottom:
+                                80), // Thêm padding bottom để tránh bị che bởi CartBottomNavBar
+                        itemCount: cartItems.length,
+                        itemBuilder: (context, index) {
+                          Product product = cartItems[index];
+                          double totalPrice =
+                              product.price.toDouble() * product.quantity;
+
+                          return Card(
+                            margin: const EdgeInsets.symmetric(
+                                vertical: 8, horizontal: 10),
+                            child: ListTile(
+                              contentPadding: const EdgeInsets.all(10),
+                              leading: SizedBox(
+                                // Wrap Row trong Container với width cố định
+                                width: 120,
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Checkbox(
+                                      value: _selectedProductIndices
+                                          .contains(index),
+                                      onChanged: (bool? value) {
+                                        _toggleProductSelection(index);
+                                      },
+                                    ),
+                                    SizedBox(
+                                      width: 60,
+                                      height: 60,
+                                      child: Image.asset(product.image),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              title: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    product.title,
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                  Text("Size: ${product.size}"),
+                                ],
+                              ),
+                              subtitle: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    _formatCurrency(totalPrice),
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.red,
+                                    ),
+                                  ),
+                                  Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      IconButton(
+                                        icon: const Icon(Icons.remove),
+                                        onPressed: () =>
+                                            _decrementQuantity(index),
+                                        padding: EdgeInsets.zero,
+                                        constraints: const BoxConstraints(),
+                                      ),
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 8),
+                                        child: Text("${product.quantity}"),
+                                      ),
+                                      IconButton(
+                                        icon: const Icon(Icons.add),
+                                        onPressed: () =>
+                                            _incrementQuantity(index),
+                                        padding: EdgeInsets.zero,
+                                        constraints: const BoxConstraints(),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                              trailing: IconButton(
+                                icon:
+                                    const Icon(Icons.delete, color: Colors.red),
+                                onPressed: () => _removeProduct(index),
                               ),
                             ),
-                            Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                IconButton(
-                                  icon: Icon(Icons.remove),
-                                  onPressed: () => _decrementQuantity(index),
-                                  padding: EdgeInsets.zero,
-                                  constraints: BoxConstraints(),
-                                ),
-                                Padding(
-                                  padding: EdgeInsets.symmetric(horizontal: 8),
-                                  child: Text("${product.quantity}"),
-                                ),
-                                IconButton(
-                                  icon: Icon(Icons.add),
-                                  onPressed: () => _incrementQuantity(index),
-                                  padding: EdgeInsets.zero,
-                                  constraints: BoxConstraints(),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                        trailing: IconButton(
-                          icon: Icon(Icons.delete, color: Colors.red),
-                          onPressed: () => _removeProduct(index),
-                        ),
+                          );
+                        },
                       ),
-                    );
-                  },
-                ),
               ),
             ),
             CartBottomNavBar(totalAmount: _calculateTotalAmount()),

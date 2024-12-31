@@ -48,7 +48,7 @@ class _ItemPageState extends State<ItemPage> {
             child: Image.asset(widget.product.image, height: 300),
           ),
           Arc(
-            edge: Edge.TOP ,
+            edge: Edge.TOP,
             arcType: ArcType.CONVEX,
             height: 30,
             child: Container(
@@ -112,7 +112,9 @@ class _ItemPageState extends State<ItemPage> {
                                     borderRadius: BorderRadius.circular(20),
                                     boxShadow: [
                                       BoxShadow(
-                                        color: const Color.fromARGB(255, 193, 14, 14).withOpacity(0.5),
+                                        color: const Color.fromARGB(
+                                                255, 193, 14, 14)
+                                            .withOpacity(0.5),
                                         spreadRadius: 3,
                                         blurRadius: 10,
                                         offset: Offset(0, 3),
@@ -144,7 +146,9 @@ class _ItemPageState extends State<ItemPage> {
                                     borderRadius: BorderRadius.circular(20),
                                     boxShadow: [
                                       BoxShadow(
-                                        color: const Color.fromARGB(255, 193, 14, 14).withOpacity(0.5),
+                                        color: const Color.fromARGB(
+                                                255, 193, 14, 14)
+                                            .withOpacity(0.5),
                                         spreadRadius: 3,
                                         blurRadius: 10,
                                         offset: Offset(0, 3),
@@ -176,8 +180,7 @@ class _ItemPageState extends State<ItemPage> {
                           ),
                           DropdownButton<String>(
                             value: _selectedSize,
-                            items: ['39', '40', '41', '42']
-                                .map((String value) {
+                            items: ['39', '40', '41', '42'].map((String value) {
                               return DropdownMenuItem<String>(
                                 value: value,
                                 child: Text(value),
@@ -215,8 +218,8 @@ class _ItemPageState extends State<ItemPage> {
                                 discount: widget.product.discount,
                                 quantity: _quantity,
                                 size: _selectedSize,
-                              );                     
-                              Cart cart = Cart(); 
+                              );
+                              Cart cart = Cart();
                               cart.add(productToAdd);
 
                               ScaffoldMessenger.of(context).showSnackBar(
@@ -238,13 +241,14 @@ class _ItemPageState extends State<ItemPage> {
                             ),
                             style: ButtonStyle(
                               backgroundColor: MaterialStateProperty.all(
-                                 const Color.fromARGB(255, 14, 166, 243),
+                                const Color.fromARGB(255, 14, 166, 243),
                               ),
                               padding: MaterialStateProperty.all(
                                 EdgeInsets.symmetric(
                                     vertical: 13, horizontal: 15),
                               ),
-                              shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                              shape: MaterialStateProperty.all<
+                                  RoundedRectangleBorder>(
                                 RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(30),
                                 ),
