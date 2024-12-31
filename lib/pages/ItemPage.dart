@@ -5,12 +5,11 @@ import 'package:phoneshop/models/Product.dart';
 import 'package:phoneshop/widgets/ItemAppBar.dart';
 import 'package:clippy_flutter/clippy_flutter.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
-import 'package:phoneshop/widgets/ItemsWidget.dart';
 
 class ItemPage extends StatefulWidget {
   final Product product;
 
-  ItemPage({required this.product});
+  const ItemPage({super.key, required this.product});
 
   @override
   _ItemPageState createState() => _ItemPageState();
@@ -39,12 +38,12 @@ class _ItemPageState extends State<ItemPage> {
     double price = widget.product.price.toDouble();
 
     return Scaffold(
-      backgroundColor: Color(0xFFEDECF2),
+      backgroundColor: const Color(0xFFEDECF2),
       body: ListView(
         children: [
-          ItemAppBar(),
+          const ItemAppBar(),
           Padding(
-            padding: EdgeInsets.all(16),
+            padding: const EdgeInsets.all(16),
             child: Image.asset(widget.product.image, height: 300),
           ),
           Arc(
@@ -55,16 +54,16 @@ class _ItemPageState extends State<ItemPage> {
               width: double.infinity,
               color: const Color.fromARGB(255, 223, 220, 220),
               child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: 20),
+                padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Column(
                   children: [
                     Padding(
-                      padding: EdgeInsets.only(top: 50, bottom: 20),
+                      padding: const EdgeInsets.only(top: 50, bottom: 20),
                       child: Row(
                         children: [
                           Text(
                             widget.product.title,
-                            style: TextStyle(
+                            style: const TextStyle(
                               fontSize: 28,
                               color: Color(0xFF4C53A5),
                               fontWeight: FontWeight.bold,
@@ -74,17 +73,17 @@ class _ItemPageState extends State<ItemPage> {
                       ),
                     ),
                     Padding(
-                      padding: EdgeInsets.only(top: 5, bottom: 10),
+                      padding: const EdgeInsets.only(top: 5, bottom: 10),
                       child: Text(
                         widget.product.description,
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 16,
                           color: Colors.grey,
                         ),
                       ),
                     ),
                     Padding(
-                      padding: EdgeInsets.only(top: 5, bottom: 10),
+                      padding: const EdgeInsets.only(top: 5, bottom: 10),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -94,8 +93,9 @@ class _ItemPageState extends State<ItemPage> {
                             direction: Axis.horizontal,
                             itemCount: 5,
                             itemSize: 20,
-                            itemPadding: EdgeInsets.symmetric(horizontal: 4),
-                            itemBuilder: (context, _) => Icon(
+                            itemPadding:
+                                const EdgeInsets.symmetric(horizontal: 4),
+                            itemBuilder: (context, _) => const Icon(
                               Icons.star,
                               color: Color.fromARGB(255, 245, 241, 2),
                             ),
@@ -106,7 +106,7 @@ class _ItemPageState extends State<ItemPage> {
                               GestureDetector(
                                 onTap: _decrementQuantity,
                                 child: Container(
-                                  padding: EdgeInsets.all(5),
+                                  padding: const EdgeInsets.all(5),
                                   decoration: BoxDecoration(
                                     color: Colors.white,
                                     borderRadius: BorderRadius.circular(20),
@@ -117,21 +117,22 @@ class _ItemPageState extends State<ItemPage> {
                                             .withOpacity(0.5),
                                         spreadRadius: 3,
                                         blurRadius: 10,
-                                        offset: Offset(0, 3),
+                                        offset: const Offset(0, 3),
                                       ),
                                     ],
                                   ),
-                                  child: Icon(
+                                  child: const Icon(
                                     CupertinoIcons.minus,
                                     size: 18,
                                   ),
                                 ),
                               ),
                               Container(
-                                margin: EdgeInsets.symmetric(horizontal: 10),
+                                margin:
+                                    const EdgeInsets.symmetric(horizontal: 10),
                                 child: Text(
                                   _quantity.toString(),
-                                  style: TextStyle(
+                                  style: const TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.bold,
                                   ),
@@ -140,7 +141,7 @@ class _ItemPageState extends State<ItemPage> {
                               GestureDetector(
                                 onTap: _incrementQuantity,
                                 child: Container(
-                                  padding: EdgeInsets.all(5),
+                                  padding: const EdgeInsets.all(5),
                                   decoration: BoxDecoration(
                                     color: Colors.white,
                                     borderRadius: BorderRadius.circular(20),
@@ -151,11 +152,11 @@ class _ItemPageState extends State<ItemPage> {
                                             .withOpacity(0.5),
                                         spreadRadius: 3,
                                         blurRadius: 10,
-                                        offset: Offset(0, 3),
+                                        offset: const Offset(0, 3),
                                       ),
                                     ],
                                   ),
-                                  child: Icon(
+                                  child: const Icon(
                                     CupertinoIcons.plus,
                                     size: 18,
                                   ),
@@ -167,11 +168,11 @@ class _ItemPageState extends State<ItemPage> {
                       ),
                     ),
                     Padding(
-                      padding: EdgeInsets.symmetric(vertical: 10),
+                      padding: const EdgeInsets.symmetric(vertical: 10),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(
+                          const Text(
                             "Size:",
                             style: TextStyle(
                               fontSize: 20,
@@ -196,13 +197,13 @@ class _ItemPageState extends State<ItemPage> {
                       ),
                     ),
                     Padding(
-                      padding: EdgeInsets.symmetric(vertical: 20),
+                      padding: const EdgeInsets.symmetric(vertical: 20),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
                             "${(price * _quantity).toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d)(?=(\d{3})+(?!\d))'), (match) => '${match[1]}.')} đ",
-                            style: TextStyle(
+                            style: const TextStyle(
                               fontSize: 24,
                               fontWeight: FontWeight.bold,
                               color: Colors.red,
@@ -226,12 +227,12 @@ class _ItemPageState extends State<ItemPage> {
                                 SnackBar(
                                   content: Text(
                                       '${productToAdd.title} (Size $_selectedSize) đã được thêm vào giỏ hàng với số lượng $_quantity!'),
-                                  duration: Duration(seconds: 2),
+                                  duration: const Duration(seconds: 2),
                                 ),
                               );
                             },
-                            icon: Icon(CupertinoIcons.cart_badge_plus),
-                            label: Text(
+                            icon: const Icon(CupertinoIcons.cart_badge_plus),
+                            label: const Text(
                               "Thêm vào giỏ hàng",
                               style: TextStyle(
                                 fontSize: 16,
@@ -240,14 +241,14 @@ class _ItemPageState extends State<ItemPage> {
                               ),
                             ),
                             style: ButtonStyle(
-                              backgroundColor: MaterialStateProperty.all(
+                              backgroundColor: WidgetStateProperty.all(
                                 const Color.fromARGB(255, 14, 166, 243),
                               ),
-                              padding: MaterialStateProperty.all(
-                                EdgeInsets.symmetric(
+                              padding: WidgetStateProperty.all(
+                                const EdgeInsets.symmetric(
                                     vertical: 13, horizontal: 15),
                               ),
-                              shape: MaterialStateProperty.all<
+                              shape: WidgetStateProperty.all<
                                   RoundedRectangleBorder>(
                                 RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(30),

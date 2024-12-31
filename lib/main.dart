@@ -22,7 +22,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         scaffoldBackgroundColor: Colors.white,
       ),
-      initialRoute: 'userAuthentication',
+      initialRoute: '/',
       routes: {
         '/': (context) => HomePage(cart: cart),
         'cartPage': (context) => CartPage(cart: cart),
