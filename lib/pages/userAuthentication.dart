@@ -35,24 +35,15 @@ class _UserAuthenticationState extends State<UserAuthentication> {
     }
   }
 
-  // Biến để kiểm tra xem đang ở chế độ đăng nhập hay đăng ký
-  bool isLogin = true;
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       // AppBar với nút quay lại và tiêu đề động
       appBar: AppBar(
-        // leading: IconButton(
-        //   icon: const Icon(Icons.arrow_back),
-        //   onPressed: () {
-        //     Navigator.pop(context);
-        //   },
-        // ),
-        title: Text(
-          isLogin ? 'Đăng nhập' : 'Đăng ký',
+        automaticallyImplyLeading: false,
+        title: Text('Đăng nhập',
           style: const TextStyle(
-            fontSize: 20,
+            fontSize: 28,
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -60,18 +51,22 @@ class _UserAuthenticationState extends State<UserAuthentication> {
       ),
 
       body: SingleChildScrollView(
-        child: Padding(
+        child: Container(
+          height: MediaQuery.of(context).size.height,
+          color: Color(0xffEDECF2),
           padding: const EdgeInsets.all(20.0),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              // Icon người dùng
-              const Icon(
-                Icons.shop_two_rounded,
-                size: 100,
-                color: Colors.blue,
-              ),
-              const SizedBox(height: 30),
+              const SizedBox(height: 50),
+              Text(
+                  'Đăng nhập',
+                  style: TextStyle(
+                    fontSize: 25,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              const SizedBox(height: 60),
 
               // TextField Email
               TextField(
@@ -94,8 +89,32 @@ class _UserAuthenticationState extends State<UserAuthentication> {
                   border: OutlineInputBorder(),
                 ),
               ),
-              const SizedBox(height: 30),
 
+              const SizedBox(height: 10),
+              Align(
+                alignment: Alignment.centerRight,
+                child: Padding(
+                  padding: const EdgeInsets.only(right: 16, top: 8),
+                  child: TextButton(
+                    onPressed: () {
+                      // Xử lý quên mật khẩu
+                    },
+                    style: TextButton.styleFrom(
+                      padding: EdgeInsets.zero,
+                      minimumSize: Size.zero,
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    ),
+                    child: const Text(
+                      'Quên mật khẩu',
+                      style: TextStyle(
+                        color: Colors.blue,
+                        fontSize: 14,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 50),
               // Nút đăng nhập/đăng ký
               ElevatedButton(
                 onPressed: () async {
@@ -105,7 +124,6 @@ class _UserAuthenticationState extends State<UserAuthentication> {
                   bool isAdmin = await MongoDatabase.checkAdmin(
                       _userNameController.text, _passwordController.text);
                   _handleAuthentication();
-                  if (isLogin) {
                     if (isAuthenticated) {
                       if (isAdmin) {
                         Navigator.pushNamed(context, "/");
@@ -115,21 +133,16 @@ class _UserAuthenticationState extends State<UserAuthentication> {
                     } else {
                       _showError('Sai tài khoản hoặc mật khẩu');
                     }
-                  } else {
-                    // if (isAuthenticated) {
-                    //   _showError('Tài khoản đã tồn tại');
-                    // } else {
-                    //   await MongoDatabase.insert(
-                    //       _userNameController.text, _passwordController.text);
-                    //   Navigator.pop(context);
-                    // }
-                  }
                 },
                 style: ElevatedButton.styleFrom(
-                  minimumSize: const Size(double.infinity, 50),
+                  minimumSize: const Size(152, 42),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8)
+                  ),
+                  foregroundColor: Colors.white,
+                  backgroundColor: Color(0xff03A9F4),
                 ),
-                child: Text(
-                  isLogin ? 'Đăng nhập' : 'Đăng ký',
+                child: Text('Đăng nhập',
                   style: const TextStyle(fontSize: 18),
                 ),
               ),
@@ -139,19 +152,13 @@ class _UserAuthenticationState extends State<UserAuthentication> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(
-                    isLogin
-                        ? 'Bạn chưa có tài khoản? '
-                        : 'Bạn đã có tài khoản? ',
+                  Text('Bạn chưa có tài khoản? ',
                   ),
                   TextButton(
                     onPressed: () {
-                      setState(() {
-                        isLogin = !isLogin;
-                      });
+                      Navigator.pushReplacementNamed(context, 'signUp');
                     },
-                    child: Text(
-                      isLogin ? 'Đăng ký' : 'Đăng nhập',
+                    child: Text('Đăng ký',
                       style: const TextStyle(
                         color: Colors.blue,
                         fontWeight: FontWeight.bold,
