@@ -18,7 +18,7 @@ class HomePage extends StatelessWidget {
         // Thêm SafeArea
         child: Column(
           children: [
-            HomeAppBar(tooltipMessage: "Nhấn để xem giỏ hàng"),
+            const HomeAppBar(tooltipMessage: "Nhấn để xem giỏ hàng"),
             Expanded(
               child: Container(
                 decoration: const BoxDecoration(
@@ -76,7 +76,7 @@ class HomePage extends StatelessWidget {
                         ),
                       ),
                     ),
-                    CategoriesWidget(),
+                    const CategoriesWidget(),
                     const Padding(
                       padding:
                           EdgeInsets.symmetric(vertical: 20, horizontal: 10),
