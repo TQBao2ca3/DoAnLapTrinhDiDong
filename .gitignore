@@ -44,3 +44,4 @@ app.*.map.json
 # Bỏ qua tất cả các file trong thư mục Flutter generated
 **/flutter/generated_*
 /json
+macos/Flutter/GeneratedPluginRegistrant.swift
