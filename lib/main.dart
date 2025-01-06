@@ -24,7 +24,7 @@ class MyApp extends StatelessWidget {
       ),
       initialRoute: '/',
       routes: {
-        '/': (context) => HomePage(cart: cart),
+        '/': (context) => HomeScreen(cart: cart),
         'cartPage': (context) => CartPage(cart: cart),
         'itemPage': (context) => ItemPage(
               product: ModalRoute.of(context)!.settings.arguments as Product,
