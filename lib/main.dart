@@ -5,6 +5,7 @@ import 'package:phoneshop/pages/CartPage.dart';
 import 'package:phoneshop/pages/Homepage.dart';
 import 'package:phoneshop/pages/ItemPage.dart';
 import 'package:phoneshop/pages/UserAuthentication.dart';
+import 'package:phoneshop/pages/signUp.dart';
 
 void main() {
   runApp(MyApp());
@@ -22,7 +23,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         scaffoldBackgroundColor: Colors.white,
       ),
-      initialRoute: '/',
+      initialRoute: 'userAuthentication',
       routes: {
         '/': (context) => HomeScreen(cart: cart),
         'cartPage': (context) => CartPage(cart: cart),
@@ -30,6 +31,7 @@ class MyApp extends StatelessWidget {
               product: ModalRoute.of(context)!.settings.arguments as Product,
             ),
         'userAuthentication': (context) => const UserAuthentication(),
+        'signUp': (context) => SignUp(),
       },
     );
   }

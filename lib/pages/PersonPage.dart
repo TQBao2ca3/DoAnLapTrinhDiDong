@@ -9,6 +9,7 @@ class Screen3 extends StatelessWidget {
     return Scaffold(
         backgroundColor: Colors.blue,
         appBar: AppBar(
+          automaticallyImplyLeading: false,
           title: const Text(''),
           backgroundColor: Colors.blue,
           actions: [

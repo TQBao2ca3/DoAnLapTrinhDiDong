@@ -71,17 +71,17 @@ class HomeAppBar extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(width: 10),
-              TextButton(
-                  onPressed: () {
-                    Navigator.pushNamed(context, 'userAuthentication');
-                  },
-                  style: TextButton.styleFrom(
-                    iconColor: Colors.white,
-                    fixedSize: const Size(40, 40),
-                  ),
-                  child:
-                      const Icon(Icons.person, size: 30, color: Colors.white)),
+              // const SizedBox(width: 10),
+              // TextButton(
+              //     onPressed: () {
+              //       Navigator.pushNamed(context, 'userAuthentication');
+              //     },
+              //     style: TextButton.styleFrom(
+              //       iconColor: Colors.white,
+              //       fixedSize: const Size(40, 40),
+              //     ),
+              //     child:
+              //         const Icon(Icons.person, size: 30, color: Colors.white)),
             ],
           ),
         ],

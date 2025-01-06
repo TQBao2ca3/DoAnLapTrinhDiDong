@@ -51,6 +51,9 @@ class _HomeScreenState extends State<HomeScreen> {
       appBar: _selectedIndex == 2
           ? null
           : AppBar(
+              // Ẩn icon arrow back
+              automaticallyImplyLeading: false,
+
               backgroundColor: Color(0xFFEDECF2),
               title: Padding(
                 // Wrap search bar trong Padding
