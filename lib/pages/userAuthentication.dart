@@ -41,9 +41,9 @@ class _UserAuthenticationState extends State<UserAuthentication> {
       // AppBar với nút quay lại và tiêu đề động
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        title: Text(
+        title: const Text(
           'Đăng nhập',
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 28,
             fontWeight: FontWeight.bold,
           ),
@@ -54,13 +54,13 @@ class _UserAuthenticationState extends State<UserAuthentication> {
       body: SingleChildScrollView(
         child: Container(
           height: MediaQuery.of(context).size.height,
-          color: Color(0xffEDECF2),
+          color: const Color(0xffEDECF2),
           padding: const EdgeInsets.all(20.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               const SizedBox(height: 50),
-              Text(
+              const Text(
                 'Đăng nhập',
                 style: TextStyle(
                   fontSize: 25,
@@ -73,10 +73,11 @@ class _UserAuthenticationState extends State<UserAuthentication> {
               TextField(
                 controller: _userNameController,
                 decoration: const InputDecoration(
-                  labelText: 'Tài khoản',
-                  prefixIcon: Icon(Icons.person),
-                  border: OutlineInputBorder(),
-                ),
+                    labelText: 'Tài khoản',
+                    prefixIcon: Icon(Icons.person),
+                    border: OutlineInputBorder(),
+                    fillColor: Colors.white,
+                    filled: true),
               ),
               const SizedBox(height: 20),
 
@@ -85,10 +86,11 @@ class _UserAuthenticationState extends State<UserAuthentication> {
                 controller: _passwordController,
                 obscureText: true,
                 decoration: const InputDecoration(
-                  labelText: 'Mật khẩu',
-                  prefixIcon: Icon(Icons.lock),
-                  border: OutlineInputBorder(),
-                ),
+                    labelText: 'Mật khẩu',
+                    prefixIcon: Icon(Icons.lock),
+                    border: OutlineInputBorder(),
+                    fillColor: Colors.white,
+                    filled: true),
               ),
 
               const SizedBox(height: 10),
@@ -98,6 +100,7 @@ class _UserAuthenticationState extends State<UserAuthentication> {
                   padding: const EdgeInsets.only(right: 16, top: 8),
                   child: TextButton(
                     onPressed: () {
+                      Navigator.pushReplacementNamed(context, 'changePassword');
                       // Xử lý quên mật khẩu
                     },
                     style: TextButton.styleFrom(
@@ -142,9 +145,9 @@ class _UserAuthenticationState extends State<UserAuthentication> {
                   foregroundColor: Colors.white,
                   backgroundColor: Color(0xff03A9F4),
                 ),
-                child: Text(
+                child: const Text(
                   'Đăng nhập',
-                  style: const TextStyle(fontSize: 18),
+                  style: TextStyle(fontSize: 18),
                 ),
               ),
               const SizedBox(height: 20),
@@ -153,16 +156,16 @@ class _UserAuthenticationState extends State<UserAuthentication> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(
+                  const Text(
                     'Bạn chưa có tài khoản? ',
                   ),
                   TextButton(
                     onPressed: () {
                       Navigator.pushReplacementNamed(context, 'signUp');
                     },
-                    child: Text(
+                    child: const Text(
                       'Đăng ký',
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: Colors.blue,
                         fontWeight: FontWeight.bold,
                       ),
