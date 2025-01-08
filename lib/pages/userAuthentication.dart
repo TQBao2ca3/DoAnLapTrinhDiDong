@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:phoneshop/models/Cart.dart';
+import 'package:phoneshop/pages/ChangePassword.dart';
 import 'dart:convert';
 
 import 'package:phoneshop/pages/Homepage.dart';
@@ -71,7 +72,7 @@ class _UserAuthenticationState extends State<UserAuthentication> {
       body: SingleChildScrollView(
         child: Container(
           height: MediaQuery.of(context).size.height,
-          color: Color(0xffEDECF2),
+          color: const Color(0xffEDECF2),
           padding: const EdgeInsets.all(20.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -90,10 +91,11 @@ class _UserAuthenticationState extends State<UserAuthentication> {
               TextField(
                 controller: _userNameController,
                 decoration: const InputDecoration(
-                  labelText: 'Tài khoản',
-                  prefixIcon: Icon(Icons.person),
-                  border: OutlineInputBorder(),
-                ),
+                    labelText: 'Tài khoản',
+                    prefixIcon: Icon(Icons.person),
+                    border: OutlineInputBorder(),
+                    fillColor: Colors.white,
+                    filled: true),
               ),
               const SizedBox(height: 20),
 
@@ -102,10 +104,11 @@ class _UserAuthenticationState extends State<UserAuthentication> {
                 controller: _passwordController,
                 obscureText: true,
                 decoration: const InputDecoration(
-                  labelText: 'Mật khẩu',
-                  prefixIcon: Icon(Icons.lock),
-                  border: OutlineInputBorder(),
-                ),
+                    labelText: 'Mật khẩu',
+                    prefixIcon: Icon(Icons.lock),
+                    border: OutlineInputBorder(),
+                    fillColor: Colors.white,
+                    filled: true),
               ),
 
               const SizedBox(height: 10),
@@ -115,6 +118,10 @@ class _UserAuthenticationState extends State<UserAuthentication> {
                   padding: const EdgeInsets.only(right: 16, top: 8),
                   child: TextButton(
                     onPressed: () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => ChangePassword()));
                       // Xử lý quên mật khẩu
                     },
                     style: TextButton.styleFrom(
@@ -145,7 +152,7 @@ class _UserAuthenticationState extends State<UserAuthentication> {
                 ),
                 child: const Text(
                   'Đăng nhập',
-                  style: const TextStyle(fontSize: 18),
+                  style: TextStyle(fontSize: 18),
                 ),
               ),
               const SizedBox(height: 20),
@@ -163,7 +170,7 @@ class _UserAuthenticationState extends State<UserAuthentication> {
                     },
                     child: const Text(
                       'Đăng ký',
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: Colors.blue,
                         fontWeight: FontWeight.bold,
                       ),
