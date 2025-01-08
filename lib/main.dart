@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:phoneshop/models/Cart.dart';
 import 'package:phoneshop/models/Product.dart';
 import 'package:phoneshop/pages/CartPage.dart';
+import 'package:phoneshop/pages/ChangePassword.dart';
 import 'package:phoneshop/pages/Homepage.dart';
 import 'package:phoneshop/pages/ItemPage.dart';
 import 'package:phoneshop/pages/UserAuthentication.dart';
+import 'package:phoneshop/pages/UserInformation.dart';
 import 'package:phoneshop/pages/signUp.dart';
 
 void main() {
@@ -31,7 +33,9 @@ class MyApp extends StatelessWidget {
               product: ModalRoute.of(context)!.settings.arguments as Product,
             ),
         'userAuthentication': (context) => const UserAuthentication(),
-        'signUp': (context) =>  SignUp(),
+        'signUp': (context) => const SignUp(),
+        'changePassword': (context) => const Changepassword(),
+        'userInformation': (context) => const UserInformation(),
       },
     );
   }

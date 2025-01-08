@@ -41,8 +41,9 @@ class _UserAuthenticationState extends State<UserAuthentication> {
       // AppBar với nút quay lại và tiêu đề động
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        title: Text('Đăng nhập',
-          style: const TextStyle(
+        title: const Text(
+          'Đăng nhập',
+          style: TextStyle(
             fontSize: 28,
             fontWeight: FontWeight.bold,
           ),
@@ -53,19 +54,19 @@ class _UserAuthenticationState extends State<UserAuthentication> {
       body: SingleChildScrollView(
         child: Container(
           height: MediaQuery.of(context).size.height,
-          color: Color(0xffEDECF2),
+          color: const Color(0xffEDECF2),
           padding: const EdgeInsets.all(20.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               const SizedBox(height: 50),
-              Text(
-                  'Đăng nhập',
-                  style: TextStyle(
-                    fontSize: 25,
-                    fontWeight: FontWeight.bold,
-                  ),
+              const Text(
+                'Đăng nhập',
+                style: TextStyle(
+                  fontSize: 25,
+                  fontWeight: FontWeight.bold,
                 ),
+              ),
               const SizedBox(height: 60),
 
               // TextField Email
@@ -98,6 +99,7 @@ class _UserAuthenticationState extends State<UserAuthentication> {
                   child: TextButton(
                     onPressed: () {
                       // Xử lý quên mật khẩu
+                      Navigator.pushNamed(context, 'changePassword');
                     },
                     style: TextButton.styleFrom(
                       padding: EdgeInsets.zero,
@@ -124,26 +126,26 @@ class _UserAuthenticationState extends State<UserAuthentication> {
                   bool isAdmin = await MongoDatabase.checkAdmin(
                       _userNameController.text, _passwordController.text);
                   _handleAuthentication();
-                    if (isAuthenticated) {
-                      if (isAdmin) {
-                        Navigator.pushNamed(context, "/");
-                      } else {
-                        Navigator.pushNamed(context, "cartPage");
-                      }
+                  if (isAuthenticated) {
+                    if (isAdmin) {
+                      Navigator.pushNamed(context, "/");
                     } else {
-                      _showError('Sai tài khoản hoặc mật khẩu');
+                      Navigator.pushNamed(context, "cartPage");
                     }
+                  } else {
+                    _showError('Sai tài khoản hoặc mật khẩu');
+                  }
                 },
                 style: ElevatedButton.styleFrom(
                   minimumSize: const Size(152, 42),
                   shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8)
-                  ),
+                      borderRadius: BorderRadius.circular(8)),
                   foregroundColor: Colors.white,
-                  backgroundColor: Color(0xff03A9F4),
+                  backgroundColor: const Color(0xff03A9F4),
                 ),
-                child: Text('Đăng nhập',
-                  style: const TextStyle(fontSize: 18),
+                child: const Text(
+                  'Đăng nhập',
+                  style: TextStyle(fontSize: 18),
                 ),
               ),
               const SizedBox(height: 20),
@@ -152,14 +154,16 @@ class _UserAuthenticationState extends State<UserAuthentication> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text('Bạn chưa có tài khoản? ',
+                  const Text(
+                    'Bạn chưa có tài khoản? ',
                   ),
                   TextButton(
                     onPressed: () {
                       Navigator.pushReplacementNamed(context, 'signUp');
                     },
-                    child: Text('Đăng ký',
-                      style: const TextStyle(
+                    child: const Text(
+                      'Đăng ký',
+                      style: TextStyle(
                         color: Colors.blue,
                         fontWeight: FontWeight.bold,
                       ),
