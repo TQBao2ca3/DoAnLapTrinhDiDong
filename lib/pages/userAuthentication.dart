@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:phoneshop/database/mongodbConnect.dart';
+import 'package:http/http.dart' as http;
+import 'package:phoneshop/models/Cart.dart';
+import 'dart:convert';
+
+import 'package:phoneshop/pages/Homepage.dart';
 
 class UserAuthentication extends StatefulWidget {
   const UserAuthentication({super.key});
@@ -9,29 +13,42 @@ class UserAuthentication extends StatefulWidget {
 }
 
 class _UserAuthenticationState extends State<UserAuthentication> {
-  @override
-  void initState() {
-    super.initState();
-    _connectToMongoDB();
-  }
-
-  _connectToMongoDB() async {
-    await MongoDatabase.connect();
-  }
-
-  _showError(String message) {
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(message)));
-  }
-
-  // Controller để lấy dữ liệu từ TextField
+// Controller để lấy dữ liệu từ TextField
   final TextEditingController _userNameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  // ignore: unused_element
-  _handleAuthentication() async {
-    if (_userNameController.text.isEmpty || _passwordController.text.isEmpty) {
-      _showError('Vui lòng điền đầy đủ thông tin');
-      return;
+  Cart cart = Cart();
+  String _errorMessage = '';
+
+  //login
+  Future<void> login() async {
+    final url = Uri.parse('http://127.0.0.1:3000/api/login');
+    try {
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'username': _userNameController.text,
+          'password': _passwordController.text,
+        }),
+      );
+      final responseData = jsonDecode(response.body);
+      if (response.statusCode == 200) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+              builder: (_) => HomeScreen(
+                    cart: cart,
+                  )),
+        );
+      } else {
+        setState(() {
+          _errorMessage = responseData['message'] ?? 'Login failed';
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _errorMessage = 'An error occurred. Please try again.';
+      });
     }
   }
 
@@ -41,9 +58,9 @@ class _UserAuthenticationState extends State<UserAuthentication> {
       // AppBar với nút quay lại và tiêu đề động
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        title: Text(
+        title: const Text(
           'Đăng nhập',
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 28,
             fontWeight: FontWeight.bold,
           ),
@@ -60,7 +77,7 @@ class _UserAuthenticationState extends State<UserAuthentication> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               const SizedBox(height: 50),
-              Text(
+              const Text(
                 'Đăng nhập',
                 style: TextStyle(
                   fontSize: 25,
@@ -118,23 +135,7 @@ class _UserAuthenticationState extends State<UserAuthentication> {
               const SizedBox(height: 50),
               // Nút đăng nhập/đăng ký
               ElevatedButton(
-                onPressed: () async {
-                  // Xử lý logic đăng nhập/đăng ký ở đây
-                  bool isAuthenticated = await MongoDatabase.authenticate(
-                      _userNameController.text, _passwordController.text);
-                  bool isAdmin = await MongoDatabase.checkAdmin(
-                      _userNameController.text, _passwordController.text);
-                  _handleAuthentication();
-                  if (isAuthenticated) {
-                    if (isAdmin) {
-                      Navigator.pushNamed(context, "/");
-                    } else {
-                      Navigator.pushNamed(context, "cartPage");
-                    }
-                  } else {
-                    _showError('Sai tài khoản hoặc mật khẩu');
-                  }
-                },
+                onPressed: login,
                 style: ElevatedButton.styleFrom(
                   minimumSize: const Size(152, 42),
                   shape: RoundedRectangleBorder(
@@ -142,7 +143,7 @@ class _UserAuthenticationState extends State<UserAuthentication> {
                   foregroundColor: Colors.white,
                   backgroundColor: Color(0xff03A9F4),
                 ),
-                child: Text(
+                child: const Text(
                   'Đăng nhập',
                   style: const TextStyle(fontSize: 18),
                 ),
@@ -153,14 +154,14 @@ class _UserAuthenticationState extends State<UserAuthentication> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(
+                  const Text(
                     'Bạn chưa có tài khoản? ',
                   ),
                   TextButton(
                     onPressed: () {
                       Navigator.pushReplacementNamed(context, 'signUp');
                     },
-                    child: Text(
+                    child: const Text(
                       'Đăng ký',
                       style: const TextStyle(
                         color: Colors.blue,
