@@ -1,10 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:phoneshop/models/Cart.dart';
 import 'package:phoneshop/models/Product.dart';
-import 'package:phoneshop/widgets/ItemAppBar.dart';
-import 'package:clippy_flutter/clippy_flutter.dart';
-import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'package:phoneshop/pages/CartPage.dart';
+import 'package:phoneshop/pages/PaymentPage.dart';
 
 class ItemPage extends StatefulWidget {
   final Product product;
@@ -16,256 +16,487 @@ class ItemPage extends StatefulWidget {
 }
 
 class _ItemPageState extends State<ItemPage> {
-  int _quantity = 1;
-  String _selectedSize = '39';
-
-  void _incrementQuantity() {
-    setState(() {
-      _quantity++;
-    });
-  }
-
-  void _decrementQuantity() {
-    if (_quantity > 1) {
-      setState(() {
-        _quantity--;
-      });
-    }
-  }
+  int _selectedImageIndex = 0;
+  String _selectedStorage = '128GB';
+  String _selectedColor = 'Đen';
+  PageController _pageController = PageController();
+  bool _isFavorite = false;
 
   @override
   Widget build(BuildContext context) {
-    double price = widget.product.price.toDouble();
-
     return Scaffold(
-      backgroundColor: const Color(0xFFEDECF2),
-      body: ListView(
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: const Text(
+          "Chi tiết sản phẩm",
+          style: TextStyle(color: Colors.black),
+        ),
+      ),
+      body: Stack(
         children: [
-          const ItemAppBar(),
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Image.asset(widget.product.image, height: 300),
-          ),
-          Arc(
-            edge: Edge.TOP,
-            arcType: ArcType.CONVEX,
-            height: 30,
-            child: Container(
-              width: double.infinity,
-              color: const Color.fromARGB(255, 223, 220, 220),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Column(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(top: 50, bottom: 20),
-                      child: Row(
-                        children: [
-                          Text(
-                            widget.product.title,
-                            style: const TextStyle(
-                              fontSize: 28,
-                              color: Color(0xFF4C53A5),
-                              fontWeight: FontWeight.bold,
-                            ),
+          ListView(
+            children: [
+              // Product Images Carousel
+              SizedBox(
+                height: 300,
+                child: PageView.builder(
+                  controller: _pageController,
+                  itemCount: 4,
+                  onPageChanged: (index) {
+                    setState(() {
+                      _selectedImageIndex = index;
+                    });
+                  },
+                  itemBuilder: (context, index) {
+                    return Image.asset(widget.product.image);
+                  },
+                ),
+              ),
+
+              // Thumbnail Images
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: List.generate(
+                    4,
+                        (index) => GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          _selectedImageIndex = index;
+                          _pageController.animateToPage(
+                            index,
+                            duration: const Duration(milliseconds: 300),
+                            curve: Curves.easeInOut,
+                          );
+                        });
+                      },
+                      child: Container(
+                        margin: const EdgeInsets.only(right: 8),
+                        width: 60,
+                        height: 60,
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                            color: _selectedImageIndex == index
+                                ? Colors.blue
+                                : Colors.grey.shade300,
+                            width: _selectedImageIndex == index ? 2 : 1,
                           ),
-                        ],
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(top: 5, bottom: 10),
-                      child: Text(
-                        widget.product.description,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          color: Colors.grey,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Image.asset(
+                          widget.product.image,
+                          fit: BoxFit.cover,
                         ),
                       ),
                     ),
-                    Padding(
-                      padding: const EdgeInsets.only(top: 5, bottom: 10),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          RatingBar.builder(
-                            initialRating: 5,
-                            minRating: 1,
-                            direction: Axis.horizontal,
-                            itemCount: 5,
-                            itemSize: 20,
-                            itemPadding:
-                                const EdgeInsets.symmetric(horizontal: 4),
-                            itemBuilder: (context, _) => const Icon(
-                              Icons.star,
-                              color: Color.fromARGB(255, 245, 241, 2),
-                            ),
-                            onRatingUpdate: (index) {},
-                          ),
-                          Row(
-                            children: [
-                              GestureDetector(
-                                onTap: _decrementQuantity,
-                                child: Container(
-                                  padding: const EdgeInsets.all(5),
-                                  decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    borderRadius: BorderRadius.circular(20),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: const Color.fromARGB(
-                                                255, 193, 14, 14)
-                                            .withOpacity(0.5),
-                                        spreadRadius: 3,
-                                        blurRadius: 10,
-                                        offset: const Offset(0, 3),
-                                      ),
-                                    ],
-                                  ),
-                                  child: const Icon(
-                                    CupertinoIcons.minus,
-                                    size: 18,
-                                  ),
-                                ),
-                              ),
-                              Container(
-                                margin:
-                                    const EdgeInsets.symmetric(horizontal: 10),
-                                child: Text(
-                                  _quantity.toString(),
-                                  style: const TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ),
-                              GestureDetector(
-                                onTap: _incrementQuantity,
-                                child: Container(
-                                  padding: const EdgeInsets.all(5),
-                                  decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    borderRadius: BorderRadius.circular(20),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: const Color.fromARGB(
-                                                255, 193, 14, 14)
-                                            .withOpacity(0.5),
-                                        spreadRadius: 3,
-                                        blurRadius: 10,
-                                        offset: const Offset(0, 3),
-                                      ),
-                                    ],
-                                  ),
-                                  child: const Icon(
-                                    CupertinoIcons.plus,
-                                    size: 18,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 10),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          const Text(
-                            "Size:",
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          DropdownButton<String>(
-                            value: _selectedSize,
-                            items: ['39', '40', '41', '42'].map((String value) {
-                              return DropdownMenuItem<String>(
-                                value: value,
-                                child: Text(value),
-                              );
-                            }).toList(),
-                            onChanged: (newValue) {
-                              setState(() {
-                                _selectedSize = newValue!;
-                              });
-                            },
-                          ),
-                        ],
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 20),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            "${(price * _quantity).toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d)(?=(\d{3})+(?!\d))'), (match) => '${match[1]}.')} đ",
-                            style: const TextStyle(
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.red,
-                            ),
-                          ),
-                          ElevatedButton.icon(
-                            onPressed: () {
-                              Product productToAdd = Product(
-                                title: widget.product.title,
-                                description: widget.product.description,
-                                image: widget.product.image,
-                                price: widget.product.price,
-                                discount: widget.product.discount,
-                                quantity: _quantity,
-                                size: _selectedSize,
-                              );
-                              Cart cart = Cart();
-                              cart.add(productToAdd);
+                  ),
+                ),
+              ),
 
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(
-                                      '${productToAdd.title} (Size $_selectedSize) đã được thêm vào giỏ hàng với số lượng $_quantity!'),
-                                  duration: const Duration(seconds: 2),
-                                ),
-                              );
-                            },
-                            icon: const Icon(CupertinoIcons.cart_badge_plus),
-                            label: const Text(
-                              "Thêm vào giỏ hàng",
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: Colors.black,
+              // Price, Favorite and Sold Count
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        Text(
+                          "đ${widget.product.price.toString().replaceAllMapped(RegExp(r'(\d)(?=(\d{3})+(?!\d))'), (match) => '${match[1]}.')}",
+                          style: const TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.red,
+                          ),
+                        ),
+                        if (widget.product.discount > 0)
+                          Container(
+                            margin: const EdgeInsets.only(left: 8),
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: Colors.red,
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: Text(
+                              "-${widget.product.discount}%",
+                              style: const TextStyle(
+                                color: Colors.white,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
-                            style: ButtonStyle(
-                              backgroundColor: WidgetStateProperty.all(
-                                const Color.fromARGB(255, 14, 166, 243),
-                              ),
-                              padding: WidgetStateProperty.all(
-                                const EdgeInsets.symmetric(
-                                    vertical: 13, horizontal: 15),
-                              ),
-                              shape: WidgetStateProperty.all<
-                                  RoundedRectangleBorder>(
-                                RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(30),
-                                ),
-                              ),
-                            ),
                           ),
-                        ],
-                      ),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        const Text(
+                          "Đã bán 2k",
+                          style: TextStyle(
+                            color: Colors.grey,
+                            fontSize: 14,
+                          ),
+                        ),
+                        const SizedBox(width: 4),
+                        GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              _isFavorite = !_isFavorite;
+                            });
+                          },
+                          child: Icon(
+                            _isFavorite ? Icons.favorite : Icons.favorite_border,
+                            color: Colors.red,
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
               ),
+              // Storage Options
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      "Màu sắc",
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        for (String colors in widget.product.colors)
+                          Padding(
+                            padding: const EdgeInsets.only(right: 10),
+                            child: ChoiceChip(
+                              label: Text(colors),
+                              selected: _selectedColor == colors,
+                              onSelected: (selected) {
+                                setState(() {
+                                  _selectedColor = colors;
+                                });
+                              },
+                            ),
+                          ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              // Storage Options
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      "Dung lượng",
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        for (String storage in widget.product.storage)
+                          Padding(
+                            padding: const EdgeInsets.only(right: 10),
+                            child: ChoiceChip(
+                              label: Text(storage),
+                              selected: _selectedStorage == storage,
+                              onSelected: (selected) {
+                                setState(() {
+                                  _selectedStorage = storage;
+                                });
+                              },
+                            ),
+                          ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              // Description and Manufacturing Date
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      "Thông tin sản phẩm",
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.grey[100],
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.calendar_today, size: 20, color: Colors.blue),
+                          const SizedBox(width: 8),
+                          Text(
+                            "Ngày sản xuất: ${widget.product.createAt.day}/${widget.product.createAt.month}/${widget.product.createAt.year}",
+                            style: const TextStyle(
+                              color: Colors.black87,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    const Text(
+                      "Mô tả sản phẩm",
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      widget.product.description,
+                      style: const TextStyle(color: Colors.grey, height: 1.5),
+                    ),
+                  ],
+                ),
+              ),
+              // Title and Rating
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      widget.product.title,
+                      style: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        const Icon(Icons.star, color: Colors.amber, size: 20),
+                        Text(
+                          " ${widget.product.rating}",
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        Text(" (${widget.product.reviewCount} đánh giá)"),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+
+              // Description
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16),
+                child: Text(
+                  "Mô tả sản phẩm",
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Text(
+                  widget.product.description,
+                  style: const TextStyle(color: Colors.grey, height: 1.5),
+                ),
+              ),
+
+              // Bottom padding for buttons
+              const SizedBox(height: 80),
+            ],
+          ),
+
+          // Fixed bottom buttons
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 0,
+            child: Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.3),
+                    spreadRadius: 1,
+                    blurRadius: 5,
+                    offset: const Offset(0, -3),
+                  ),
+                ],
+              ),
+              child: Row(
+                children: [
+                  // Chat Button
+                  Expanded(
+                    flex: 2,
+                    child: ElevatedButton.icon(
+                      onPressed: () {
+                        // Show dialog khi nhấn vào nút "Chat ngay"
+                        showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return AlertDialog(
+                              title: const Text("Chat ngay"),
+                              content: const Text(
+                                  "Chức năng này cho phép bạn liên hệ trực tiếp với người bán."),
+                              actions: [
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.of(context).pop(); // Đóng dialog
+                                  },
+                                  child: const Text("Đóng"),
+                                ),
+                                TextButton(
+                                  onPressed: () {
+                                    // Thêm logic chuyển hướng đến màn hình chat nếu cần
+                                    Navigator.of(context).pop();
+                                  },
+                                  child: const Text("Liên hệ ngay"),
+                                ),
+                              ],
+                            );
+                          },
+                        );
+                      },
+                      icon: const Icon(Icons.chat_bubble_outline, color: Colors.blue),
+                      label: const Text(
+                        "Chat ngay",
+                        style: TextStyle(color: Colors.blue),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.white,
+                        side: const BorderSide(color: Colors.blue),
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  // Add to Cart Button
+                  // Add to Cart Button
+                  Expanded(
+                    flex: 3,
+                    child: ElevatedButton.icon(
+                      onPressed: () {
+                        // Tạo một sản phẩm mới với storage đã chọn
+                        Product productToAdd = Product(
+                          id: widget.product.id,
+                          title: widget.product.title,
+                          description: widget.product.description,
+                          image: widget.product.image,
+                          price: widget.product.price,
+                          originalPrice: widget.product.originalPrice,
+                          discount: widget.product.discount,
+                          storage: widget.product.storage,
+                          colors: [_selectedColor], // Chuyển String thành List<String> bằng cách đặt trong []
+                          createAt: widget.product.createAt,
+                          quantity: 1,
+                        );
+
+                        // Thêm sản phẩm vào giỏ hàng
+                        final cart = Cart();
+                        cart.add(productToAdd);
+
+                        // Hiển thị dialog xác nhận
+                        showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return AlertDialog(
+                              title: const Text("Thông báo"),
+                              content: Text(
+                                  'Sản phẩm "${widget.product.title}" với màu $_selectedColor và dung lượng $_selectedStorage đã được thêm vào giỏ hàng.'),
+                              actions: [
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.of(context).pop(); // Đóng dialog
+                                  },
+                                  child: const Text("Đóng"),
+                                ),
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.of(context).pop(); // Đóng dialog
+                                    // Chuyển đến trang giỏ hàng
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => CartPage(cart: cart),
+                                      ),
+                                    );
+                                  },
+                                  child: const Text("Đến giỏ hàng"),
+                                ),
+                              ],
+                            );
+                          },
+                        );
+                      },
+                      icon: const Icon(Icons.shopping_cart, color: Colors.blue), // Icon trước chữ
+                      label: const Text("Thêm vào giỏ"),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.blue[100],
+                        foregroundColor: Colors.blue,
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  // Buy with Voucher Button
+                  Expanded(
+                    flex: 3,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        // Chuyển sang trang thanh toán
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => PaymentPage(cartItems: [], totalAmount: 0,)),
+                        );
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.blue,
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                      ),
+                      child: const Text(
+                        "Mua hàng",
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+
             ),
           ),
         ],
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
   }
 }

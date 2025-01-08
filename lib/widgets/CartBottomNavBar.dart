@@ -3,8 +3,13 @@ import 'package:intl/intl.dart';
 
 class CartBottomNavBar extends StatelessWidget {
   final double totalAmount;
+  final VoidCallback onTapReceiver;
 
-  const CartBottomNavBar({super.key, required this.totalAmount});
+  const CartBottomNavBar({
+    Key? key,
+    required this.totalAmount,
+    required this.onTapReceiver,
+  }) : super(key: key);
 
   String _formatCurrency(double amount) {
     final formatCurrency = NumberFormat('#,##0 đ', 'vi_VN');
@@ -13,92 +18,94 @@ class CartBottomNavBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.lightBlue[100],
-          boxShadow: const [
-            BoxShadow(
-              color: Colors.black12,
-              blurRadius: 4,
-              spreadRadius: 2,
-            ),
-          ],
-        ),
-        padding: EdgeInsets.only(
-          left: 20,
-          right: 20,
-          top: 10,
-          bottom: MediaQuery.of(context).padding.bottom +
-              10, // Thêm padding cho notch
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Expanded(
-              child: Text(
-                "Tổng tiền: ${_formatCurrency(totalAmount)}",
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          GestureDetector(
+            onTap: onTapReceiver,
+            child: Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(10),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.2),
+                    blurRadius: 5,
+                  ),
+                ],
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        "Người nhận:",
+                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                      ),
+                      Icon(Icons.chevron_right, color: Colors.grey[600]),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  const Text("Quốc Bảo - 0766926067"),
+                  const Text(
+                    "23 Nguyễn Hữu Thọ, Phường Tân Hưng, Quận 7, Hồ Chí Minh",
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
               ),
             ),
-            const SizedBox(width: 10),
-            ElevatedButton(
-              onPressed: () => _showPaymentDialog(context),
+          ),
+          const SizedBox(height: 20),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                "Tổng thanh toán:",
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              Text(
+                _formatCurrency(totalAmount),
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.red,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+          SizedBox(
+            width: double.infinity,
+            height: 50,
+            child: ElevatedButton(
+              onPressed: () {},
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blue,
-                foregroundColor: Colors.white,
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                backgroundColor: Colors.red,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(20),
                 ),
               ),
               child: const Text(
-                "Thanh toán",
-                style: TextStyle(fontSize: 14),
+                "Đặt hàng",
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
-    );
-  }
-
-  void _showPaymentDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text("Thanh toán"),
-          content: const Text("Bạn có chắc chắn muốn thanh toán không?"),
-          actions: [
-            TextButton(
-              child: const Text("Hủy"),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-            TextButton(
-              child: const Text("Thanh toán"),
-              onPressed: () {
-                Navigator.of(context).pop();
-                // Xử lý thanh toán ở đây
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text("Thanh toán thành công!"),
-                    duration: Duration(seconds: 2),
-                  ),
-                );
-              },
-            ),
-          ],
-        );
-      },
     );
   }
 }

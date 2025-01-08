@@ -36,7 +36,7 @@ class CartAppBar extends StatelessWidget {
                 const SizedBox(width: 5),
                 Container(
                   padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                   decoration: BoxDecoration(
                     color: const Color.fromARGB(255, 20, 173, 161),
                     borderRadius: BorderRadius.circular(12),
@@ -53,10 +53,15 @@ class CartAppBar extends StatelessWidget {
             ),
           ),
           const Spacer(),
-          const Icon(
-            Icons.more_vert,
-            size: 30,
-            color: Color(0xFF4C53A5),
+          TextButton.icon(
+            onPressed: () {
+              // Xử lý sự kiện khi nhấn vào nút "Chat ngay"
+            },
+            icon: const Icon(Icons.chat_bubble_outline, color: Colors.blue),
+            label: const Text(
+              "Chat ngay",
+              style: TextStyle(color: Colors.blue),
+            ),
           ),
         ],
       ),
