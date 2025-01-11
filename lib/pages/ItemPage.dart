@@ -30,12 +30,18 @@ class _ItemPageState extends State<ItemPage> {
         backgroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          icon: const Icon(Icons.arrow_back,
+            size: 30,
+            color: Color(0xFF4C53A5),),
           onPressed: () => Navigator.pop(context),
         ),
         title: const Text(
           "Chi tiết sản phẩm",
-          style: TextStyle(color: Colors.black),
+          style: TextStyle(
+            fontSize: 23,
+            fontWeight: FontWeight.bold,
+            color: Colors.lightBlue,
+          ),
         ),
       ),
       body: Stack(
@@ -350,53 +356,6 @@ class _ItemPageState extends State<ItemPage> {
               ),
               child: Row(
                 children: [
-                  // Chat Button
-                  Expanded(
-                    flex: 2,
-                    child: ElevatedButton.icon(
-                      onPressed: () {
-                        // Show dialog khi nhấn vào nút "Chat ngay"
-                        showDialog(
-                          context: context,
-                          builder: (BuildContext context) {
-                            return AlertDialog(
-                              title: const Text("Chat ngay"),
-                              content: const Text(
-                                  "Chức năng này cho phép bạn liên hệ trực tiếp với người bán."),
-                              actions: [
-                                TextButton(
-                                  onPressed: () {
-                                    Navigator.of(context).pop(); // Đóng dialog
-                                  },
-                                  child: const Text("Đóng"),
-                                ),
-                                TextButton(
-                                  onPressed: () {
-                                    // Thêm logic chuyển hướng đến màn hình chat nếu cần
-                                    Navigator.of(context).pop();
-                                  },
-                                  child: const Text("Liên hệ ngay"),
-                                ),
-                              ],
-                            );
-                          },
-                        );
-                      },
-                      icon: const Icon(Icons.chat_bubble_outline, color: Colors.blue),
-                      label: const Text(
-                        "Chat ngay",
-                        style: TextStyle(color: Colors.blue),
-                      ),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.white,
-                        side: const BorderSide(color: Colors.blue),
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  // Add to Cart Button
-                  // Add to Cart Button
                   Expanded(
                     flex: 3,
                     child: ElevatedButton.icon(
@@ -453,11 +412,11 @@ class _ItemPageState extends State<ItemPage> {
                           },
                         );
                       },
-                      icon: const Icon(Icons.shopping_cart, color: Colors.blue), // Icon trước chữ
-                      label: const Text("Thêm vào giỏ"),
+                      icon: const Icon(Icons.shopping_cart, color: Colors.white), // Icon trước chữ
+                      label: const Text("Thêm vào giỏ hàng"),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.blue[100],
-                        foregroundColor: Colors.blue,
+                        backgroundColor: Colors.blue,
+                        foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(vertical: 12),
                       ),
                     ),

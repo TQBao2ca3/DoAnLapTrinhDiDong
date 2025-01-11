@@ -52,17 +52,6 @@ class CartAppBar extends StatelessWidget {
               ],
             ),
           ),
-          const Spacer(),
-          TextButton.icon(
-            onPressed: () {
-              // Xử lý sự kiện khi nhấn vào nút "Chat ngay"
-            },
-            icon: const Icon(Icons.chat_bubble_outline, color: Colors.blue),
-            label: const Text(
-              "Chat ngay",
-              style: TextStyle(color: Colors.blue),
-            ),
-          ),
         ],
       ),
     );

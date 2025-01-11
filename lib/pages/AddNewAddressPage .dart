@@ -139,7 +139,7 @@ class _AddNewAddressPageState extends State<AddNewAddressPage> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text('Đặt làm địa chỉ mặc định'),
+                  const Text('Đặt làm địa chỉ mặc định',style: TextStyle(fontSize: 14,color: Colors.black),),
                   Switch(
                     value: _isDefault,
                     onChanged: (value) {
@@ -147,7 +147,7 @@ class _AddNewAddressPageState extends State<AddNewAddressPage> {
                         _isDefault = value;
                       });
                     },
-                    activeColor: Colors.red,
+                    activeColor: Colors.blue,
                   ),
                 ],
               ),
@@ -172,12 +172,12 @@ class _AddNewAddressPageState extends State<AddNewAddressPage> {
               }
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
+              backgroundColor: Colors.blue,
               minimumSize: const Size(double.infinity, 48),
             ),
             child: const Text(
               'HOÀN THÀNH',
-              style: TextStyle(fontSize: 16),
+              style: TextStyle(fontSize: 16,color: Colors.white),
             ),
           ),
         ),

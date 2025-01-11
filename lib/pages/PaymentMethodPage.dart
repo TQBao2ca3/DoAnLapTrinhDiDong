@@ -34,15 +34,20 @@ class _PaymentMethodPageState extends State<PaymentMethodPage> {
     PaymentMethod(
       name: "Thẻ Tín dụng/Ghi nợ",
       icon: Icons.credit_card,
+      subtitle: "Hỗ trợ Visa, Mastercard, JCB",
+      description: "Thanh toán bằng thẻ tín dụng hoặc ghi nợ quốc tế.",
     ),
     PaymentMethod(
       name: "Google Pay",
       icon: Icons.g_mobiledata,
+      subtitle: "Thanh toán tiện lợi qua Google Pay",
+      description: "Dễ dàng liên kết với tài khoản ngân hàng của bạn.",
     ),
     PaymentMethod(
       name: "Thanh toán khi nhận hàng",
       icon: Icons.local_shipping,
       isEnabled: true,
+      description: "Chỉ áp dụng cho đơn hàng dưới 5 triệu đồng.",
     ),
   ];
 
@@ -62,7 +67,22 @@ class _PaymentMethodPageState extends State<PaymentMethodPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Phương thức thanh toán'),
+        title: const Text(
+          "Phương thức thanh toán",
+          style: TextStyle(
+            fontSize: 23,
+            fontWeight: FontWeight.bold,
+            color: Colors.lightBlue,
+          ),
+        ),
+        leading: IconButton(
+          icon: const Icon(
+            Icons.arrow_back,
+            size: 30,
+            color: Color(0xFF4C53A5),
+          ),
+          onPressed: () => Navigator.pop(context),
+        ),
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -72,12 +92,12 @@ class _PaymentMethodPageState extends State<PaymentMethodPage> {
             padding: const EdgeInsets.all(16),
             child: Row(
               children: [
-                Icon(Icons.security, color: Colors.grey[600]),
+                Icon(Icons.security, color: Colors.blue),
                 const SizedBox(width: 8),
                 Text(
                   'PHONE SHOP ĐẢM BẢO',
                   style: TextStyle(
-                    color: Colors.grey[600],
+                    color: Colors.grey[700],
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -97,7 +117,7 @@ class _PaymentMethodPageState extends State<PaymentMethodPage> {
                   contentPadding: const EdgeInsets.all(16),
                   leading: Icon(
                     method.icon,
-                    color: method.isEnabled ? null : Colors.grey,
+                    color: method.isEnabled ? Colors.lightBlue : Colors.grey,
                     size: 24,
                   ),
                   title: Text(

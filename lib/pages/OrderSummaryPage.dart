@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
+import 'package:phoneshop/pages/OrderDetailsPage.dart';
 import 'package:phoneshop/pages/PaymentMethodPage.dart';
 import 'package:phoneshop/models/CartItem.dart';
-
+import 'package:intl/intl.dart';
 class OrderSummaryPage extends StatefulWidget {
-  final int totalAmount;  // Change from double to int
-  final List<CartItem>? cartItems;
+  final int totalAmount;
+  final List<CartItem> cartItems;
   final String? paymentMethod;
 
   const OrderSummaryPage({
     Key? key,
     required this.totalAmount,
-    this.cartItems,
-    this.paymentMethod = "Thanh toán khi nhận hàng",
+    required this.cartItems,
+    this.paymentMethod = "Thẻ nội địa Napas",
   }) : super(key: key);
 
   @override
@@ -23,12 +23,10 @@ class _OrderSummaryPageState extends State<OrderSummaryPage> {
   List<String> tabs = ["Chờ xác nhận", "Chờ lấy hàng", "Chờ giao hàng", "Trả hàng"];
   int selectedTabIndex = 0;
   String? currentPaymentMethod;
-
   String formatCurrency(int amount) {
     final formatCurrency = NumberFormat('#,##0 đ', 'vi_VN');
     return formatCurrency.format(amount);
   }
-
   @override
   void initState() {
     super.initState();
@@ -49,79 +47,287 @@ class _OrderSummaryPageState extends State<OrderSummaryPage> {
   }
 
   Widget _buildProductItem(CartItem item) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
+    return InkWell( // Changed from GestureDetector to InkWell for better touch feedback
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => OrderDetailsPage(
+              item: item,
+              orderId: '250104K63J7E16',
+              orderTime: DateTime(2025, 1, 4, 10, 9),
+            ),
+          ),
+        );
+      },
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        color: Colors.white,
+        child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Image.asset(
-              item.image,
-              width: 80,
-              height: 80,
-              fit: BoxFit.cover,
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    item.name,
-                    style: const TextStyle(fontSize: 14),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
+            // Store header
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: Colors.red,
+                    borderRadius: BorderRadius.circular(2),
                   ),
-                  const SizedBox(height: 4),
-                  Text(
-                    "Màu: ${item.color}",
+                  child: const Text(
+                    "Mall",
                     style: TextStyle(
-                      color: Colors.grey[600],
-                      fontSize: 14,
+                      color: Colors.white,
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
-                  const SizedBox(height: 4),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  item.storeName ?? "SamCenter Official Store",
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                const Spacer(),
+                Text(
+                  "Chờ thanh toán",
+                  style: TextStyle(
+                    color: Colors.red.shade700,
+                    fontSize: 14,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+
+            // Product details
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Product image
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(4),
+                  child: Image.asset(
+                    item.image,
+                    width: 80,
+                    height: 80,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) {
+                      return Container(
+                        width: 80,
+                        height: 80,
+                        color: Colors.grey[300],
+                        child: const Icon(Icons.image_not_supported),
+                      );
+                    },
+                  ),
+                ),
+                const SizedBox(width: 12),
+
+                // Product info
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                      Text(
+                        item.name,
+                        style: const TextStyle(fontSize: 14),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        item.color,
+                        style: TextStyle(
+                          color: Colors.grey[600],
+                          fontSize: 14,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
                         children: [
-                          Text(
-                            formatCurrency(item.price),
-                            style: const TextStyle(
-                              color: Colors.red,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
+                          Text("x${item.quantity}"),
+                        ],
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
                           if (item.price != item.originalPrice)
                             Text(
-                              formatCurrency(item.originalPrice),
+                              "${formatCurrency(item.originalPrice)}",
                               style: const TextStyle(
                                 decoration: TextDecoration.lineThrough,
                                 color: Colors.grey,
                                 fontSize: 12,
                               ),
                             ),
+                          Text(
+                            "${formatCurrency(item.price)}",
+                            style: const TextStyle(
+                              color: Colors.black,
+                            ),
+                          ),
                         ],
                       ),
-                      Text("x${item.quantity}"),
                     ],
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ],
         ),
-      ],
+      ),
     );
+  }
+
+  Widget _buildOrderContent() {
+    if (selectedTabIndex == 0 && widget.cartItems.isNotEmpty) {
+      return Column(
+        children: [
+          const SizedBox(height: 8),
+          ...widget.cartItems.map((item) => _buildProductItem(item)).toList(),
+          const SizedBox(height: 8),
+
+          // Total amount
+          Container(
+            color: Colors.white,
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  "Tổng số tiền (${widget.cartItems.length} sản phẩm):",
+                  style: const TextStyle(fontSize: 14),
+                ),
+                Text(
+                  "${formatCurrency(widget.totalAmount)}",
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          const SizedBox(height: 8),
+
+          // Payment section
+          Container(
+            color: Colors.white,
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            child: Column(
+              children: [
+                InkWell(
+                  onTap: _openPaymentMethodPage,
+                  child: Row(
+                    children: [
+                      const Text("Thanh toán"),
+                      Text(" bằng $currentPaymentMethod"),
+                      const Spacer(),
+                      const Icon(Icons.chevron_right),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 12),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: _openPaymentMethodPage,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blue,
+                      side: BorderSide(color: Colors.grey.shade300),
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                    child: const Text(
+                      "Đổi phương thức thanh toán",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 14,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      );
+    } else {
+      // Empty state for different tabs
+      IconData icon;
+      String message;
+
+      switch (selectedTabIndex) {
+        case 0:
+          icon = Icons.hourglass_empty;
+          message = "Không có đơn hàng nào đang chờ xác nhận";
+          break;
+        case 1:
+          icon = Icons.local_shipping_outlined;
+          message = "Không có đơn hàng nào đang chờ lấy hàng";
+          break;
+        case 2:
+          icon = Icons.delivery_dining_outlined;
+          message = "Không có đơn hàng nào đang giao";
+          break;
+        case 3:
+          icon = Icons.assignment_return_outlined;
+          message = "Không có đơn hàng nào đã trả";
+          break;
+        default:
+          icon = Icons.hourglass_empty;
+          message = "Không có đơn hàng nào";
+      }
+
+      return Container(
+        width: double.infinity,
+        color: Colors.white,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const SizedBox(height: 100),
+            Icon(icon, size: 64, color: Colors.grey),
+            const SizedBox(height: 16),
+            Text(
+              message,
+              style: const TextStyle(color: Colors.grey),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Đơn đã mua'),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back,
+              size: 30,
+              color: Color(0xFF4C53A5)),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
+        title: const Text(
+          'Đơn đã mua',
+          style: TextStyle(
+            fontSize: 23,
+            fontWeight: FontWeight.bold,
+            color: Colors.lightBlue,
+          ),
+        ),
       ),
       body: Column(
         children: [
@@ -164,95 +370,10 @@ class _OrderSummaryPageState extends State<OrderSummaryPage> {
             ),
           ),
 
-          // Order content
+          // Content area
           Expanded(
             child: SingleChildScrollView(
-              child: Column(
-                children: [
-                  // Store info
-                  Container(
-                    color: Colors.white,
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.all(4),
-                              decoration: BoxDecoration(
-                                color: Colors.red.shade50,
-                                borderRadius: BorderRadius.circular(4),
-                              ),
-                              child: const Icon(Icons.storefront, color: Colors.red),
-                            ),
-                            const SizedBox(width: 8),
-                            const Text(
-                              "Phone Shop",
-                              style: TextStyle(fontWeight: FontWeight.bold),
-                            ),
-                            const Spacer(),
-                            Text(
-                              "Chờ thanh toán",
-                              style: TextStyle(color: Colors.red.shade700),
-                            ),
-                          ],
-                        ),
-                        const Divider(),
-                        if (widget.cartItems != null && widget.cartItems!.isNotEmpty)
-                          _buildProductItem(widget.cartItems!.first),
-                        const Divider(),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            const Text("Tổng số tiền (1 sản phẩm):"),
-                            Text(
-                              formatCurrency(widget.totalAmount),
-                              style: const TextStyle(fontWeight: FontWeight.bold),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-
-                  // Payment section
-                  Container(
-                    color: Colors.white,
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      children: [
-                        Row(
-                          children: [
-                            const Text("Thanh toán trong "),
-                            Text(
-                              "23:59:04",
-                              style: TextStyle(color: Colors.red.shade700),
-                            ),
-                            Text(" bằng $currentPaymentMethod"),
-                            const Spacer(),
-                            const Icon(Icons.chevron_right),
-                          ],
-                        ),
-                        const SizedBox(height: 16),
-                        OutlinedButton(
-                          onPressed: _openPaymentMethodPage,
-                          style: OutlinedButton.styleFrom(
-                            minimumSize: const Size(double.infinity, 48),
-                            side: const BorderSide(color: Colors.grey),
-                            backgroundColor: Colors.blue,
-                          ),
-                          child: const Text(
-                            "Đổi phương thức thanh toán",
-                            style: TextStyle(color: Colors.white),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
+              child: _buildOrderContent(),
             ),
           ),
         ],

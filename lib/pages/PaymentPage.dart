@@ -277,9 +277,16 @@ import 'package:phoneshop/pages/PaymentMethodPage.dart';
     Widget build(BuildContext context) {
       return Scaffold(
         appBar: AppBar(
-          title: const Text("Thanh toán"),
+          title: const Text("Thanh toán", style: TextStyle(
+            fontSize: 23,
+            fontWeight: FontWeight.bold,
+            color: Colors.lightBlue,
+          ),
+          ),
           leading: IconButton(
-            icon: const Icon(Icons.arrow_back),
+            icon: const Icon(Icons.arrow_back,
+              size: 30,
+              color: Color(0xFF4C53A5),),
             onPressed: () => Navigator.pop(context),
           ),
         ),
@@ -502,11 +509,15 @@ import 'package:phoneshop/pages/PaymentMethodPage.dart';
               ),
               ElevatedButton(
                 onPressed: () {
+                  // Trong PaymentPage khi chuyển sang PaymentWaitingPage
+                  // Trong PaymentPage khi chuyển sang PaymentWaitingPage
                   Navigator.push(
                     context,
                     MaterialPageRoute(
                       builder: (context) => PaymentWaitingPage(
-                        totalAmount: widget.totalAmount,
+                        totalAmount: widget.totalAmount, // Sử dụng widget.totalAmount thay vì totalAmount
+                        cartItems: List<CartItem>.from(widget.cartItems),
+                        paymentMethod: selectedPaymentMethod ?? "Thẻ nội địa Napas",
                       ),
                     ),
                   );
