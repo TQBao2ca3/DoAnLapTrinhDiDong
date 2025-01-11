@@ -3,6 +3,7 @@ import 'package:phoneshop/pages/OrderDetailsPage.dart';
 import 'package:phoneshop/pages/PaymentMethodPage.dart';
 import 'package:phoneshop/models/CartItem.dart';
 import 'package:intl/intl.dart';
+
 class OrderSummaryPage extends StatefulWidget {
   final int totalAmount;
   final List<CartItem> cartItems;
@@ -20,13 +21,19 @@ class OrderSummaryPage extends StatefulWidget {
 }
 
 class _OrderSummaryPageState extends State<OrderSummaryPage> {
-  List<String> tabs = ["Chờ xác nhận", "Chờ lấy hàng", "Chờ giao hàng", "Trả hàng"];
+  List<String> tabs = [
+    "Chờ xác nhận",
+    "Chờ lấy hàng",
+    "Chờ giao hàng",
+    "Trả hàng"
+  ];
   int selectedTabIndex = 0;
   String? currentPaymentMethod;
   String formatCurrency(int amount) {
     final formatCurrency = NumberFormat('#,##0 đ', 'vi_VN');
     return formatCurrency.format(amount);
   }
+
   @override
   void initState() {
     super.initState();
@@ -47,7 +54,8 @@ class _OrderSummaryPageState extends State<OrderSummaryPage> {
   }
 
   Widget _buildProductItem(CartItem item) {
-    return InkWell( // Changed from GestureDetector to InkWell for better touch feedback
+    return InkWell(
+      // Changed from GestureDetector to InkWell for better touch feedback
       onTap: () {
         Navigator.push(
           context,
@@ -70,7 +78,8 @@ class _OrderSummaryPageState extends State<OrderSummaryPage> {
             Row(
               children: [
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
                   decoration: BoxDecoration(
                     color: Colors.red,
                     borderRadius: BorderRadius.circular(2),
@@ -185,199 +194,304 @@ class _OrderSummaryPageState extends State<OrderSummaryPage> {
     );
   }
 
-  Widget _buildOrderContent() {
-    if (selectedTabIndex == 0 && widget.cartItems.isNotEmpty) {
-      return Column(
-        children: [
-          const SizedBox(height: 8),
-          ...widget.cartItems.map((item) => _buildProductItem(item)).toList(),
-          const SizedBox(height: 8),
-
-          // Total amount
-          Container(
-            color: Colors.white,
-            padding: const EdgeInsets.all(16),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  "Tổng số tiền (${widget.cartItems.length} sản phẩm):",
-                  style: const TextStyle(fontSize: 14),
-                ),
-                Text(
-                  "${formatCurrency(widget.totalAmount)}",
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 14,
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          const SizedBox(height: 8),
-
-          // Payment section
-          Container(
-            color: Colors.white,
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            child: Column(
-              children: [
-                InkWell(
-                  onTap: _openPaymentMethodPage,
-                  child: Row(
-                    children: [
-                      const Text("Thanh toán"),
-                      Text(" bằng $currentPaymentMethod"),
-                      const Spacer(),
-                      const Icon(Icons.chevron_right),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 12),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: _openPaymentMethodPage,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue,
-                      side: BorderSide(color: Colors.grey.shade300),
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                    ),
-                    child: const Text(
-                      "Đổi phương thức thanh toán",
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 14,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      );
-    } else {
-      // Empty state for different tabs
-      IconData icon;
-      String message;
-
-      switch (selectedTabIndex) {
-        case 0:
-          icon = Icons.hourglass_empty;
-          message = "Không có đơn hàng nào đang chờ xác nhận";
-          break;
-        case 1:
-          icon = Icons.local_shipping_outlined;
-          message = "Không có đơn hàng nào đang chờ lấy hàng";
-          break;
-        case 2:
-          icon = Icons.delivery_dining_outlined;
-          message = "Không có đơn hàng nào đang giao";
-          break;
-        case 3:
-          icon = Icons.assignment_return_outlined;
-          message = "Không có đơn hàng nào đã trả";
-          break;
-        default:
-          icon = Icons.hourglass_empty;
-          message = "Không có đơn hàng nào";
-      }
-
-      return Container(
-        width: double.infinity,
-        color: Colors.white,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const SizedBox(height: 100),
-            Icon(icon, size: 64, color: Colors.grey),
-            const SizedBox(height: 16),
-            Text(
-              message,
-              style: const TextStyle(color: Colors.grey),
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
-      );
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back,
-              size: 30,
-              color: Color(0xFF4C53A5)),
-          onPressed: () {
-            Navigator.pop(context);
-          },
-        ),
-        title: const Text(
-          'Đơn đã mua',
-          style: TextStyle(
-            fontSize: 23,
-            fontWeight: FontWeight.bold,
-            color: Colors.lightBlue,
-          ),
-        ),
-      ),
-      body: Column(
-        children: [
-          // Tab bar
-          SizedBox(
-            height: 48,
-            child: ListView.builder(
-              scrollDirection: Axis.horizontal,
-              itemCount: tabs.length,
-              itemBuilder: (context, index) {
-                return InkWell(
-                  onTap: () {
-                    setState(() {
-                      selectedTabIndex = index;
-                    });
-                  },
-                  child: Container(
-                    width: MediaQuery.of(context).size.width / 4,
-                    decoration: BoxDecoration(
-                      border: Border(
-                        bottom: BorderSide(
-                          color: selectedTabIndex == index ? Colors.red : Colors.grey.shade200,
-                          width: 2,
-                        ),
-                      ),
-                    ),
-                    child: Center(
-                      child: Text(
-                        tabs[index],
-                        style: TextStyle(
-                          color: selectedTabIndex == index ? Colors.red : Colors.black87,
-                          fontSize: 14,
-                          fontWeight: selectedTabIndex == index ? FontWeight.bold : FontWeight.normal,
-                        ),
-                      ),
+      backgroundColor: Colors.grey[50],
+      body: SafeArea(
+        child: Column(
+          children: [
+            // Custom AppBar với thiết kế mới
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.blue[600],
+                borderRadius: const BorderRadius.vertical(
+                  bottom: Radius.circular(30),
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.blue.withOpacity(0.2),
+                    blurRadius: 10,
+                    offset: const Offset(0, 5),
+                  ),
+                ],
+              ),
+              child: Row(
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.arrow_back, color: Colors.white),
+                    onPressed: () => Navigator.pop(context),
+                  ),
+                  const SizedBox(width: 8),
+                  const Text(
+                    'Đơn đã mua',
+                    style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
                     ),
                   ),
-                );
-              },
+                ],
+              ),
             ),
-          ),
 
-          // Content area
-          Expanded(
-            child: SingleChildScrollView(
-              child: _buildOrderContent(),
+            // Tab bar với thiết kế mới
+            Container(
+              height: 56,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.1),
+                    spreadRadius: 1,
+                    blurRadius: 4,
+                  ),
+                ],
+              ),
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                itemCount: tabs.length,
+                itemBuilder: (context, index) {
+                  final isSelected = selectedTabIndex == index;
+                  return InkWell(
+                    onTap: () {
+                      setState(() {
+                        selectedTabIndex = index;
+                      });
+                    },
+                    child: Container(
+                      width: MediaQuery.of(context).size.width / 4,
+                      decoration: BoxDecoration(
+                        border: Border(
+                          bottom: BorderSide(
+                            color: isSelected
+                                ? Colors.blue[600]!
+                                : Colors.transparent,
+                            width: 2,
+                          ),
+                        ),
+                      ),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            tabs[index],
+                            style: TextStyle(
+                              color: isSelected
+                                  ? Colors.blue[600]
+                                  : Colors.grey[600],
+                              fontSize: 14,
+                              fontWeight: isSelected
+                                  ? FontWeight.bold
+                                  : FontWeight.normal,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ),
             ),
-          ),
-        ],
+
+            // Content với thiết kế mới
+            Expanded(
+              child: selectedTabIndex == 0 && widget.cartItems.isNotEmpty
+                  ? SingleChildScrollView(
+                      child: Column(
+                        children: [
+                          const SizedBox(height: 16),
+                          ...widget.cartItems.map((item) {
+                            return Container(
+                              margin: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(20),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.grey.withOpacity(0.1),
+                                    spreadRadius: 1,
+                                    blurRadius: 10,
+                                  ),
+                                ],
+                              ),
+                              child: _buildProductItem(item),
+                            );
+                          }).toList(),
+
+                          // Total amount section
+                          Container(
+                            margin: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(20),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.grey.withOpacity(0.1),
+                                  spreadRadius: 1,
+                                  blurRadius: 10,
+                                ),
+                              ],
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.all(16),
+                              child: Column(
+                                children: [
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        "Tổng tiền (${widget.cartItems.length} sản phẩm)",
+                                        style: TextStyle(
+                                          color: Colors.grey[600],
+                                          fontSize: 14,
+                                        ),
+                                      ),
+                                      Text(
+                                        formatCurrency(widget.totalAmount),
+                                        style: TextStyle(
+                                          color: Colors.blue[700],
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 16,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+
+                          // Payment method section
+                          Container(
+                            margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(20),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.grey.withOpacity(0.1),
+                                  spreadRadius: 1,
+                                  blurRadius: 10,
+                                ),
+                              ],
+                            ),
+                            child: Column(
+                              children: [
+                                ListTile(
+                                  onTap: _openPaymentMethodPage,
+                                  leading: Container(
+                                    padding: const EdgeInsets.all(8),
+                                    decoration: BoxDecoration(
+                                      color: Colors.blue[50],
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    child: Icon(
+                                      Icons.payment,
+                                      color: Colors.blue[600],
+                                      size: 24,
+                                    ),
+                                  ),
+                                  title: const Text(
+                                    "Phương thức thanh toán",
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  subtitle: Text(currentPaymentMethod ?? ""),
+                                  trailing: Icon(Icons.chevron_right,
+                                      color: Colors.blue[600]),
+                                ),
+                                const Divider(height: 1),
+                                Padding(
+                                  padding: const EdgeInsets.all(16),
+                                  child: SizedBox(
+                                    width: double.infinity,
+                                    child: ElevatedButton(
+                                      onPressed: _openPaymentMethodPage,
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: Colors.blue[600],
+                                        foregroundColor: Colors.white,
+                                        padding: const EdgeInsets.symmetric(
+                                            vertical: 16),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(15),
+                                        ),
+                                        elevation: 0,
+                                      ),
+                                      child: const Text(
+                                        "Đổi phương thức thanh toán",
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
+                  : Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            _getEmptyStateIcon(),
+                            size: 80,
+                            color: Colors.grey[300],
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            _getEmptyStateMessage(),
+                            style: TextStyle(
+                              color: Colors.grey[600],
+                              fontSize: 16,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+            ),
+          ],
+        ),
       ),
     );
+  }
+
+  IconData _getEmptyStateIcon() {
+    switch (selectedTabIndex) {
+      case 0:
+        return Icons.hourglass_empty;
+      case 1:
+        return Icons.local_shipping_outlined;
+      case 2:
+        return Icons.delivery_dining_outlined;
+      case 3:
+        return Icons.assignment_return_outlined;
+      default:
+        return Icons.hourglass_empty;
+    }
+  }
+
+  String _getEmptyStateMessage() {
+    switch (selectedTabIndex) {
+      case 0:
+        return "Không có đơn hàng nào đang chờ xác nhận";
+      case 1:
+        return "Không có đơn hàng nào đang chờ lấy hàng";
+      case 2:
+        return "Không có đơn hàng nào đang giao";
+      case 3:
+        return "Không có đơn hàng nào đã trả";
+      default:
+        return "Không có đơn hàng nào";
+    }
   }
 }

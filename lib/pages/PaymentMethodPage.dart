@@ -30,6 +30,8 @@ class PaymentMethodPage extends StatefulWidget {
 
 class _PaymentMethodPageState extends State<PaymentMethodPage> {
   String? selectedMethod;
+  int? _hoveredIndex;
+
   final List<PaymentMethod> methods = [
     PaymentMethod(
       name: "Thẻ Tín dụng/Ghi nợ",
@@ -57,7 +59,6 @@ class _PaymentMethodPageState extends State<PaymentMethodPage> {
     selectedMethod = widget.selectedMethod ?? "Thanh toán khi nhận hàng";
   }
 
-  // Method to format currency
   String _formatCurrency(double amount) {
     final formatCurrency = NumberFormat('#,##0 đ', 'vi_VN');
     return formatCurrency.format(amount);
@@ -66,139 +67,267 @@ class _PaymentMethodPageState extends State<PaymentMethodPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          "Phương thức thanh toán",
-          style: TextStyle(
-            fontSize: 23,
-            fontWeight: FontWeight.bold,
-            color: Colors.lightBlue,
-          ),
-        ),
-        leading: IconButton(
-          icon: const Icon(
-            Icons.arrow_back,
-            size: 30,
-            color: Color(0xFF4C53A5),
-          ),
-          onPressed: () => Navigator.pop(context),
-        ),
-      ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            color: Colors.grey[100],
-            padding: const EdgeInsets.all(16),
-            child: Row(
-              children: [
-                Icon(Icons.security, color: Colors.blue),
-                const SizedBox(width: 8),
-                Text(
-                  'PHONE SHOP ĐẢM BẢO',
-                  style: TextStyle(
-                    color: Colors.grey[700],
-                    fontWeight: FontWeight.bold,
-                  ),
+      backgroundColor: Colors.grey[50],
+      body: SafeArea(
+        child: Column(
+          children: [
+            // Custom AppBar với thiết kế mới
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.blue[600],
+                borderRadius: const BorderRadius.vertical(
+                  bottom: Radius.circular(30),
                 ),
-              ],
-            ),
-          ),
-          Expanded(
-            child: ListView.separated(
-              itemCount: methods.length,
-              separatorBuilder: (context, index) => const Divider(height: 1),
-              itemBuilder: (context, index) {
-                final method = methods[index];
-                final isSelected = method.name == selectedMethod;
-
-                return ListTile(
-                  enabled: method.isEnabled,
-                  contentPadding: const EdgeInsets.all(16),
-                  leading: Icon(
-                    method.icon,
-                    color: method.isEnabled ? Colors.lightBlue : Colors.grey,
-                    size: 24,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.blue.withOpacity(0.2),
+                    blurRadius: 10,
+                    offset: const Offset(0, 5),
                   ),
-                  title: Text(
-                    method.name,
+                ],
+              ),
+              child: Row(
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.arrow_back, color: Colors.white),
+                    onPressed: () => Navigator.pop(context),
+                  ),
+                  const SizedBox(width: 8),
+                  const Text(
+                    'Phương thức thanh toán',
                     style: TextStyle(
-                      fontWeight: FontWeight.w500,
-                      color: method.isEnabled ? Colors.black : Colors.grey,
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
                     ),
                   ),
-                  subtitle: method.subtitle != null || method.description != null
-                      ? Column(
+                ],
+              ),
+            ),
+
+            // Security Banner
+            Container(
+              margin: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.1),
+                    spreadRadius: 1,
+                    blurRadius: 10,
+                  ),
+                ],
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Colors.blue[50],
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Icon(Icons.security, color: Colors.blue[600]),
+                  ),
+                  const SizedBox(width: 12),
+                  Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      if (method.subtitle != null)
-                        Text(method.subtitle!),
-                      if (method.description != null)
-                        Text(
-                          method.description!,
-                          style: TextStyle(color: Colors.grey[600]),
+                      Text(
+                        'PHONE SHOP ĐẢM BẢO',
+                        style: TextStyle(
+                          color: Colors.blue[700],
+                          fontWeight: FontWeight.bold,
                         ),
-                    ],
-                  )
-                      : null,
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      if (method.actionButton != null)
-                        OutlinedButton(
-                          onPressed: () {},
-                          style: OutlinedButton.styleFrom(
-                            foregroundColor: Colors.red,
-                            side: const BorderSide(color: Colors.red),
-                          ),
-                          child: Text(method.actionButton!),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'Thanh toán an toàn & bảo mật',
+                        style: TextStyle(
+                          color: Colors.grey[600],
+                          fontSize: 13,
                         ),
-                      if (isSelected) ...[
-                        const SizedBox(width: 8),
-                        const Icon(Icons.check_circle, color: Colors.red),
-                      ],
+                      ),
                     ],
                   ),
-                  onTap: method.isEnabled
-                      ? () {
-                    setState(() {
-                      selectedMethod = method.name;
-                    });
-                  }
-                      : null,
-                );
-              },
+                ],
+              ),
             ),
-          ),
-        ],
+
+            // Payment Methods List
+            Expanded(
+              child: ListView.separated(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                itemCount: methods.length,
+                separatorBuilder: (context, index) => const SizedBox(height: 12),
+                itemBuilder: (context, index) {
+                  final method = methods[index];
+                  final isSelected = method.name == selectedMethod;
+                  final isHovered = _hoveredIndex == index;
+
+                  return MouseRegion(
+                    onEnter: (_) => setState(() => _hoveredIndex = index),
+                    onExit: (_) => setState(() => _hoveredIndex = null),
+                    child: GestureDetector(
+                      onTap: method.isEnabled
+                          ? () {
+                        setState(() {
+                          selectedMethod = method.name;
+                        });
+                      }
+                          : null,
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 200),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(
+                            color: isSelected
+                                ? Colors.blue[600]!
+                                : isHovered
+                                ? Colors.blue[200]!
+                                : Colors.transparent,
+                            width: 2,
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: isHovered || isSelected
+                                  ? Colors.blue.withOpacity(0.1)
+                                  : Colors.grey.withOpacity(0.1),
+                              spreadRadius: isHovered || isSelected ? 2 : 1,
+                              blurRadius: isHovered || isSelected ? 15 : 10,
+                            ),
+                          ],
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Row(
+                            children: [
+                              // Payment Method Icon
+                              Container(
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  color: isSelected || isHovered
+                                      ? Colors.blue[100]
+                                      : Colors.blue[50],
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Icon(
+                                  method.icon,
+                                  color: method.isEnabled
+                                      ? Colors.blue[600]
+                                      : Colors.grey,
+                                  size: 24,
+                                ),
+                              ),
+                              const SizedBox(width: 16),
+
+                              // Content
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      method.name,
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16,
+                                        color: method.isEnabled
+                                            ? Colors.black
+                                            : Colors.grey,
+                                      ),
+                                    ),
+                                    if (method.subtitle != null) ...[
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        method.subtitle!,
+                                        style: TextStyle(
+                                          color: Colors.grey[600],
+                                        ),
+                                      ),
+                                    ],
+                                    if (method.description != null) ...[
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        method.description!,
+                                        style: TextStyle(
+                                          color: Colors.grey[500],
+                                          fontSize: 13,
+                                        ),
+                                      ),
+                                    ],
+                                  ],
+                                ),
+                              ),
+
+                              // Check icon
+                              if (isSelected || isHovered) ...[
+                                const SizedBox(width: 16),
+                                Container(
+                                  padding: const EdgeInsets.all(4),
+                                  decoration: BoxDecoration(
+                                    color: isSelected
+                                        ? Colors.blue[600]
+                                        : Colors.blue[200],
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: Icon(
+                                    Icons.check,
+                                    color: Colors.white,
+                                    size: isSelected ? 16 : 14,
+                                  ),
+                                ),
+                              ],
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
       ),
+      // Bottom Button
       bottomNavigationBar: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: Colors.white,
+          borderRadius: const BorderRadius.vertical(
+            top: Radius.circular(30),
+          ),
           boxShadow: [
             BoxShadow(
-              color: Colors.grey.withOpacity(0.3),
+              color: Colors.grey.withOpacity(0.2),
               spreadRadius: 1,
-              blurRadius: 5,
+              blurRadius: 10,
+              offset: const Offset(0, -3),
             ),
           ],
         ),
-        child: ElevatedButton(
-          onPressed: () {
-            // Example usage of the _formatCurrency function with some amount
-            double amount = 1000000; // Example amount
-            print("Formatted amount: ${_formatCurrency(amount)}");
-
-            Navigator.pop(context, selectedMethod);
-          },
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.blue,
-            minimumSize: const Size(double.infinity, 48),
-          ),
-          child: const Text(
-            'ĐỒNG Ý',
-            style: TextStyle(fontSize: 16, color: Colors.white),
+        child: SafeArea(
+          child: ElevatedButton(
+            onPressed: () => Navigator.pop(context, selectedMethod),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.blue[600],
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(15),
+              ),
+              elevation: 0,
+            ),
+            child: const Text(
+              'ĐỒNG Ý',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
           ),
         ),
       ),

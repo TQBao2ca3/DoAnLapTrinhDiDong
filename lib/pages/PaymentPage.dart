@@ -29,10 +29,11 @@ import 'package:phoneshop/pages/PaymentMethodPage.dart';
     int shippingFee = 42500;
     int voucherDiscount = 0;
 
-      String _formatCurrency(int amount) {
-        final formatCurrency = NumberFormat('#,##0 đ', 'vi_VN');
-        return formatCurrency.format(amount);
-      }
+    String _formatCurrency(int amount) {
+      final formatCurrency = NumberFormat('#,##0 đ', 'vi_VN');
+      return formatCurrency.format(amount);
+    }
+
     @override
     void initState() {
       super.initState();
@@ -51,16 +52,19 @@ import 'package:phoneshop/pages/PaymentMethodPage.dart';
           isDefault: false,
         ),
       ];
-      selectedAddress = addresses.firstWhere((addr) => addr.isDefault, orElse: () => addresses.first);
+      selectedAddress = addresses.firstWhere((addr) => addr.isDefault,
+          orElse: () => addresses.first);
     }
+
 // Trong class _PaymentPageState thêm các phương thức sau:
     void _openShippingMethodPage() async {
       final result = await Navigator.push<String>(
         context,
         MaterialPageRoute(
-          builder: (context) =>  ShippingMethodPage(
-            selectedMethod: 'Express Shipping', // Truyền giá trị cho selectedMethod
-          ),
+          builder: (context) =>
+              ShippingMethodPage(
+                selectedMethod: 'Express Shipping', // Truyền giá trị cho selectedMethod
+              ),
         ),
       );
 
@@ -75,9 +79,10 @@ import 'package:phoneshop/pages/PaymentMethodPage.dart';
       final result = await Navigator.push<String>(
         context,
         MaterialPageRoute(
-          builder: (context) => PaymentMethodPage(
-            selectedMethod: selectedPaymentMethod,
-          ),
+          builder: (context) =>
+              PaymentMethodPage(
+                selectedMethod: selectedPaymentMethod,
+              ),
         ),
       );
 
@@ -87,14 +92,17 @@ import 'package:phoneshop/pages/PaymentMethodPage.dart';
         });
       }
     }
+
     void _openAddressSelection() async {
-      final result = await Navigator.push<Address>( // Chỉ định kiểu rõ ràng là Address
+      final result = await Navigator.push<
+          Address>( // Chỉ định kiểu rõ ràng là Address
         context,
         MaterialPageRoute(
-          builder: (context) => AddressListPage(
-            addresses: addresses,
-            selectedAddress: selectedAddress,
-          ),
+          builder: (context) =>
+              AddressListPage(
+                addresses: addresses,
+                selectedAddress: selectedAddress,
+              ),
         ),
       );
 
@@ -197,7 +205,8 @@ import 'package:phoneshop/pages/PaymentMethodPage.dart';
                       color: Colors.red.shade50,
                       borderRadius: BorderRadius.circular(4),
                     ),
-                    child: const Icon(Icons.storefront, color: Colors.red, size: 20),
+                    child: const Icon(
+                        Icons.storefront, color: Colors.red, size: 20),
                   ),
                   const SizedBox(width: 8),
                   Text(
@@ -273,275 +282,476 @@ import 'package:phoneshop/pages/PaymentMethodPage.dart';
         ),
       );
     }
+
     @override
     Widget build(BuildContext context) {
       return Scaffold(
-        appBar: AppBar(
-          title: const Text("Thanh toán", style: TextStyle(
-            fontSize: 23,
-            fontWeight: FontWeight.bold,
-            color: Colors.lightBlue,
-          ),
-          ),
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back,
-              size: 30,
-              color: Color(0xFF4C53A5),),
-            onPressed: () => Navigator.pop(context),
-          ),
-        ),
-        body: SingleChildScrollView(
+        backgroundColor: Colors.grey[50],
+        body: SafeArea(
           child: Column(
             children: [
-              // Địa chỉ đã chọn
-              _buildAddressSection(),
-              const Divider(height: 8, thickness: 8),
-
-              // Danh sách sản phẩm
-              ...widget.cartItems.map((item) => _buildProductItem(item)).toList(),
-
-              // Voucher của Shop
-              ListTile(
-                tileColor: Colors.white,
-                title: const Text('Voucher của Shop'),
-                trailing: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: const [
-                    Text('Chọn hoặc nhập mã'),
-                    Icon(Icons.chevron_right),
+              // Custom AppBar với thiết kế mới
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.blue[600],
+                  borderRadius: const BorderRadius.vertical(
+                    bottom: Radius.circular(30),
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.blue.withOpacity(0.2),
+                      blurRadius: 10,
+                      offset: const Offset(0, 5),
+                    ),
                   ],
                 ),
-                onTap: () {
-                  // TODO: Implement voucher selection
-                },
+                child: Row(
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.arrow_back, color: Colors.white),
+                      onPressed: () => Navigator.pop(context),
+                    ),
+                    const SizedBox(width: 8),
+                    const Text(
+                      'Thanh toán',
+                      style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ],
+                ),
               ),
 
-              // Cập nhật phần shipping method trong build:
-              Container(
-                color: Colors.white,
-                child: ListTile(
-                  title: const Text("Phương thức vận chuyển"),
-                  subtitle: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+              // Content
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Column(
                     children: [
-                      const SizedBox(height: 8),
-                      Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 8,
-                              vertical: 4,
+                      // Địa chỉ đã chọn với thiết kế mới
+                      Container(
+                        margin: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(20),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.grey.withOpacity(0.1),
+                              spreadRadius: 1,
+                              blurRadius: 10,
                             ),
-                            decoration: BoxDecoration(
-                              color: Colors.green.shade50,
-                              borderRadius: BorderRadius.circular(4),
+                          ],
+                        ),
+                        child: _buildAddressSection(),
+                      ),
+
+                      // Danh sách sản phẩm
+                      Container(
+                        margin: const EdgeInsets.symmetric(horizontal: 16),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(20),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.grey.withOpacity(0.1),
+                              spreadRadius: 1,
+                              blurRadius: 10,
                             ),
-                            child: Row(
-                              children: const [
-                                Icon(Icons.check, color: Colors.green, size: 16),
-                                SizedBox(width: 4),
+                          ],
+                        ),
+                        child: Column(
+                          children: widget.cartItems.map((item) =>
+                              _buildProductItem(item)).toList(),
+                        ),
+                      ),
+
+                      // Voucher của Shop
+                      Container(
+                        margin: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(20),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.grey.withOpacity(0.1),
+                              spreadRadius: 1,
+                              blurRadius: 10,
+                            ),
+                          ],
+                        ),
+                        child: ListTile(
+                          title: const Text(
+                            'Voucher của Shop',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          trailing: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                'Chọn hoặc nhập mã',
+                                style: TextStyle(color: Colors.blue[600]),
+                              ),
+                              Icon(
+                                  Icons.chevron_right, color: Colors.blue[600]),
+                            ],
+                          ),
+                          onTap: () {
+                            // TODO: Implement voucher selection
+                          },
+                        ),
+                      ),
+
+                      // Phương thức vận chuyển
+                      Container(
+                        margin: const EdgeInsets.symmetric(horizontal: 16),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(20),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.grey.withOpacity(0.1),
+                              spreadRadius: 1,
+                              blurRadius: 10,
+                            ),
+                          ],
+                        ),
+                        child: ListTile(
+                          title: const Text(
+                            "Phương thức vận chuyển",
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          subtitle: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const SizedBox(height: 8),
+                              Row(
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 8,
+                                      vertical: 4,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: Colors.blue[50],
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        Icon(Icons.check,
+                                            color: Colors.blue[700], size: 16),
+                                        const SizedBox(width: 4),
+                                        Text(
+                                          "Nhanh",
+                                          style: TextStyle(
+                                            color: Colors.blue[700],
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  const Spacer(),
+                                  Text(
+                                    "đ${shippingFee.toStringAsFixed(0)}",
+                                    style: const TextStyle(
+                                      decoration: TextDecoration.lineThrough,
+                                      color: Colors.grey,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    "Miễn Phí",
+                                    style: TextStyle(
+                                      color: Colors.blue[700],
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                "Nhận hàng vào 18 Tháng 1",
+                                style: TextStyle(color: Colors.grey[600]),
+                              ),
+                            ],
+                          ),
+                          trailing: Icon(
+                              Icons.chevron_right, color: Colors.blue[600]),
+                          onTap: _openShippingMethodPage,
+                        ),
+                      ),
+
+                      // Phương thức thanh toán
+                      Container(
+                        margin: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(20),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.grey.withOpacity(0.1),
+                              spreadRadius: 1,
+                              blurRadius: 10,
+                            ),
+                          ],
+                        ),
+                        child: Column(
+                          children: [
+                            ListTile(
+                              title: Row(
+                                mainAxisAlignment: MainAxisAlignment
+                                    .spaceBetween,
+                                children: [
+                                  const Text(
+                                    "Phương thức thanh toán",
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  Text(
+                                    "Xem tất cả",
+                                    style: TextStyle(color: Colors.blue[600]),
+                                  ),
+                                ],
+                              ),
+                              onTap: _openPaymentMethodPage,
+                            ),
+                            ListTile(
+                              leading: Container(
+                                padding: const EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  color: Colors.blue[50],
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Icon(
+                                  selectedPaymentMethod ==
+                                      "Thanh toán khi nhận hàng"
+                                      ? Icons.local_shipping
+                                      : Icons.credit_card,
+                                  color: Colors.blue[700],
+                                ),
+                              ),
+                              title: Text(
+                                selectedPaymentMethod ?? "",
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.bold),
+                              ),
+                              subtitle: Text(
+                                selectedPaymentMethod ==
+                                    "Thanh toán khi nhận hàng"
+                                    ? "Thanh toán khi nhận được hàng"
+                                    : "Thêm thẻ ngân hàng của bạn",
+                                style: TextStyle(color: Colors.grey[600]),
+                              ),
+                              trailing: Icon(
+                                  Icons.chevron_right, color: Colors.blue[600]),
+                              onTap: _openPaymentMethodPage,
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      // Chi tiết thanh toán
+                      Container(
+                        margin: const EdgeInsets.all(16),
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(20),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.grey.withOpacity(0.1),
+                              spreadRadius: 1,
+                              blurRadius: 10,
+                            ),
+                          ],
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              "Chi tiết thanh toán",
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
                                 Text(
-                                  "Nhanh",
-                                  style: TextStyle(color: Colors.green),
+                                  "Tổng tiền hàng",
+                                  style: TextStyle(color: Colors.grey[600]),
+                                ),
+                                Text(
+                                  _formatCurrency(widget.totalAmount),
+                                  style: const TextStyle(
+                                      fontWeight: FontWeight.bold),
                                 ),
                               ],
                             ),
-                          ),
-                          const Spacer(),
-                          Text(
-                            "đ${shippingFee.toStringAsFixed(0)}",
-                            style: const TextStyle(
-                              decoration: TextDecoration.lineThrough,
-                              color: Colors.grey,
+                            const SizedBox(height: 8),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  "Phí vận chuyển",
+                                  style: TextStyle(color: Colors.grey[600]),
+                                ),
+                                Row(
+                                  children: [
+                                    Text(
+                                      _formatCurrency(shippingFee),
+                                      style: const TextStyle(
+                                        decoration: TextDecoration.lineThrough,
+                                        color: Colors.grey,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      "Miễn phí",
+                                      style: TextStyle(
+                                        color: Colors.blue[700],
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
                             ),
-                          ),
-                          const SizedBox(width: 8),
-                          const Text(
-                            "Miễn Phí",
-                            style: TextStyle(color: Colors.red),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        "Nhận hàng vào 18 Tháng 1",
-                        style: TextStyle(color: Colors.grey),
+                            const Divider(height: 24),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                const Text(
+                                  "Tổng thanh toán",
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                Text(
+                                  _formatCurrency(widget.totalAmount),
+                                  style: TextStyle(
+                                    color: Colors.blue[700],
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 4),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                Text(
+                                  "Tiết kiệm ${_formatCurrency(shippingFee)}",
+                                  style: TextStyle(
+                                    color: Colors.blue[700],
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
                     ],
                   ),
-                  trailing: const Icon(Icons.chevron_right),
-                  onTap: _openShippingMethodPage,
-                ),
-              ),
-
-              const Divider(height: 8, thickness: 8),
-
-              // Cập nhật phần payment method:
-              Container(
-                color: Colors.white,
-                child: Column(
-                  children: [
-                    ListTile(
-                      title: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          const Text("Phương thức thanh toán"),
-                          Text("Xem tất cả >",
-                              style: TextStyle(color: Colors.grey[600])),
-                        ],
-                      ),
-                      onTap: _openPaymentMethodPage,
-                    ),
-                    ListTile(
-                      leading: selectedPaymentMethod == "Thanh toán khi nhận hàng"
-                          ? const Icon(Icons.local_shipping, color: Colors.red)
-                          : const Icon(Icons.credit_card, color: Colors.blue),
-                      title: Text(selectedPaymentMethod ?? ""),
-                      subtitle: selectedPaymentMethod == "Thanh toán khi nhận hàng"
-                          ? const Text("Thanh toán khi nhận được hàng")
-                          : const Text("Thêm thẻ ngân hàng của bạn"),
-                      trailing: const Icon(Icons.chevron_right),
-                      onTap: _openPaymentMethodPage,
-                    ),
-                  ],
-                ),
-              ),
-              const Divider(height: 8, thickness: 8),
-
-              // Chi tiết thanh toán
-              Container(
-                padding: const EdgeInsets.all(16),
-                color: Colors.white,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Text("Tổng số tiền sản phẩm: "),
-                        Text(
-                          _formatCurrency(widget.totalAmount),
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Text("Phí vận chuyển"),
-                        Text(
-                          _formatCurrency(shippingFee),
-                          style: const TextStyle(
-                            decoration: TextDecoration.lineThrough,
-                            color: Colors.grey,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    const Divider(),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Text(
-                          "Tổng thanh toán",
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                        Text(
-                          _formatCurrency(widget.totalAmount),
-                          style: const TextStyle(
-                            color: Colors.black,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                          ),
-                        ),
-                      ],
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        Text(
-                          "Tiết kiệm ${_formatCurrency(shippingFee)}",
-                          style: const TextStyle(color: Colors.grey),
-                        ),
-                      ],
-                    ),
-                  ],
                 ),
               ),
             ],
           ),
         ),
+        // Bottom Navigation Bar
         bottomNavigationBar: Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
             color: Colors.white,
+            borderRadius: const BorderRadius.vertical(
+              top: Radius.circular(30),
+            ),
             boxShadow: [
               BoxShadow(
-                color: Colors.grey.withOpacity(0.3),
+                color: Colors.grey.withOpacity(0.2),
                 spreadRadius: 1,
-                blurRadius: 5,
+                blurRadius: 10,
+                offset: const Offset(0, -3),
               ),
             ],
           ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    "Tổng thanh toán: ${_formatCurrency(widget.totalAmount)}",
-                    style: const TextStyle(
-                      color: Colors.black,
+          child: SafeArea(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Tổng thanh toán",
+                      style: TextStyle(
+                        color: Colors.grey[600],
+                        fontSize: 14,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      _formatCurrency(widget.totalAmount),
+                      style: TextStyle(
+                        color: Colors.blue[700],
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            PaymentWaitingPage(
+                              totalAmount: widget.totalAmount,
+                              cartItems: List<CartItem>.from(widget.cartItems),
+                              paymentMethod: selectedPaymentMethod ??
+                                  "Thẻ nội địa Napas",
+                            ),
+                      ),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue[600],
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 32,
+                      vertical: 12,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    elevation: 0,
+                  ),
+                  child: const Text(
+                    "Đặt hàng",
+                    style: TextStyle(
+                      fontSize: 16,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  Text(
-                    "Tiết kiệm ${_formatCurrency(shippingFee)}",
-                    style: const TextStyle(color: Colors.grey),
-                  ),
-                ],
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  // Trong PaymentPage khi chuyển sang PaymentWaitingPage
-                  // Trong PaymentPage khi chuyển sang PaymentWaitingPage
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => PaymentWaitingPage(
-                        totalAmount: widget.totalAmount, // Sử dụng widget.totalAmount thay vì totalAmount
-                        cartItems: List<CartItem>.from(widget.cartItems),
-                        paymentMethod: selectedPaymentMethod ?? "Thẻ nội địa Napas",
-                      ),
-                    ),
-                  );
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 32,
-                    vertical: 12,
-                  ),
                 ),
-                child: const Text(
-                  "Đặt hàng",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       );
     }
-
   }
