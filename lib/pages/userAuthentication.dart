@@ -20,12 +20,15 @@ class _UserAuthenticationState extends State<UserAuthentication> {
   Cart cart = Cart();
   String _errorMessage = '';
 
-  //login
   Future<void> login() async {
-    print(_userNameController.text);
-    print(_passwordController.text);
-    final url = Uri.parse('http://192.168.1.6:3000/api/user/login');
     try {
+      print('Đang thực hiện đăng nhập:');
+      print('Username: ${_userNameController.text}');
+      print('Password: ${_passwordController.text}');
+
+      final url = Uri.parse('http://192.168.1.3:3000/api/user/login');
+      print('Sending request to: $url');
+
       final response = await http.post(
         url,
         headers: {'Content-Type': 'application/json'},
@@ -34,29 +37,32 @@ class _UserAuthenticationState extends State<UserAuthentication> {
           'password': _passwordController.text,
         }),
       );
-      print(response.body);
+
+      print('Response status code: ${response.statusCode}');
+      print('Response body raw: ${response.body}');
+
       final responseData = jsonDecode(response.body);
-      //print(responseData);
+      print('Response data decoded: $responseData');
+
       if (response.statusCode == 200) {
+        print('Login successful');
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(
-              builder: (_) => HomeScreen(
-                    cart: cart,
-                  )),
+          MaterialPageRoute(builder: (_) => HomeScreen(cart: cart)),
         );
       } else {
+        print('Login failed. Status: ${response.statusCode}, Error: ${responseData['error'] ?? 'Unknown error'}');
         setState(() {
           _errorMessage = responseData['message'] ?? 'Login failed';
         });
       }
-    } catch (e) {
-      print(e);
-      // setState(() {
-      //   _errorMessage = 'An error occurred. Please try again.';
-      // });
+    } catch (e, stackTrace) {
+      print('Error during login: $e');
+      print('Stack trace: $stackTrace');  // Thêm stack trace
+      setState(() {
+        _errorMessage = 'Connection error: ${e.toString()}';
+      });
     }
-    print("done");
   }
 
   @override
@@ -129,7 +135,6 @@ class _UserAuthenticationState extends State<UserAuthentication> {
                           MaterialPageRoute(
                               builder: (context) => ChangePassword()));
                       // Xử lý quên mật khẩu
-                      Navigator.pushNamed(context, 'changePassword');
                     },
                     style: TextButton.styleFrom(
                       padding: EdgeInsets.zero,
@@ -155,7 +160,7 @@ class _UserAuthenticationState extends State<UserAuthentication> {
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8)),
                   foregroundColor: Colors.white,
-                  backgroundColor: const Color(0xff03A9F4),
+                  backgroundColor: Color(0xff03A9F4),
                 ),
                 child: const Text(
                   'Đăng nhập',
