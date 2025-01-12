@@ -99,7 +99,7 @@ class _UserAuthenticationState extends State<UserAuthentication> {
                   child: TextButton(
                     onPressed: () {
                       // Xử lý quên mật khẩu
-                      Navigator.pushNamed(context, 'changePassword');
+                      Navigator.pushNamed(context, 'userInformation');
                     },
                     style: TextButton.styleFrom(
                       padding: EdgeInsets.zero,

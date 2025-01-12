@@ -64,80 +64,89 @@ class _UserInformationState extends State<UserInformation> {
       body: Form(
         key: _formKey,
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            children: [
-              _buildInfoField(
-                label: 'Tài khoản:',
-                value: _userData['username']!,
-                editable: false,
-              ),
-              _buildInfoField(
-                label: 'Họ và tên:',
-                field: 'name',
-                value: _userData['name']!,
-              ),
-              _buildInfoField(
-                label: 'Email:',
-                field: 'email',
-                value: _userData['email']!,
-              ),
-              _buildInfoField(
-                label: 'SĐT:',
-                field: 'phone',
-                value: _userData['phone']!,
-              ),
-              _buildInfoField(
-                label: 'Địa chỉ:',
-                field: 'address',
-                value: _userData['address']!,
-              ),
-              const SizedBox(height: 24),
-              ElevatedButton(
-                onPressed: isAnyFieldEditing
-                    ? () {
-                        // Lưu tất cả các thay đổi
-                        setState(() {
-                          _editingFields.forEach((field, editing) {
-                            if (editing) {
-                              _userData[field] =
-                                  _tempValues[field] ?? _userData[field]!;
-                              _editingFields[field] = false;
-                            }
-                          });
-                          _tempValues.clear();
-                        });
-                      }
-                    : null,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor:
-                      isAnyFieldEditing ? Colors.blue : Colors.grey,
-                  foregroundColor: Colors.white,
-                  minimumSize: const Size(200, 45),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
+            padding: const EdgeInsets.all(16),
+            child: Container(
+              constraints: BoxConstraints(
+                  minHeight: MediaQuery.of(context).size.height * 0.8),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  const Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        'Tài khoản: User',
+                        style: TextStyle(
+                            fontSize: 20, fontWeight: FontWeight.bold),
+                      )
+                    ],
                   ),
-                ),
-                child: Text('Cập nhật thông tin'),
-              ),
-              const SizedBox(height: 16),
-              TextButton(
-                onPressed: !isAnyFieldEditing
-                    ? () {
-                        // Xử lý đổi mật khẩu
-                      }
-                    : null,
-                child: Text(
-                  'Đổi mật khẩu',
-                  style: TextStyle(
-                    color: !isAnyFieldEditing ? Colors.red : Colors.grey,
-                    fontSize: 16,
+                  _buildInfoField(
+                    label: 'Họ và tên:',
+                    field: 'name',
+                    value: _userData['name']!,
                   ),
-                ),
+                  _buildInfoField(
+                    label: 'Email:',
+                    field: 'email',
+                    value: _userData['email']!,
+                  ),
+                  _buildInfoField(
+                    label: 'SĐT:',
+                    field: 'phone',
+                    value: _userData['phone']!,
+                  ),
+                  _buildInfoField(
+                    label: 'Địa chỉ:',
+                    field: 'address',
+                    value: _userData['address']!,
+                  ),
+                  const SizedBox(height: 24),
+                  ElevatedButton(
+                    onPressed: isAnyFieldEditing
+                        ? () {
+                            // Lưu tất cả các thay đổi
+                            setState(() {
+                              _editingFields.forEach((field, editing) {
+                                if (editing) {
+                                  _userData[field] =
+                                      _tempValues[field] ?? _userData[field]!;
+                                  _editingFields[field] = false;
+                                }
+                              });
+                              _tempValues.clear();
+                            });
+                          }
+                        : null,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor:
+                          isAnyFieldEditing ? Colors.blue : Colors.grey,
+                      foregroundColor: Colors.white,
+                      minimumSize: const Size(200, 45),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    child: Text('Cập nhật thông tin'),
+                  ),
+                  const SizedBox(height: 16),
+                  TextButton(
+                    onPressed: !isAnyFieldEditing
+                        ? () {
+                            // Xử lý đổi mật khẩu
+                          }
+                        : null,
+                    child: Text(
+                      'Đổi mật khẩu',
+                      style: TextStyle(
+                        color: !isAnyFieldEditing ? Colors.red : Colors.grey,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ],
-          ),
-        ),
+            )),
       ),
     );
   }

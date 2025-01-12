@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
-class Changepassword extends StatefulWidget {
-  const Changepassword({super.key});
+class ChangePassword extends StatefulWidget {
+  const ChangePassword({super.key});
 
   @override
   _ChangePasswordState createState() => _ChangePasswordState();
 }
 
-class _ChangePasswordState extends State<Changepassword> {
+class _ChangePasswordState extends State<ChangePassword> {
   @override
   _showError(String message) {
     ScaffoldMessenger.of(context)
