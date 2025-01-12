@@ -24,7 +24,7 @@ class _UserAuthenticationState extends State<UserAuthentication> {
   Future<void> login() async {
     print(_userNameController.text);
     print(_passwordController.text);
-    final url = Uri.parse('http://127.0.0.1:3000/api/user/login');
+    final url = Uri.parse('http://192.168.1.6:3000/api/user/login');
     try {
       final response = await http.post(
         url,
@@ -129,6 +129,7 @@ class _UserAuthenticationState extends State<UserAuthentication> {
                           MaterialPageRoute(
                               builder: (context) => ChangePassword()));
                       // Xử lý quên mật khẩu
+                      Navigator.pushNamed(context, 'changePassword');
                     },
                     style: TextButton.styleFrom(
                       padding: EdgeInsets.zero,
@@ -154,7 +155,7 @@ class _UserAuthenticationState extends State<UserAuthentication> {
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8)),
                   foregroundColor: Colors.white,
-                  backgroundColor: Color(0xff03A9F4),
+                  backgroundColor: const Color(0xff03A9F4),
                 ),
                 child: const Text(
                   'Đăng nhập',

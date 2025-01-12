@@ -43,6 +43,7 @@ class _SignUpState extends State<SignUp> {
     super.dispose();
   }
 
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       // AppBar với nút quay lại và tiêu đề động
@@ -62,7 +63,7 @@ class _SignUpState extends State<SignUp> {
         child: Container(
           //scale full màn hình hiện tại sẽ lấy cả appbar nên nó dài hơn 1 xíu =))
           // height: MediaQuery.of(context).size.height,
-          color: Color(0xffEDECF2),
+          color: const Color(0xffEDECF2),
           padding: const EdgeInsets.all(20.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -149,14 +150,13 @@ class _SignUpState extends State<SignUp> {
                 style: ElevatedButton.styleFrom(
                   minimumSize: const Size(152, 42),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8)
-                  ),
+                      borderRadius: BorderRadius.circular(8)),
                   foregroundColor: Colors.white,
-                  backgroundColor: Color(0xff03A9F4),
+                  backgroundColor: const Color(0xff03A9F4),
                 ),
-                child: Text(
+                child: const Text(
                   'Đăng ký',
-                  style: const TextStyle(fontSize: 18),
+                  style: TextStyle(fontSize: 18),
                 ),
               ),
               const SizedBox(height: 20),
@@ -165,15 +165,15 @@ class _SignUpState extends State<SignUp> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text('Bạn đã có tài khoản? '),
+                  const Text('Bạn đã có tài khoản? '),
                   TextButton(
                     onPressed: () {
                       Navigator.pushReplacementNamed(
                           context, 'userAuthentication');
                     },
-                    child: Text(
+                    child: const Text(
                       'Đăng nhập',
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: Colors.blue,
                         fontWeight: FontWeight.bold,
                       ),
@@ -181,7 +181,9 @@ class _SignUpState extends State<SignUp> {
                   ),
                 ],
               ),
-              const SizedBox(height: 20,)
+              const SizedBox(
+                height: 20,
+              )
             ],
           ),
         ),

@@ -2,152 +2,136 @@ import 'package:flutter/material.dart';
 
 class ChangePassword extends StatefulWidget {
   const ChangePassword({super.key});
+
   @override
-  _ChangePassword createState() => _ChangePassword();
+  _ChangePasswordState createState() => _ChangePasswordState();
 }
 
-class _ChangePassword extends State<ChangePassword> {
-  final TextEditingController _oldPassword = TextEditingController();
-  final TextEditingController _newPassword = TextEditingController();
-  final TextEditingController _confirmNewPassword = TextEditingController();
+class _ChangePasswordState extends State<ChangePassword> {
   @override
-  void dispose() {
-    _oldPassword.dispose();
-    _newPassword.dispose();
-    _confirmNewPassword.dispose();
-    super.dispose();
+  _showError(String message) {
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(message)));
+  }
+
+  // Controller để lấy dữ liệu từ TextField
+  final TextEditingController _oldPass = TextEditingController();
+  final TextEditingController _newPass = TextEditingController();
+  final TextEditingController _comfirmPass = TextEditingController();
+  // ignore: unused_element
+  _handleAuthentication() async {
+    if (_oldPass.text.isEmpty ||
+        _newPass.text.isEmpty ||
+        _comfirmPass.text.isEmpty) {
+      _showError('Vui lòng điền đầy đủ thông tin');
+      return;
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      // AppBar với nút quay lại và tiêu đề động
       appBar: AppBar(
-        backgroundColor: Colors.white,
-        //automaticallyImplyLeading: false,
         title: const Text(
           'Đổi mật khẩu',
           style: TextStyle(
-            fontSize: 20,
+            fontSize: 28,
             fontWeight: FontWeight.bold,
           ),
         ),
         centerTitle: true,
       ),
+
       body: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
         child: Container(
-          color: const Color(0xffEDECF2),
           height: MediaQuery.of(context).size.height,
-          width: MediaQuery.of(context).size.width,
-          padding: const EdgeInsets.all(20),
+          color: const Color(0xffEDECF2),
+          padding: const EdgeInsets.all(20.0),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
+              const SizedBox(height: 50),
               const Text(
-                'Tên tài khoản: user',
+                'Đăng nhập',
                 style: TextStyle(
                   fontSize: 25,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  const Expanded(
-                    flex: 3,
-                    child: Text(
-                      'Mật khẩu cũ: ',
-                      style: TextStyle(
-                        fontSize: 18,
-                      ),
-                    ),
-                  ),
-                  Expanded(
-                    flex: 5,
-                    child: Container(
-                        constraints: const BoxConstraints(maxHeight: 40),
-                        child: TextField(
-                          textAlignVertical: TextAlignVertical.center,
-                          style: const TextStyle(height: 1.0),
-                          controller: _oldPassword,
-                          decoration: const InputDecoration(
-                              fillColor: Colors.white,
-                              filled: true,
-                              border: OutlineInputBorder()),
-                        )),
-                  )
-                ],
+              const SizedBox(height: 60),
+
+              // TextField Email
+              TextField(
+                controller: _oldPass,
+                decoration: const InputDecoration(
+                  labelText: 'Mật khẩu cũ',
+                  prefixText: 'Mật khẩu cũ: ',
+                  // prefixStyle: TextStyle(),
+                  border: OutlineInputBorder(),
+                ),
               ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  const Expanded(
-                    flex: 3,
-                    child: Text(
-                      'Mật khẩu mới: ',
-                      style: TextStyle(
-                        fontSize: 18,
-                      ),
-                    ),
-                  ),
-                  Expanded(
-                    flex: 5,
-                    child: Container(
-                        constraints: const BoxConstraints(maxHeight: 40),
-                        child: TextField(
-                          textAlignVertical: TextAlignVertical.center,
-                          style: const TextStyle(height: 1.0),
-                          obscureText: true,
-                          controller: _newPassword,
-                          decoration: const InputDecoration(
-                              fillColor: Colors.white,
-                              filled: true,
-                              border: OutlineInputBorder()),
-                        )),
-                  )
-                ],
+              const SizedBox(height: 20),
+
+              // TextField Password
+              TextField(
+                controller: _newPass,
+                obscureText: true,
+                decoration: const InputDecoration(
+                  labelText: 'Mật khẩu mới',
+                  prefixText: 'Mật khẩu mới: ',
+                  border: OutlineInputBorder(),
+                ),
               ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  const Expanded(
-                    flex: 3,
-                    child: Text(
-                      'Xác nhận MK: ',
-                      style: TextStyle(
-                        fontSize: 18,
-                      ),
-                    ),
-                  ),
-                  Expanded(
-                    flex: 5,
-                    child: Container(
-                        constraints: const BoxConstraints(maxHeight: 40),
-                        child: TextField(
-                          textAlignVertical: TextAlignVertical.center,
-                          style: const TextStyle(height: 1.0),
-                          obscureText: true,
-                          controller: _confirmNewPassword,
-                          decoration: const InputDecoration(
-                              fillColor: Colors.white,
-                              filled: true,
-                              border: OutlineInputBorder()),
-                        )),
-                  )
-                ],
+
+              const SizedBox(height: 20),
+
+              TextField(
+                controller: _newPass,
+                obscureText: true,
+                decoration: const InputDecoration(
+                  labelText: 'Xác nhận mật khẩu mới',
+                  prefixText: 'Xác nhận MK: ',
+                  border: OutlineInputBorder(),
+                ),
               ),
+
+              const SizedBox(height: 10),
+
+              const SizedBox(height: 50),
+              // Nút đăng nhập/đăng ký
               ElevatedButton(
-                  onPressed: () {},
-                  style: ElevatedButton.styleFrom(
-                      minimumSize: const Size(152, 52),
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8)),
-                      foregroundColor: Colors.white,
-                      backgroundColor: Color(0xff03A9F4)),
-                  child: const Text('Đổi mật khẩu'))
+                onPressed: () {
+                  _handleAuthentication();
+                },
+                style: ElevatedButton.styleFrom(
+                  minimumSize: const Size(152, 42),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8)),
+                  foregroundColor: Colors.white,
+                  backgroundColor: const Color(0xff03A9F4),
+                ),
+                child: const Text(
+                  'Đổi mật khẩu',
+                  style: TextStyle(fontSize: 18),
+                ),
+              ),
+              const SizedBox(height: 20),
+
+              // Text và TextButton để chuyển đổi giữa đăng nhập và đăng ký
             ],
           ),
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    // Giải phóng bộ nhớ khi widget bị hủy
+    _comfirmPass.dispose();
+    _newPass.dispose();
+    _oldPass.dispose();
+    super.dispose();
   }
 }
