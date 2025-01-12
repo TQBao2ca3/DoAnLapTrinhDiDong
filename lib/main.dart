@@ -1,11 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:phoneshop/models/Cart.dart';
-import 'package:phoneshop/models/Product.dart';
-import 'package:phoneshop/pages/CartPage.dart';
-import 'package:phoneshop/pages/Homepage.dart';
-import 'package:phoneshop/pages/ItemPage.dart';
 import 'package:phoneshop/pages/UserAuthentication.dart';
-import 'package:phoneshop/pages/signUp.dart';
 
 void main() {
   runApp(MyApp());
@@ -18,21 +13,8 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        scaffoldBackgroundColor: Colors.white,
-      ),
-      initialRoute: 'userAuthentication',
-      routes: {
-        '/': (context) => HomeScreen(cart: cart),
-        'cartPage': (context) => CartPage(cart: cart),
-        'itemPage': (context) => ItemPage(
-              product: ModalRoute.of(context)!.settings.arguments as Product,
-            ),
-        'userAuthentication': (context) => const UserAuthentication(),
-        'signUp': (context) => SignUp(),
-      },
+    return const MaterialApp(
+      home: UserAuthentication(),
     );
   }
 }
