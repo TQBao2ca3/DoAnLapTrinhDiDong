@@ -6,6 +6,7 @@ import 'package:phoneshop/pages/ChangePassword.dart';
 import 'package:phoneshop/pages/Homepage.dart';
 import 'package:phoneshop/pages/ItemPage.dart';
 import 'package:phoneshop/pages/UserAuthentication.dart';
+import 'package:phoneshop/pages/UserInformation.dart';
 import 'package:phoneshop/pages/signUp.dart';
 
 void main() {
@@ -33,7 +34,8 @@ class MyApp extends StatelessWidget {
             ),
         'userAuthentication': (context) => const UserAuthentication(),
         'signUp': (context) => const SignUp(),
-        'changePassword': (context) => ChangePassword(),
+        'changePassword': (context) => const Changepassword(),
+        'userInformation': (context) => const UserInformation(),
       },
     );
   }
