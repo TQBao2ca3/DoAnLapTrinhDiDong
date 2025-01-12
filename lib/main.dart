@@ -34,7 +34,7 @@ class MyApp extends StatelessWidget {
             ),
         'userAuthentication': (context) => const UserAuthentication(),
         'signUp': (context) => const SignUp(),
-        'changePassword': (context) => const Changepassword(),
+        'changePassword': (context) => const ChangePassword(),
         'userInformation': (context) => const UserInformation(),
       },
     );

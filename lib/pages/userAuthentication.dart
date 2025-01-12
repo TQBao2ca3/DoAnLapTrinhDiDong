@@ -102,6 +102,7 @@ class _UserAuthenticationState extends State<UserAuthentication> {
                     onPressed: () {
                       Navigator.pushReplacementNamed(context, 'changePassword');
                       // Xử lý quên mật khẩu
+                      Navigator.pushNamed(context, 'userInformation');
                     },
                     style: TextButton.styleFrom(
                       padding: EdgeInsets.zero,
@@ -143,7 +144,7 @@ class _UserAuthenticationState extends State<UserAuthentication> {
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8)),
                   foregroundColor: Colors.white,
-                  backgroundColor: Color(0xff03A9F4),
+                  backgroundColor: const Color(0xff03A9F4),
                 ),
                 child: const Text(
                   'Đăng nhập',
