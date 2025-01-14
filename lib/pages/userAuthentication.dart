@@ -24,7 +24,7 @@ class _UserAuthenticationState extends State<UserAuthentication> {
   Future<void> login() async {
     print(_userNameController.text);
     print(_passwordController.text);
-    final url = Uri.parse('http://192.168.1.6:3000/api/user/login');
+    final url = Uri.parse('http://192.168.100.230:3000/api/user/login');
     try {
       final response = await http.post(
         url,
