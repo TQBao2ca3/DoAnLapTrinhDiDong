@@ -46,6 +46,23 @@ class _UserAuthenticationState extends State<UserAuthentication> {
                   )),
         );
       } else {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text('Lỗi'),
+              content: Text('Đăng nhập không thành công'),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: Text('OK'),
+                ),
+              ],
+            );
+          },
+        );
+        print(
+            'Login failed. Status: ${response.statusCode}, Error: ${responseData['error'] ?? 'Unknown error'}');
         setState(() {
           _errorMessage = responseData['message'] ?? 'Login failed';
         });

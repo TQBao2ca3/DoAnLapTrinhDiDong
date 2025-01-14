@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:phoneshop/pages/userAuthentication.dart';
 import 'package:phoneshop/widgets/Product_Order_Page.dart';
 
 class Screen3 extends StatelessWidget {
@@ -14,7 +15,12 @@ class Screen3 extends StatelessWidget {
           backgroundColor: Colors.blue,
           actions: [
             IconButton(
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => UserAuthentication()));
+                },
                 icon: const Icon(
                   Icons.logout,
                   color: Colors.white,
