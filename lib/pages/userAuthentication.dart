@@ -26,6 +26,8 @@ class _UserAuthenticationState extends State<UserAuthentication> {
     print(_passwordController.text);
     final url = Uri.parse('http://192.168.100.230:3000/api/user/login');
     try {
+      print('username: ${_userNameController.text}');
+      print('password: ${_passwordController.text}');
       final response = await http.post(
         url,
         headers: {'Content-Type': 'application/json'},
@@ -34,9 +36,8 @@ class _UserAuthenticationState extends State<UserAuthentication> {
           'password': _passwordController.text,
         }),
       );
-      print(response.body);
+      print('Statuscode: ${response.statusCode}');
       final responseData = jsonDecode(response.body);
-      //print(responseData);
       if (response.statusCode == 200) {
         Navigator.pushReplacement(
           context,
@@ -51,12 +52,10 @@ class _UserAuthenticationState extends State<UserAuthentication> {
         });
       }
     } catch (e) {
-      print(e);
-      // setState(() {
-      //   _errorMessage = 'An error occurred. Please try again.';
-      // });
+      setState(() {
+        _errorMessage = 'An error occurred. Please try again.';
+      });
     }
-    print("done");
   }
 
   @override

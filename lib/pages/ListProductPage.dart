@@ -17,10 +17,6 @@ class Screen1 extends StatelessWidget {
               child: Container(
                 decoration: const BoxDecoration(
                   color: Color(0xFFEDECF2),
-                  // borderRadius: BorderRadius.only(
-                  //   topLeft: Radius.circular(35),
-                  //   topRight: Radius.circular(35),
-                  // ),
                 ),
                 child: ListView(
                   // Thay SingleChildScrollView bằng ListView

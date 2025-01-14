@@ -1,11 +1,11 @@
 const jwt = require('jsonwebtoken');//import model user
-const User=require('../models/User');//import JWT secret key
+const User=require('../models/UserModel');//import JWT secret key
 const {SECRET_KEY} = require('../config/jwtConfig')
 
 //hàm xử lý logic login
 exports.login=(req,res)=>{
     const {username,password}=req.body;
-    //console.log("login");
+    console.log("login");
     //gọi model để tìm user theo username
     User.findByUsername(username,(err,user)=>{
         if(err) return res.status(500).send({message:'Server error'});

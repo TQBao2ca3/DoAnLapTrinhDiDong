@@ -2,7 +2,7 @@
 import 'package:phoneshop/models/Product.dart';
 
 class CartItem {
-  final String id;
+  final int id;
   final String name;
   final int price;
   final int originalPrice; // Giá gốc trước giảm

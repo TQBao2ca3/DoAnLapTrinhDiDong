@@ -5,7 +5,10 @@ import 'package:phoneshop/models/Cart.dart';
 import 'package:phoneshop/models/CartItem.dart';
 import 'package:phoneshop/models/Product.dart';
 import 'package:phoneshop/pages/CartPage.dart';
+import 'package:phoneshop/pages/Homepage.dart';
 import 'package:phoneshop/pages/PaymentPage.dart';
+import 'package:phoneshop/providers/product_detail_provider.dart';
+import 'package:provider/provider.dart';
 
 class ItemPage extends StatefulWidget {
   final Product product;
@@ -22,9 +25,43 @@ class _ItemPageState extends State<ItemPage> {
   String _selectedColor = 'Đen';
   PageController _pageController = PageController();
   bool _isFavorite = false;
+  Cart cart = Cart();
+  @override
+  void initState() {
+    super.initState();
+    final productDetailProvider =
+        Provider.of<ProductDetailProvider>(context, listen: false);
+    productDetailProvider.loadProductDetail(1);
+  }
 
   @override
   Widget build(BuildContext context) {
+    final productDetailProvider = Provider.of<ProductDetailProvider>(context);
+    if (productDetailProvider.isLoading) {
+      return Center(child: CircularProgressIndicator());
+    }
+    final productDetail = productDetailProvider.productDetail;
+    if (productDetail == null) {
+      return Scaffold(
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              const Text("không tìm thấy sản phẩm"),
+              ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => HomeScreen(cart: cart)));
+                  },
+                  child: const Text("trở về trang chủ"))
+            ],
+          ),
+        ),
+      );
+    }
+
     return Scaffold(
       backgroundColor: Colors.grey[50],
       body: SafeArea(
@@ -89,8 +126,8 @@ class _ItemPageState extends State<ItemPage> {
                         height: 320,
                         decoration: const BoxDecoration(
                           color: Colors.white,
-                          borderRadius: BorderRadius.vertical(bottom: Radius
-                              .circular(30)),
+                          borderRadius: BorderRadius.vertical(
+                              bottom: Radius.circular(30)),
                         ),
                         child: PageView.builder(
                           controller: _pageController,
@@ -180,10 +217,7 @@ class _ItemPageState extends State<ItemPage> {
                             Row(
                               children: [
                                 Text(
-                                  "đ${widget.product.price.toString()
-                                      .replaceAllMapped(
-                                      RegExp(r'(\d)(?=(\d{3})+(?!\d))'), (
-                                      match) => '${match[1]}.')}",
+                                  "đ${widget.product.price.toString().replaceAllMapped(RegExp(r'(\d)(?=(\d{3})+(?!\d))'), (match) => '${match[1]}.')}",
                                   style: TextStyle(
                                     fontSize: 24,
                                     fontWeight: FontWeight.bold,
@@ -376,10 +410,7 @@ class _ItemPageState extends State<ItemPage> {
                                       size: 20, color: Colors.blue[700]),
                                   const SizedBox(width: 8),
                                   Text(
-                                    "Ngày sản xuất: ${widget.product.createAt
-                                        .day}/${widget.product.createAt
-                                        .month}/${widget.product.createAt
-                                        .year}",
+                                    "Ngày sản xuất: ${widget.product.createAt.day}/${widget.product.createAt.month}/${widget.product.createAt.year}",
                                     style: TextStyle(
                                       color: Colors.blue[700],
                                       fontWeight: FontWeight.w500,
@@ -428,15 +459,15 @@ class _ItemPageState extends State<ItemPage> {
                             const SizedBox(height: 8),
                             Row(
                               children: [
-                                const Icon(
-                                    Icons.star, color: Colors.amber, size: 20),
+                                const Icon(Icons.star,
+                                    color: Colors.amber, size: 20),
                                 Text(
                                   " ${widget.product.rating}",
                                   style: const TextStyle(
                                       fontWeight: FontWeight.bold),
                                 ),
-                                Text(" (${widget.product
-                                    .reviewCount} đánh giá)"),
+                                Text(
+                                    " (${widget.product.reviewCount} đánh giá)"),
                               ],
                             ),
                           ],
@@ -511,8 +542,7 @@ class _ItemPageState extends State<ItemPage> {
                                     ],
                                   ),
                                   content: Text(
-                                    'Sản phẩm "${widget.product
-                                        .title}" với màu $_selectedColor và dung lượng $_selectedStorage đã được thêm vào giỏ hàng.',
+                                    'Sản phẩm "${widget.product.title}" với màu $_selectedColor và dung lượng $_selectedStorage đã được thêm vào giỏ hàng.',
                                   ),
                                   actions: [
                                     TextButton(
@@ -521,8 +551,8 @@ class _ItemPageState extends State<ItemPage> {
                                       },
                                       child: Text(
                                         "Đóng",
-                                        style: TextStyle(
-                                            color: Colors.grey[600]),
+                                        style:
+                                            TextStyle(color: Colors.grey[600]),
                                       ),
                                     ),
                                     ElevatedButton(
@@ -539,8 +569,8 @@ class _ItemPageState extends State<ItemPage> {
                                       style: ElevatedButton.styleFrom(
                                         backgroundColor: Colors.blue[600],
                                         shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(
-                                              10),
+                                          borderRadius:
+                                              BorderRadius.circular(10),
                                         ),
                                       ),
                                       child: const Text(
@@ -587,8 +617,8 @@ class _ItemPageState extends State<ItemPage> {
                             );
 
                             // Tạo CartItem từ Product đã chọn
-                            CartItem cartItem = CartItem.fromProduct(
-                                selectedProduct);
+                            CartItem cartItem =
+                                CartItem.fromProduct(selectedProduct);
 
                             // Tính tổng tiền
                             int totalAmount = cartItem.price;
@@ -597,11 +627,10 @@ class _ItemPageState extends State<ItemPage> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) =>
-                                    PaymentPage(
-                                      cartItems: [cartItem],
-                                      totalAmount: totalAmount,
-                                    ),
+                                builder: (context) => PaymentPage(
+                                  cartItems: [cartItem],
+                                  totalAmount: totalAmount,
+                                ),
                               ),
                             );
                           },

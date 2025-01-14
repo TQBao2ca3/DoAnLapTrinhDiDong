@@ -8,6 +8,6 @@
     "mysql2": "^3.12.0"
   },
   "scripts":{
-    "start-backend":"node lib/server.js"
+    "start-backend":"node backend/server.js"
   }
 }
