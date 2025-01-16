@@ -17,13 +17,21 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  final TextEditingController searchController = TextEditingController();
   int _selectedIndex = 0;
   final PageController _pageController = PageController();
-  final List<Widget> _screens = [
-    const Screen1(),
-    Screen2(),
-    const Screen3(),
-  ];
+  String currentSearchQuery = ''; // Thêm biến để theo dõi searchQuery
+
+  // Chuyển _screens thành getter
+  List<Widget> get _screens => [
+        // Thêm key để force rebuild khi searchQuery thay đổi
+        Screen1(
+          key: ValueKey(currentSearchQuery),
+          searchQuery: currentSearchQuery,
+        ),
+        Screen2(),
+        const Screen3(),
+      ];
 
   void _onItemTapped(int index) {
     // Reset filter khi chuyển khỏi trang category (Screen2)
@@ -36,7 +44,6 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() {
       _selectedIndex = index;
     });
-
     _pageController.animateToPage(
       index,
       duration: const Duration(milliseconds: 300),
@@ -50,53 +57,80 @@ class _HomeScreenState extends State<HomeScreen> {
       appBar: _selectedIndex == 2
           ? null
           : AppBar(
-              // Ẩn icon arrow back
               automaticallyImplyLeading: false,
-
               backgroundColor: Color(0xFFEDECF2),
               title: Padding(
-                // Wrap search bar trong Padding
                 padding: const EdgeInsets.symmetric(horizontal: 5),
                 child: Row(
                   children: [
-                    Container(
-                      width: MediaQuery.of(context).size.width * 0.8,
-                      padding: const EdgeInsets.symmetric(horizontal: 15),
-                      height: 50,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(30),
-                      ),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            // Thay Container width cố định bằng Expanded
-                            child: TextFormField(
+                    // Container cho thanh tìm kiếm
+                    Expanded(
+                      child: Container(
+                        height: 50,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                        child: Row(
+                          children: [
+                            // TextField
+                            Expanded(
+                              child: TextFormField(
+                                controller: searchController,
                                 decoration: const InputDecoration(
                                   border: InputBorder.none,
-                                  hintText: " Bạn đang tìm gì...?",
+                                  contentPadding:
+                                      EdgeInsets.symmetric(horizontal: 15),
+                                  hintText: "Bạn đang tìm gì...?",
                                 ),
                                 style: const TextStyle(
-                                    fontWeight: FontWeight.bold)),
-                          ),
-                          const Icon(
-                            Icons.camera_alt,
-                            size: 27,
-                            color: Colors.lightBlue,
-                          ),
-                        ],
+                                    fontWeight: FontWeight.bold),
+                                onChanged: (value) {
+                                  setState(() {
+                                    if (value.trim().isEmpty) {
+                                      currentSearchQuery = '';
+                                    }
+                                  });
+                                },
+                              ),
+                            ),
+                            // Nút tìm kiếm
+                            ElevatedButton(
+                              onPressed: () {
+                                final query = searchController.text.trim();
+                                print(
+                                    "HomeScreen - Search button pressed with query: $query");
+                                if (query.isNotEmpty) {
+                                  setState(() {
+                                    currentSearchQuery = query;
+                                  });
+                                }
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.transparent,
+                                elevation: 0,
+                                padding: const EdgeInsets.all(15),
+                              ),
+                              child: const Icon(
+                                Icons.search,
+                                size: 28,
+                                color: Colors.black,
+                              ),
+                            )
+                          ],
+                        ),
                       ),
                     ),
-                    const SizedBox(
-                      width: 12,
-                    ),
+                    // Icon giỏ hàng
+                    const SizedBox(width: 12),
                     InkWell(
                       onTap: () {
                         Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) =>
-                                    CartPage(cart: widget.cart)));
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => CartPage(cart: widget.cart),
+                          ),
+                        );
                       },
                       child: const Icon(
                         Icons.shopping_cart,
@@ -153,6 +187,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   void dispose() {
+    searchController.dispose();
     _pageController.dispose();
     super.dispose();
   }
