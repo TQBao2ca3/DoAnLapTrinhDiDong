@@ -9,6 +9,7 @@ class CartItem {
   final int quantity;
   final String image;
   final String color;
+  final String storage;
   final String? storeName;
 
   CartItem({
@@ -19,19 +20,21 @@ class CartItem {
     required this.quantity,
     required this.image,
     required this.color,
+    required this.storage,
     this.storeName,
   });
 
   // Convert from Product to CartItem
   factory CartItem.fromProduct(Product product) {
     return CartItem(
-      id: product.id,
-      name: product.title,
-      price: product.price,
-      originalPrice: product.originalPrice ?? product.price,
-      quantity: product.quantity,
-      image: product.image,
+      id: product.product_id,
+      name: product.name,
+      price: product.price[0],
+      originalPrice: product.price[0],
+      quantity: product.stock_quantity,
+      image: product.image_url,
       color: product.colors.first,
+      storage: product.storage.first,
       storeName: 'Phone Shop',
     );
   }

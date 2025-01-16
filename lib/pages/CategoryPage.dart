@@ -1,11 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:phoneshop/providers/Product_provider.dart';
 import 'package:phoneshop/widgets/ItemsWidget.dart';
+import 'package:provider/provider.dart';
 
 class Screen2 extends StatelessWidget {
   Screen2({super.key});
   final List<String> brand = ['iphone', 'samsung', 'xiaomi', 'oppo'];
   @override
   Widget build(BuildContext context) {
+    //lấy productprovider
+    final productProvider =
+        Provider.of<ProductProvider>(context, listen: false);
+
+    //gọi hàm load products khi widget được xây dựng
+    productProvider.loadProducts();
     return Scaffold(
         backgroundColor: Color(0xFFEDECF2),
         body: Column(
@@ -42,7 +50,7 @@ class Screen2 extends StatelessWidget {
                 // Thay SingleChildScrollView bằng ListView
                 //padding: const EdgeInsets.only(top: 15),
                 children: [
-                  ItemsWidget(),
+                  //ItemsWidget(),
                   const SizedBox(
                       height: 80), // Thêm space cho bottom navigation bar
                 ],

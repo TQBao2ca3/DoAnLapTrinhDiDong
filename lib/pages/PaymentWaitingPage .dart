@@ -26,9 +26,11 @@ class _PaymentWaitingPageState extends State<PaymentWaitingPage> {
   @override
   void initState() {
     super.initState();
-    print('PaymentWaitingPage - Initial Cart Items: ${widget.cartItems.length}');
+    print(
+        'PaymentWaitingPage - Initial Cart Items: ${widget.cartItems.length}');
     for (var item in widget.cartItems) {
-      print('Item Debug - Name: ${item.name}, Price: ${item.price}, Color: ${item.color}, Quantity: ${item.quantity}');
+      print(
+          'Item Debug - Name: ${item.name}, Price: ${item.price}, Color: ${item.color}, Quantity: ${item.quantity}');
     }
   }
 
@@ -39,7 +41,8 @@ class _PaymentWaitingPageState extends State<PaymentWaitingPage> {
 
   @override
   Widget build(BuildContext context) {
-    print('PaymentWaitingPage Build - Cart Items Count: ${widget.cartItems.length}');
+    print(
+        'PaymentWaitingPage Build - Cart Items Count: ${widget.cartItems.length}');
 
     return Scaffold(
       backgroundColor: Colors.grey[50],
@@ -219,7 +222,7 @@ class _PaymentWaitingPageState extends State<PaymentWaitingPage> {
                             MaterialPageRoute(
                               builder: (context) => HomeScreen(cart: Cart()),
                             ),
-                                (route) => false,
+                            (route) => false,
                           );
                         },
                         style: ElevatedButton.styleFrom(
@@ -244,7 +247,8 @@ class _PaymentWaitingPageState extends State<PaymentWaitingPage> {
                     Expanded(
                       child: ElevatedButton(
                         onPressed: () {
-                          print('Navigating to OrderSummaryPage with ${widget.cartItems.length} items');
+                          print(
+                              'Navigating to OrderSummaryPage with ${widget.cartItems.length} items');
                           for (var item in widget.cartItems) {
                             print('Sending item: ${item.name}');
                           }
@@ -253,7 +257,8 @@ class _PaymentWaitingPageState extends State<PaymentWaitingPage> {
                             MaterialPageRoute(
                               builder: (context) => OrderSummaryPage(
                                 totalAmount: widget.totalAmount,
-                                cartItems: List<CartItem>.from(widget.cartItems),
+                                cartItems:
+                                    List<CartItem>.from(widget.cartItems),
                                 paymentMethod: widget.paymentMethod,
                               ),
                             ),

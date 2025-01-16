@@ -1,11 +1,11 @@
-const ProductDetail=require('../models/ProductDetailModel');
+const ProductDetailModel=require('../models/ProductDetailModel');
 
 //hàm xử lý logic getProductDetail
 exports.getProductDetail=(req,res)=>{
     const {id}=req.params;
     
     //gọi model để tìm productdetail theo id
-    ProductDetail.findByProductID(id,(err,productdetail)=>{
+    ProductDetailModel.findByProductID(id,(err,productdetail)=>{
         if(err) return res.status(500).send({message:'Server error'});
         if(!productdetail) return res.status(401).send({message:'Productdetail not found'});
         

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:phoneshop/pages/UserInformation.dart';
 import 'package:phoneshop/widgets/Product_Order_Page.dart';
 
 class Screen3 extends StatelessWidget {
@@ -46,7 +47,12 @@ class Screen3 extends StatelessWidget {
                       padding:
                           EdgeInsets.symmetric(vertical: 30, horizontal: 40),
                       child: ElevatedButton(
-                          onPressed: () {},
+                          onPressed: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => UserInformation()));
+                          },
                           style: ElevatedButton.styleFrom(
                             minimumSize: Size(100, 80),
                             backgroundColor: Colors.white,
@@ -73,10 +79,15 @@ class Screen3 extends StatelessWidget {
                           )),
                     ),
                     Padding(
-                        padding:
-                            EdgeInsets.symmetric(vertical: 15, horizontal: 40),
-                        child: ElevatedButton(
-                          onPressed: () {},
+                      padding:
+                          EdgeInsets.symmetric(vertical: 30, horizontal: 40),
+                      child: ElevatedButton(
+                          onPressed: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => UserInformation()));
+                          },
                           style: ElevatedButton.styleFrom(
                             minimumSize: Size(100, 80),
                             backgroundColor: Colors.white,
@@ -86,30 +97,22 @@ class Screen3 extends StatelessWidget {
                             shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(15)),
                           ),
-                          child: InkWell(
-                              onTap: () {
-                                Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) =>
-                                            ProductOrderScreen()));
-                              },
-                              child: const Row(
-                                children: [
-                                  Icon(Icons.list_alt),
-                                  Padding(
-                                    padding: EdgeInsets.only(left: 20),
-                                    child: Text(
-                                      "Đơn hàng",
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.w900,
-                                          fontSize: 20,
-                                          color: Colors.black),
-                                    ),
-                                  )
-                                ],
-                              )),
-                        )),
+                          child: const Row(
+                            children: [
+                              Icon(Icons.list_alt),
+                              Padding(
+                                padding: EdgeInsets.only(left: 20),
+                                child: Text(
+                                  "Đơn hàng",
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.w900,
+                                      fontSize: 20,
+                                      color: Colors.black),
+                                ),
+                              )
+                            ],
+                          )),
+                    ),
                     Padding(
                       padding:
                           EdgeInsets.symmetric(vertical: 30, horizontal: 40),

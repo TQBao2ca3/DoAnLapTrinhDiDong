@@ -1,13 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:phoneshop/models/Cart.dart';
 import 'package:phoneshop/models/CartItem.dart';
 import 'package:phoneshop/models/Product.dart';
 import 'package:phoneshop/pages/CartPage.dart';
-import 'package:phoneshop/pages/Homepage.dart';
 import 'package:phoneshop/pages/PaymentPage.dart';
-import 'package:phoneshop/providers/product_detail_provider.dart';
+import 'package:phoneshop/providers/Product_provider.dart';
 import 'package:provider/provider.dart';
 
 class ItemPage extends StatefulWidget {
@@ -29,39 +27,13 @@ class _ItemPageState extends State<ItemPage> {
   @override
   void initState() {
     super.initState();
-    final productDetailProvider =
-        Provider.of<ProductDetailProvider>(context, listen: false);
-    productDetailProvider.loadProductDetail(1);
+    final productProvider =
+        Provider.of<ProductProvider>(context, listen: false);
+    productProvider.loadProducts();
   }
 
   @override
   Widget build(BuildContext context) {
-    final productDetailProvider = Provider.of<ProductDetailProvider>(context);
-    if (productDetailProvider.isLoading) {
-      return Center(child: CircularProgressIndicator());
-    }
-    final productDetail = productDetailProvider.productDetail;
-    if (productDetail == null) {
-      return Scaffold(
-        body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              const Text("không tìm thấy sản phẩm"),
-              ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => HomeScreen(cart: cart)));
-                  },
-                  child: const Text("trở về trang chủ"))
-            ],
-          ),
-        ),
-      );
-    }
-
     return Scaffold(
       backgroundColor: Colors.grey[50],
       body: SafeArea(
@@ -140,7 +112,7 @@ class _ItemPageState extends State<ItemPage> {
                           itemBuilder: (context, index) {
                             return Padding(
                               padding: const EdgeInsets.all(16),
-                              child: Image.asset(widget.product.image),
+                              child: Image.network(widget.product.image_url),
                             );
                           },
                         ),
@@ -185,8 +157,8 @@ class _ItemPageState extends State<ItemPage> {
                                 ),
                                 child: ClipRRect(
                                   borderRadius: BorderRadius.circular(13),
-                                  child: Image.asset(
-                                    widget.product.image,
+                                  child: Image.network(
+                                    widget.product.image_url,
                                     fit: BoxFit.cover,
                                   ),
                                 ),
@@ -211,7 +183,7 @@ class _ItemPageState extends State<ItemPage> {
                             ),
                           ],
                         ),
-                        child: Row(
+                        child: Column(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Row(
@@ -243,23 +215,29 @@ class _ItemPageState extends State<ItemPage> {
                                   ),
                               ],
                             ),
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 12,
-                                vertical: 6,
-                              ),
-                              decoration: BoxDecoration(
-                                color: Colors.blue[50],
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                              child: Text(
-                                "Đã bán 2k",
-                                style: TextStyle(
-                                  color: Colors.blue[700],
-                                  fontWeight: FontWeight.bold,
+                            const SizedBox(
+                              height: 10,
+                            ),
+                            Align(
+                              alignment: Alignment.centerRight,
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 6,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: Colors.blue[50],
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                child: Text(
+                                  "Đã bán 2k",
+                                  style: TextStyle(
+                                    color: Colors.blue[700],
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
                               ),
-                            ),
+                            )
                           ],
                         ),
                       ),
@@ -410,7 +388,7 @@ class _ItemPageState extends State<ItemPage> {
                                       size: 20, color: Colors.blue[700]),
                                   const SizedBox(width: 8),
                                   Text(
-                                    "Ngày sản xuất: ${widget.product.createAt.day}/${widget.product.createAt.month}/${widget.product.createAt.year}",
+                                    "Ngày nhập hàng: ${widget.product.created_at.day}/${widget.product.created_at.month}/${widget.product.created_at.year}",
                                     style: TextStyle(
                                       color: Colors.blue[700],
                                       fontWeight: FontWeight.w500,
@@ -450,7 +428,7 @@ class _ItemPageState extends State<ItemPage> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              widget.product.title,
+                              widget.product.name,
                               style: const TextStyle(
                                 fontSize: 20,
                                 fontWeight: FontWeight.bold,
@@ -506,19 +484,34 @@ class _ItemPageState extends State<ItemPage> {
                       Expanded(
                         child: ElevatedButton.icon(
                           onPressed: () {
-                            // Tạo một sản phẩm mới với storage đã chọn
+                            // Lấy index của storage và price tương ứng
+                            int storageIndex = widget.product.storage
+                                .indexOf(_selectedStorage);
+
+                            // Tạo sản phẩm mới với storage và color đã chọn
                             Product productToAdd = Product(
-                              id: widget.product.id,
-                              title: widget.product.title,
+                              product_id: widget.product.product_id,
+                              name: widget.product.name,
                               description: widget.product.description,
-                              image: widget.product.image,
-                              price: widget.product.price,
-                              originalPrice: widget.product.originalPrice,
+                              image_url: widget.product.image_url,
+                              // Lấy giá tương ứng với storage đã chọn
+                              price: storageIndex != -1 &&
+                                      storageIndex < widget.product.price.length
+                                  ? [
+                                      widget.product.price[storageIndex]
+                                    ] // Lấy giá theo storage
+                                  : [
+                                      widget.product.price[0]
+                                    ], // Mặc định lấy giá đầu tiên
                               discount: widget.product.discount,
-                              storage: widget.product.storage,
-                              colors: [_selectedColor],
-                              createAt: widget.product.createAt,
-                              quantity: 1,
+                              rating: widget.product.rating,
+                              reviewCount: widget.product.reviewCount,
+                              storage: [
+                                _selectedStorage
+                              ], // Storage đang được chọn
+                              colors: [_selectedColor], // Màu đang được chọn
+                              created_at: widget.product.created_at,
+                              stock_quantity: 1,
                             );
 
                             // Thêm sản phẩm vào giỏ hàng
@@ -542,7 +535,7 @@ class _ItemPageState extends State<ItemPage> {
                                     ],
                                   ),
                                   content: Text(
-                                    'Sản phẩm "${widget.product.title}" với màu $_selectedColor và dung lượng $_selectedStorage đã được thêm vào giỏ hàng.',
+                                    'Sản phẩm "${widget.product.name}" với màu $_selectedColor và dung lượng $_selectedStorage đã được thêm vào giỏ hàng.',
                                   ),
                                   actions: [
                                     TextButton(
@@ -601,26 +594,41 @@ class _ItemPageState extends State<ItemPage> {
                       Expanded(
                         child: ElevatedButton(
                           onPressed: () {
+                            // Lấy index của storage và price tương ứng
+                            int storageIndex = widget.product.storage
+                                .indexOf(_selectedStorage);
+
                             // Tạo sản phẩm với thông tin đã chọn
                             Product selectedProduct = Product(
-                              id: widget.product.id,
-                              title: widget.product.title,
+                              product_id: widget.product.product_id,
+                              name: widget.product.name,
                               description: widget.product.description,
-                              image: widget.product.image,
-                              price: widget.product.price,
-                              originalPrice: widget.product.originalPrice,
+                              image_url: widget.product.image_url,
+                              // Lấy giá tương ứng với storage đã chọn
+                              price: storageIndex != -1 &&
+                                      storageIndex < widget.product.price.length
+                                  ? [
+                                      widget.product.price[storageIndex]
+                                    ] // Lấy giá theo storage
+                                  : [
+                                      widget.product.price[0]
+                                    ], // Mặc định lấy giá đầu tiên
                               discount: widget.product.discount,
-                              storage: [_selectedStorage],
-                              colors: [_selectedColor],
-                              createAt: widget.product.createAt,
-                              quantity: 1,
+                              rating: widget.product.rating,
+                              reviewCount: widget.product.reviewCount,
+                              storage: [
+                                _selectedStorage
+                              ], // Storage đang được chọn
+                              colors: [_selectedColor], // Màu đang được chọn
+                              created_at: widget.product.created_at,
+                              stock_quantity: 1,
                             );
 
                             // Tạo CartItem từ Product đã chọn
                             CartItem cartItem =
                                 CartItem.fromProduct(selectedProduct);
 
-                            // Tính tổng tiền
+                            // Tính tổng tiền dựa trên giá của storage đã chọn
                             int totalAmount = cartItem.price;
 
                             // Chuyển sang trang thanh toán với sản phẩm đã chọn
