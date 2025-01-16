@@ -62,7 +62,7 @@ class _PaymentPageState extends State<PaymentPage> {
     final result = await Navigator.push<String>(
       context,
       MaterialPageRoute(
-        builder: (context) => ShippingMethodPage(
+        builder: (context) => const ShippingMethodPage(
           selectedMethod:
               'Express Shipping', // Truyền giá trị cho selectedMethod
         ),
@@ -474,7 +474,7 @@ class _PaymentPageState extends State<PaymentPage> {
                             ),
                             const SizedBox(height: 8),
                             Text(
-                              "Nhận hàng vào 18 Tháng 1",
+                              "Nhận hàng vào ${DateTime.now().day + 3} Tháng ${DateTime.now().month}",
                               style: TextStyle(color: Colors.grey[600]),
                             ),
                           ],

@@ -9,14 +9,7 @@ const app = express();
 app.use(express.json());
 
 
-const connection = mysql.createConnection({
-    host: 'monorail.proxy.rlwy.net',
-    port: 33332,
-    user: 'root',
-    password: 'EdpRdJrtNGOTaGPPydqPCRtbkMNZlNjj',
-    database: 'railway'
-});
-
+const connection = require('./config/Database');
 
 //định nghĩa route cho user
 app.use('/api/user',userRoutes)
@@ -47,7 +40,7 @@ app.get('/api/orders/:user_id', async (req, res) => {
         SUM(railway.OrdersDetail.quantity * railway.OrdersDetail.price) as TongTien
       FROM railway.Orders
       INNER JOIN railway.OrdersDetail ON railway.Orders.order_id = railway.OrdersDetail.order_id
-      INNER JOIN railway.ProductDetail ON railway.OrdersDetail.product_deatail_id = railway.ProductDetail.product_detail_id
+      INNER JOIN railway.ProductDetail ON railway.OrdersDetail.product_detail_id = railway.ProductDetail.product_detail_id
       INNER JOIN railway.Products ON railway.ProductDetail.product_id = railway.Products.product_id
       WHERE railway.Orders.user_id = ?
       GROUP BY

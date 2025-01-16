@@ -261,7 +261,7 @@ class OrderDetailsPage extends StatelessWidget {
                                             MainAxisAlignment.spaceBetween,
                                         children: [
                                           Text(
-                                            "500000",
+                                            item.price.toString(),
                                             //formatCurrency(item.price),
                                             style: TextStyle(
                                               color: Colors.blue[700],

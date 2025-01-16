@@ -36,10 +36,7 @@ class OrderDetail {
 class ProductOrderScreen extends StatefulWidget {
   final int userId;
 
-  const ProductOrderScreen({
-    Key? key,
-    required this.userId
-  }) : super(key: key);
+  const ProductOrderScreen({Key? key, required this.userId}) : super(key: key);
 
   @override
   ProductOrderScreenState createState() => ProductOrderScreenState();
@@ -65,14 +62,13 @@ class ProductOrderScreenState extends State<ProductOrderScreen>
 
     try {
       final response = await http.get(
-        Uri.parse('http://192.168.1.7:3000/api/orders/${widget.userId}'),
+        Uri.parse('http://192.168.1.4:3000/api/orders/${widget.userId}'),
       );
 
       if (response.statusCode == 200) {
         final List<dynamic> jsonData = json.decode(response.body);
-        final List<OrderDetail> fetchedOrders = jsonData
-            .map((data) => OrderDetail.fromJson(data))
-            .toList();
+        final List<OrderDetail> fetchedOrders =
+            jsonData.map((data) => OrderDetail.fromJson(data)).toList();
 
         setState(() {
           orders = fetchedOrders;
@@ -121,8 +117,7 @@ class ProductOrderScreenState extends State<ProductOrderScreen>
           return ItemOrder(
             orderDetails: order,
           );
-        }
-    );
+        });
   }
 
   @override
@@ -138,16 +133,9 @@ class ProductOrderScreenState extends State<ProductOrderScreen>
             icon: const Icon(
               Icons.arrow_back,
               color: Colors.blue,
-            )
-        ),
+            )),
         title: const Text("Đơn hàng"),
         centerTitle: true,
-        actions: [
-          IconButton(
-              onPressed: () {},
-              icon: const Icon(Icons.search, color: Colors.blue)
-          )
-        ],
         bottom: TabBar(
             controller: tabController,
             indicatorColor: Colors.blue,
@@ -158,17 +146,11 @@ class ProductOrderScreenState extends State<ProductOrderScreen>
               Tab(text: "Đang giao"),
               Tab(text: "Đã giao"),
               Tab(text: "Đã hủy")
-            ]
-        ),
+            ]),
       ),
       body: TabBarView(
           controller: tabController,
-          children: [
-            buildOrderList(),
-            buildOrderList(),
-            buildOrderList()
-          ]
-      ),
+          children: [buildOrderList(), buildOrderList(), buildOrderList()]),
     );
   }
 }

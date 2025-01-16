@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:phoneshop/models/Cart.dart';
+import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:phoneshop/pages/ChangePassword.dart';
 import 'dart:convert';
 
 import 'package:phoneshop/pages/Homepage.dart';
+import 'package:phoneshop/providers/Cart_Provider.dart';
+import 'package:phoneshop/providers/User_Provider.dart';
+import 'package:provider/provider.dart';
 
 class UserAuthentication extends StatefulWidget {
   const UserAuthentication({super.key});
@@ -17,14 +20,12 @@ class _UserAuthenticationState extends State<UserAuthentication> {
 // Controller để lấy dữ liệu từ TextField
   final TextEditingController _userNameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  Cart cart = Cart();
+  CartProvider cart = CartProvider();
   String _errorMessage = '';
 
   //login
   Future<void> login() async {
-    print(_userNameController.text);
-    print(_passwordController.text);
-    final url = Uri.parse('http://192.168.1.7:3000/api/user/login');
+    final url = Uri.parse('http://192.168.1.4:3000/api/user/login');
     try {
       final response = await http.post(
         url,
@@ -34,29 +35,58 @@ class _UserAuthenticationState extends State<UserAuthentication> {
           'password': _passwordController.text,
         }),
       );
-      print(response.body);
+
       final responseData = jsonDecode(response.body);
-      //print(responseData);
+
       if (response.statusCode == 200) {
+        final token = responseData['token'];
+        Map<String, dynamic> decodedToken = JwtDecoder.decode(token);
+
+        // In ra toàn bộ decoded token để kiểm tra cấu trúc
+        print("Decoded token content: $decodedToken");
+
+        final userIdFromToken = decodedToken['id'];
+        print(
+            "Raw userIdFromToken: $userIdFromToken (${userIdFromToken.runtimeType})");
+
+        // In ra response data để kiểm tra
+        print("Response data: $responseData");
+        final userIdFromResponse = responseData['userId'];
+        print(
+            "Raw userIdFromResponse: $userIdFromResponse (${userIdFromResponse.runtimeType})");
+
+        // Chuyển đổi sang int một cách an toàn
+        int? userId;
+
+        // Thử lấy từ token và in ra kết quả
+        if (userIdFromToken != null) {
+          userId = int.tryParse(userIdFromToken.toString());
+          // print("userId từ token sau khi parse: $userId");
+        }
+
+        // Thử lấy từ response và in ra kết quả
+        if (userId == null && userIdFromResponse != null) {
+          userId = int.tryParse(userIdFromResponse.toString());
+          //print("userId từ response sau khi parse: $userId");
+        }
+
+        // Kiểm tra và lưu vào Provider
+        if (userId != null) {
+          context.read<UserProvider>().setUserId(userId);
+        } else {
+          print("Không thể lấy được user ID hợp lệ");
+        }
+
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-              builder: (_) => HomeScreen(
-                    cart: cart,
-                  )),
+            builder: (_) => HomeScreen(cart: cart),
+          ),
         );
-      } else {
-        setState(() {
-          _errorMessage = responseData['message'] ?? 'Login failed';
-        });
       }
     } catch (e) {
-      print(e);
-      // setState(() {
-      //   _errorMessage = 'An error occurred. Please try again.';
-      // });
+      print("Error during login: $e");
     }
-    print("done");
   }
 
   @override

@@ -1,11 +1,11 @@
 import 'package:flutter/foundation.dart';
-import 'Product.dart';
+import 'package:phoneshop/models/Product.dart';
 
-class Cart with ChangeNotifier {
-  static final Cart _instance = Cart._internal();
-  Cart._internal();
+class CartProvider with ChangeNotifier {
+  static final CartProvider _cartProvider = CartProvider._internal();
+  CartProvider._internal();
 
-  factory Cart() => _instance;
+  factory CartProvider() => _cartProvider;
 
   final List<Product> _items = [];
 

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:phoneshop/models/ProductHomePage.dart';
 import 'package:phoneshop/services/ProductHomePage_service.dart';
-import 'package:phoneshop/services/Product_service.dart';
 
 class ProductHomePageProvider with ChangeNotifier {
   final ProductHomePageService _productService = ProductHomePageService();

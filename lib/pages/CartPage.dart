@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:phoneshop/models/Cart.dart';
 import 'package:phoneshop/models/CartItem.dart';
 import 'package:phoneshop/models/Product.dart';
 import 'package:phoneshop/pages/PaymentPage.dart';
 import 'package:intl/intl.dart';
+import 'package:phoneshop/providers/Cart_Provider.dart';
 
 class CartPage extends StatefulWidget {
-  final Cart cart;
+  final CartProvider cart;
   const CartPage({super.key, required this.cart});
 
   @override
@@ -55,13 +55,13 @@ class _CartPageState extends State<CartPage> {
     });
   }
 
-  String _formatCurrency(int amount) {
+  String _formatCurrency(double amount) {
     final formatCurrency = NumberFormat('#,##0 đ', 'vi_VN');
     return formatCurrency.format(amount);
   }
 
-  int _calculateTotalAmount() {
-    int total = 0;
+  double _calculateTotalAmount() {
+    double total = 0;
     for (var product in widget.cart.items) {
       if (_selectedProductIndices
           .contains(widget.cart.items.indexOf(product))) {
@@ -150,8 +150,8 @@ class _CartPageState extends State<CartPage> {
                       itemCount: cartItems.length,
                       itemBuilder: (context, index) {
                         Product product = cartItems[index];
-                        int totalPrice =
-                            product.price[0] * product.stock_quantity;
+                        double totalPrice = product.price[0] *
+                            product.stock_quantity.toDouble();
 
                         return Container(
                           margin: const EdgeInsets.only(bottom: 16),

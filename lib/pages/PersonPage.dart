@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:phoneshop/pages/UserInformation.dart';
+import 'package:phoneshop/providers/User_Provider.dart';
 import 'package:phoneshop/widgets/Product_Order_Page.dart';
-
-import 'OrderSummaryPage.dart';
+import 'package:provider/provider.dart';
 
 class Screen3 extends StatelessWidget {
   const Screen3({super.key});
-
   @override
   Widget build(BuildContext context) {
+    final user_id = context.watch<UserProvider>().userId;
     return Scaffold(
         backgroundColor: Colors.blue,
         appBar: AppBar(
@@ -88,7 +88,9 @@ class Screen3 extends StatelessWidget {
                             Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                    builder: (context) => ProductOrderScreen(userId: 2,)));
+                                    builder: (context) => ProductOrderScreen(
+                                          userId: user_id,
+                                        )));
                           },
                           style: ElevatedButton.styleFrom(
                             minimumSize: Size(100, 80),
@@ -115,36 +117,6 @@ class Screen3 extends StatelessWidget {
                             ],
                           )),
                     ),
-                    Padding(
-                      padding:
-                          EdgeInsets.symmetric(vertical: 30, horizontal: 40),
-                      child: ElevatedButton(
-                          onPressed: () {},
-                          style: ElevatedButton.styleFrom(
-                            minimumSize: Size(100, 80),
-                            backgroundColor: Colors.white,
-                            foregroundColor: Colors.blue,
-                            shadowColor: Colors.black,
-                            elevation: 8,
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(15)),
-                          ),
-                          child: const Row(
-                            children: [
-                              Icon(Icons.inbox),
-                              Padding(
-                                padding: EdgeInsets.only(left: 20),
-                                child: Text(
-                                  "Voucher",
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.w900,
-                                      fontSize: 20,
-                                      color: Colors.black),
-                                ),
-                              )
-                            ],
-                          )),
-                    )
                   ],
                 ),
               )

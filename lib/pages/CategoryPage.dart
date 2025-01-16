@@ -11,6 +11,12 @@ class Screen2 extends StatefulWidget {
 }
 
 class _Screen2State extends State<Screen2> {
+  final List<String> brandImage = [
+    'https://upload.wikimedia.org/wikipedia/commons/thumb/f/fa/Apple_logo_black.svg/732px-Apple_logo_black.svg.png',
+    'https://images.samsung.com/is/image/samsung/assets/vn/about-us/brand/logo/pc/720_600_1.png?\$720_N_PNG\$',
+    'https://upload.wikimedia.org/wikipedia/commons/thumb/a/ae/Xiaomi_logo_%282021-%29.svg/225px-Xiaomi_logo_%282021-%29.svg.png',
+    'https://static.wikia.nocookie.net/logos/images/2/25/Oppo_2013.png/revision/latest?cb=20230414094522&path-prefix=vi',
+  ];
   final List<String> brand = ['iphone', 'samsung', 'xiaomi', 'oppo'];
   @override
   void dispose() {
@@ -69,9 +75,30 @@ class _Screen2State extends State<Screen2> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Image.network(
-                                'https://cdn2.cellphones.com.vn/insecure/rs:fill:358:358/q:90/plain/https://cellphones.com.vn/media/catalog/product/s/s/ss-s24-ultra-xam-222.png',
-                                width: 30, // Giảm kích thước ảnh thêm
-                                height: 30, // Giảm kích thước ảnh thêm
+                                brandImage[index],
+                                width: 30,
+                                height: 30,
+                                errorBuilder: (context, error, stackTrace) {
+                                  return Icon(Icons.phone_android,
+                                      size:
+                                          30); // Icon mặc định khi load ảnh lỗi
+                                },
+                                loadingBuilder:
+                                    (context, child, loadingProgress) {
+                                  if (loadingProgress == null) return child;
+                                  return Center(
+                                    child: CircularProgressIndicator(
+                                      value:
+                                          loadingProgress.expectedTotalBytes !=
+                                                  null
+                                              ? loadingProgress
+                                                      .cumulativeBytesLoaded /
+                                                  loadingProgress
+                                                      .expectedTotalBytes!
+                                              : null,
+                                    ),
+                                  );
+                                },
                               ),
                               SizedBox.shrink(), // Thay thế SizedBox cố định
                               Text(

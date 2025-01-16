@@ -1,17 +1,17 @@
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:phoneshop/models/Cart.dart';
 import 'package:phoneshop/pages/CartPage.dart';
 import 'package:phoneshop/pages/CategoryPage.dart';
 import 'package:phoneshop/pages/ListProductPage.dart';
 import 'package:phoneshop/pages/PersonPage.dart';
+import 'package:phoneshop/providers/Cart_Provider.dart';
 import 'package:phoneshop/providers/Product_provider.dart';
 import 'package:provider/provider.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key, required this.cart});
-  final Cart cart;
+  final CartProvider cart;
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }

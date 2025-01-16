@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:phoneshop/models/Address.dart';
 import 'package:phoneshop/pages/AddNewAddressPage%20.dart';
@@ -29,7 +28,8 @@ class _AddressListPageState extends State<AddressListPage> {
   }
 
   void _addNewAddress() async {
-    final result = await Navigator.push<Address>( // Chỉ định kiểu rõ ràng
+    final result = await Navigator.push<Address>(
+      // Chỉ định kiểu rõ ràng
       context,
       MaterialPageRoute(builder: (context) => const AddNewAddressPage()),
     );
@@ -61,9 +61,9 @@ class _AddressListPageState extends State<AddressListPage> {
           if (index == addresses.length) {
             return TextButton(
               onPressed: _addNewAddress,
-              child: Row(
+              child: const Row(
                 mainAxisAlignment: MainAxisAlignment.center,
-                children: const [
+                children: [
                   Icon(Icons.add, color: Colors.red),
                   SizedBox(width: 8),
                   Text(
@@ -78,63 +78,95 @@ class _AddressListPageState extends State<AddressListPage> {
           final address = addresses[index];
           final isSelected = address == selectedAddress;
 
-          return ListTile(
-            leading: Radio<Address>(
-              value: address,
-              groupValue: selectedAddress,
-              onChanged: (Address? value) {
-                if (value != null) {
-                  setState(() {
-                    selectedAddress = value;
-                  });
-                  Navigator.pop(context, value); // Trả về đối tượng Address đã chọn
-                }
-              },
-              activeColor: Colors.red,
-            ),
-            title: Row(
-              children: [
-                Text(
-                  address.name,
-                  style: const TextStyle(fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(width: 8),
-                Text(address.phone),
-              ],
-            ),
-            subtitle: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(height: 4),
-                Text(address.address),
-                if (address.isDefault)
-                  Container(
-                    margin: const EdgeInsets.only(top: 4),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 2,
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            child: Card(
+              child: Padding(
+                padding: const EdgeInsets.all(8),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Radio<Address>(
+                          value: address,
+                          groupValue: selectedAddress,
+                          onChanged: (Address? value) {
+                            if (value != null) {
+                              setState(() {
+                                selectedAddress = value;
+                              });
+                              Navigator.pop(context, value);
+                            }
+                          },
+                          activeColor: Colors.red,
+                        ),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Wrap(
+                                spacing: 8,
+                                children: [
+                                  Text(
+                                    address.name,
+                                    style: const TextStyle(
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                  Text(
+                                    address.phone,
+                                    style: const TextStyle(fontSize: 13),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                address.address,
+                                style: const TextStyle(fontSize: 13),
+                              ),
+                            ],
+                          ),
+                        ),
+                        TextButton(
+                          onPressed: () {
+                            // TODO: Implement edit address
+                          },
+                          style: TextButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(horizontal: 8),
+                            minimumSize: Size.zero,
+                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                          ),
+                          child: const Text(
+                            'Sửa',
+                            style: TextStyle(color: Colors.red),
+                          ),
+                        ),
+                      ],
                     ),
-                    decoration: BoxDecoration(
-                      color: Colors.red.shade50,
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                    child: const Text(
-                      "Mặc định",
-                      style: TextStyle(
-                        color: Colors.red,
-                        fontSize: 12,
+                    if (address.isDefault)
+                      Padding(
+                        padding: const EdgeInsets.only(left: 48, top: 4),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 2,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.red.shade50,
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          child: const Text(
+                            "Mặc định",
+                            style: TextStyle(
+                              color: Colors.red,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ),
                       ),
-                    ),
-                  ),
-              ],
-            ),
-            trailing: TextButton(
-              onPressed: () {
-                // TODO: Implement edit address
-              },
-              child: const Text(
-                'Sửa',
-                style: TextStyle(color: Colors.red),
+                  ],
+                ),
               ),
             ),
           );

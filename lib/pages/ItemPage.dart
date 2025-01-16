@@ -1,10 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:phoneshop/models/Cart.dart';
 import 'package:phoneshop/models/CartItem.dart';
 import 'package:phoneshop/models/Product.dart';
 import 'package:phoneshop/pages/CartPage.dart';
 import 'package:phoneshop/pages/PaymentPage.dart';
+import 'package:phoneshop/providers/Cart_Provider.dart';
 import 'package:phoneshop/providers/Product_provider.dart';
 import 'package:provider/provider.dart';
 
@@ -23,7 +23,7 @@ class _ItemPageState extends State<ItemPage> {
   String _selectedColor = 'Đen';
   PageController _pageController = PageController();
   bool _isFavorite = false;
-  Cart cart = Cart();
+  CartProvider cart = CartProvider();
   @override
   void initState() {
     super.initState();
@@ -568,7 +568,7 @@ class _ItemPageState extends State<ItemPage> {
                             );
 
                             // Thêm sản phẩm vào giỏ hàng
-                            final cart = Cart();
+                            final cart = CartProvider();
                             cart.add(productToAdd);
 
                             // Hiển thị dialog xác nhận

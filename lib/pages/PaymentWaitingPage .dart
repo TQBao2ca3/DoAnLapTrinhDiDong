@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:phoneshop/models/Cart.dart';
 import 'package:phoneshop/models/CartItem.dart';
 import 'package:phoneshop/pages/Homepage.dart';
 import 'package:phoneshop/pages/OrderSummaryPage.dart';
-import 'package:phoneshop/pages/PaymentMethodPage.dart';
+import 'package:phoneshop/providers/Cart_Provider.dart';
 
 class PaymentWaitingPage extends StatefulWidget {
   final int totalAmount;
@@ -179,7 +178,7 @@ class _PaymentWaitingPageState extends State<PaymentWaitingPage> {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          'Vui lòng thanh toán trước 05-01-2025 10:09. Thường xuyên kiểm tra tin nhắn từ Người bán tại PhoneShop/Chỉ nhận & thanh toán khi đơn mua ở trạng thái "Đang giao hàng".',
+                          'Vui lòng thanh toán trước ${DateTime.now().day + 1}-${DateTime.now().month}-2025 ${DateTime.now().hour}:${DateTime.now().minute}. Thường xuyên kiểm tra tin nhắn từ Người bán tại PhoneShop/Chỉ nhận & thanh toán khi đơn mua ở trạng thái "Đang giao hàng".',
                           style: TextStyle(
                             color: Colors.grey[800],
                             height: 1.5,
@@ -220,7 +219,8 @@ class _PaymentWaitingPageState extends State<PaymentWaitingPage> {
                           Navigator.pushAndRemoveUntil(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => HomeScreen(cart: Cart()),
+                              builder: (context) =>
+                                  HomeScreen(cart: CartProvider()),
                             ),
                             (route) => false,
                           );
