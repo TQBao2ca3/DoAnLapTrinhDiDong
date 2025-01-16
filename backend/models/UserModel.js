@@ -1,4 +1,4 @@
-const db= require('../config/database');
+const db= require('../config/Database');
 
 const User={
     //Hàm tìm user theo username

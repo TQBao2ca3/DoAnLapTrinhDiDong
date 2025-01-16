@@ -22,9 +22,7 @@ class _UserAuthenticationState extends State<UserAuthentication> {
 
   //login
   Future<void> login() async {
-    print(_userNameController.text);
-    print(_passwordController.text);
-    final url = Uri.parse('http://192.168.100.230:3000/api/user/login');
+    final url = Uri.parse('http://192.168.1.9:3000/api/user/login');
     try {
       print('username: ${_userNameController.text}');
       print('password: ${_passwordController.text}');

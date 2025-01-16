@@ -1,6 +1,6 @@
 const jwt = require('jsonwebtoken');//import model user
 const User=require('../models/UserModel');//import JWT secret key
-const {SECRET_KEY} = require('../config/jwtConfig')
+const {SECRET_KEY} = require('../config/JWTConfig')
 
 //hàm xử lý logic login
 exports.login=(req,res)=>{

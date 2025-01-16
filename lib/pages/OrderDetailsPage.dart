@@ -89,8 +89,8 @@ class OrderDetailsPage extends StatelessWidget {
                           children: [
                             Row(
                               children: [
-                                Icon(
-                                    Icons.location_on, color: Colors.blue[600]),
+                                Icon(Icons.location_on,
+                                    color: Colors.blue[600]),
                                 const SizedBox(width: 8),
                                 const Text(
                                   'Địa chỉ nhận hàng',
@@ -106,8 +106,8 @@ class OrderDetailsPage extends StatelessWidget {
                               children: [
                                 Expanded(
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment
-                                        .start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       const Text(
                                         'Trần Quốc Bảo',
@@ -181,8 +181,8 @@ class OrderDetailsPage extends StatelessWidget {
                                   ),
                                   child: Row(
                                     children: [
-                                      Icon(Icons.store, size: 16,
-                                          color: Colors.blue[600]),
+                                      Icon(Icons.store,
+                                          size: 16, color: Colors.blue[600]),
                                       const SizedBox(width: 4),
                                       Text(
                                         "Mall",
@@ -215,7 +215,7 @@ class OrderDetailsPage extends StatelessWidget {
                               children: [
                                 ClipRRect(
                                   borderRadius: BorderRadius.circular(12),
-                                  child: Image.asset(
+                                  child: Image.network(
                                     item.image,
                                     width: 80,
                                     height: 80,
@@ -225,8 +225,8 @@ class OrderDetailsPage extends StatelessWidget {
                                 const SizedBox(width: 12),
                                 Expanded(
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment
-                                        .start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Text(
                                         item.name,
@@ -244,8 +244,8 @@ class OrderDetailsPage extends StatelessWidget {
                                         ),
                                         decoration: BoxDecoration(
                                           color: Colors.grey[100],
-                                          borderRadius: BorderRadius.circular(
-                                              6),
+                                          borderRadius:
+                                              BorderRadius.circular(6),
                                         ),
                                         child: Text(
                                           "Màu: ${item.color}",
@@ -257,11 +257,12 @@ class OrderDetailsPage extends StatelessWidget {
                                       ),
                                       const SizedBox(height: 8),
                                       Row(
-                                        mainAxisAlignment: MainAxisAlignment
-                                            .spaceBetween,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
                                         children: [
                                           Text(
-                                            formatCurrency(item.price),
+                                            "500000",
+                                            //formatCurrency(item.price),
                                             style: TextStyle(
                                               color: Colors.blue[700],
                                               fontWeight: FontWeight.bold,
@@ -275,8 +276,8 @@ class OrderDetailsPage extends StatelessWidget {
                                             ),
                                             decoration: BoxDecoration(
                                               color: Colors.blue[50],
-                                              borderRadius: BorderRadius
-                                                  .circular(6),
+                                              borderRadius:
+                                                  BorderRadius.circular(6),
                                             ),
                                             child: Text(
                                               'x${item.quantity}',
@@ -359,8 +360,8 @@ class OrderDetailsPage extends StatelessWidget {
                               children: [
                                 const Text('Thời gian đặt hàng'),
                                 Text(
-                                  DateFormat('dd-MM-yyyy HH:mm').format(
-                                      orderTime),
+                                  DateFormat('dd-MM-yyyy HH:mm')
+                                      .format(orderTime),
                                   style: const TextStyle(
                                     fontWeight: FontWeight.w500,
                                   ),

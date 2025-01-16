@@ -1,7 +1,7 @@
 import 'package:http/http.dart' as http;
 
 class ApiService {
-  static const String baseUrl = 'http://192.168.30.220:3000/api';
+  static const String baseUrl = 'http://192.168.1.9:3000/api';
 
   //hàm GET
   static Future<http.Response> getRequest(String endpoint) async {

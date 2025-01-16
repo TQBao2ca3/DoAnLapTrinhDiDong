@@ -2,6 +2,8 @@
 const express = require('express');
 const userRoutes=require('./routes/userRoutes')
 const productDetailRoutes= require('./routes/productDetailRoutes')
+const productRoutes=require('./routes/productRoute')
+const productHomePageRoutes=require('./routes/productHomePageRoute')
 const app = express();
 app.use(express.json());
 
@@ -12,6 +14,11 @@ app.use('/api/user',userRoutes)
 //định nghĩa route cho productdetail
 app.use('/api/productdetail',productDetailRoutes)
 
+//định nghĩa route cho product
+app.use('/api/product',productRoutes)
+
+//định nghĩa route cho productHomePage
+app.use('/api/productHomePage',productHomePageRoutes)
 
 // Start Server
 app.listen(3000, () => console.log('Server running on port 3000'));
