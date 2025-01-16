@@ -18,7 +18,7 @@ app.use('/api/productdetail',productDetailRoutes)
 app.use('/api/product',productRoutes)
 
 //định nghĩa route cho productHomePage
-app.use('/api/productHomePage',productHomePageRoutes)
+app.use('/api/productHomePage', productHomePageRoutes)
 
 // Start Server
 app.listen(3000, () => console.log('Server running on port 3000'));

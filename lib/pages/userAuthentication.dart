@@ -5,6 +5,8 @@ import 'package:phoneshop/pages/ChangePassword.dart';
 import 'dart:convert';
 
 import 'package:phoneshop/pages/Homepage.dart';
+import 'package:phoneshop/pages/signUp.dart';
+import 'package:phoneshop/services/userPreference.dart';
 
 class UserAuthentication extends StatefulWidget {
   const UserAuthentication({super.key});
@@ -36,7 +38,19 @@ class _UserAuthenticationState extends State<UserAuthentication> {
       );
       print('Statuscode: ${response.statusCode}');
       final responseData = jsonDecode(response.body);
-      if (response.statusCode == 200) {
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final data = jsonDecode(response.body);
+        final token = data['token'];
+
+        // Debug token
+        print('Token received: $token');
+
+        await UserPreferences.saveToken(token);
+
+        // Kiểm tra token vừa lưu
+        final savedToken = await UserPreferences.getToken();
+        print('Saved token: $savedToken');
+
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
@@ -187,7 +201,10 @@ class _UserAuthenticationState extends State<UserAuthentication> {
                   ),
                   TextButton(
                     onPressed: () {
-                      Navigator.pushReplacementNamed(context, 'signUp');
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const SignUp()));
                     },
                     child: const Text(
                       'Đăng ký',

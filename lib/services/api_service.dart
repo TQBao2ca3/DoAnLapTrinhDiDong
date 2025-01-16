@@ -1,4 +1,7 @@
+import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:phoneshop/pages/UserInformation.dart';
+import 'package:phoneshop/pages/userAuthentication.dart';
 
 class ApiService {
   static const String baseUrl = 'http://192.168.1.9:3000/api';
@@ -24,4 +27,12 @@ class ApiService {
       'Accept': 'application/json',
     };
   }
+}
+
+class AppRoutes {
+  static final Map<String, WidgetBuilder> routes = {
+    '/': (context) => const UserInformation(),
+    '/login': (context) => const UserAuthentication(),
+    // Thêm các routes khác
+  };
 }

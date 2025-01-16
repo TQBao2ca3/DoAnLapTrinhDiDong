@@ -11,15 +11,20 @@ class ProductProvider with ChangeNotifier {
   bool get isLoading => _isLoading;
 
   Future<void> loadProducts() async {
+    if (_isLoading) return; // Tránh gọi nhiều lần
+
     _isLoading = true;
-    notifyListeners();
+    // Đợi frame tiếp theo trước khi notify
+    Future.microtask(() => notifyListeners());
+
     try {
       _products = await _productService.getProductList();
     } catch (error) {
       //handle error
     } finally {
       _isLoading = false;
-      notifyListeners();
+      // Đợi frame tiếp theo trước khi notify
+      Future.microtask(() => notifyListeners());
     }
   }
 }

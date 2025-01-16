@@ -1,4 +1,11 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:phoneshop/pages/userAuthentication.dart';
+import 'package:phoneshop/providers/Product_provider.dart';
+import 'package:phoneshop/providers/user_provider.dart';
+import 'package:provider/provider.dart';
+import 'package:http/http.dart' as http;
 
 class SignUp extends StatefulWidget {
   const SignUp({super.key});
@@ -8,6 +15,22 @@ class SignUp extends StatefulWidget {
 }
 
 class _SignUpState extends State<SignUp> {
+  @override
+  void initState() {
+    super.initState();
+    //lấy ProductProvider và gọi loadProducts
+    Future.microtask(() async {
+      final userProvider = Provider.of<UserProvider>(context, listen: false);
+      await userProvider.register(
+          username: _userNameController.text,
+          password: _passwordController.text,
+          email: _emailController.text,
+          full_name: _fullNameController.text,
+          phone: _phoneController.text);
+      print("Đăng ký");
+    });
+  }
+
   final TextEditingController _userNameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _fullNameController = TextEditingController();
@@ -20,8 +43,7 @@ class _SignUpState extends State<SignUp> {
         _passwordController.text.isEmpty ||
         _fullNameController.text.isEmpty ||
         _emailController.text.isEmpty ||
-        _phoneController.text.isEmpty ||
-        _andressController.text.isEmpty) {
+        _phoneController.text.isEmpty) {
       _showError('Vui lòng điền đầy đủ thông tin');
       return;
     }
@@ -30,6 +52,92 @@ class _SignUpState extends State<SignUp> {
   _showError(String message) {
     ScaffoldMessenger.of(context)
         .showSnackBar(SnackBar(content: Text(message)));
+  }
+
+  Future<void> register() async {
+    final url = Uri.parse('http://192.168.1.9:3000/api/user/register');
+    // try {
+    //   // Lấy UserProvider
+    //   final userProvider = Provider.of<UserProvider>(context, listen: false);
+
+    //   // Gọi hàm đăng ký
+    //   await userProvider.register(
+    //     username: _userNameController.text,
+    //     password: _passwordController.text,
+    //     full_name: _fullNameController.text,
+    //     email: _emailController.text,
+    //     phone: _phoneController.text,
+    //   );
+
+    //   // Kiểm tra lỗi từ provider
+    //   if (userProvider.error != null) {
+    //     _showError(userProvider.error!);
+    //   } else {
+    //     // Đăng ký thành công
+    //     ScaffoldMessenger.of(context).showSnackBar(
+    //       const SnackBar(content: Text('Đăng ký thành công')),
+    //     );
+    //     // Chuyển về trang đăng nhập
+    //     Navigator.pushReplacement(
+    //         context,
+    //         MaterialPageRoute(
+    //             builder: (context) => const UserAuthentication()));
+    //   }
+    // } catch (e) {
+    //   _showError('Đã có lỗi xảy ra');
+    // }
+
+    try {
+      print('username: ${_userNameController.text}');
+      print('password: ${_passwordController.text}');
+      print('email: ${_emailController.text}');
+      print('phone: ${_phoneController.text}');
+      print('fullname: ${_fullNameController.text}');
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'username': _userNameController.text,
+          'password': _passwordController.text,
+          'full_name': _fullNameController.text,
+          'phone': _phoneController.text,
+          'email': _emailController.text,
+        }),
+      );
+      print('Statuscode: ${response.statusCode}');
+      final responseData = jsonDecode(response.body);
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => const UserAuthentication()),
+        );
+      } else {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text('Lỗi'),
+              content: Text('Đăng nhập không thành công'),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: Text('OK'),
+                ),
+              ],
+            );
+          },
+        );
+        print(
+            'Login failed. Status: ${response.statusCode}, Error: ${responseData['error'] ?? 'Unknown error'}');
+        setState(() {
+          _showError("Login failed");
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _showError("An error occurred. Please try again.");
+      });
+    }
   }
 
   @override
@@ -146,6 +254,7 @@ class _SignUpState extends State<SignUp> {
               ElevatedButton(
                 onPressed: () {
                   _handleAuthentication();
+                  register();
                 },
                 style: ElevatedButton.styleFrom(
                   minimumSize: const Size(152, 42),
@@ -168,8 +277,10 @@ class _SignUpState extends State<SignUp> {
                   const Text('Bạn đã có tài khoản? '),
                   TextButton(
                     onPressed: () {
-                      Navigator.pushReplacementNamed(
-                          context, 'userAuthentication');
+                      Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => UserAuthentication()));
                     },
                     child: const Text(
                       'Đăng nhập',
