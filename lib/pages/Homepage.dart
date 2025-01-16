@@ -6,11 +6,8 @@ import 'package:phoneshop/pages/CartPage.dart';
 import 'package:phoneshop/pages/CategoryPage.dart';
 import 'package:phoneshop/pages/ListProductPage.dart';
 import 'package:phoneshop/pages/PersonPage.dart';
-import 'package:phoneshop/widgets/CategoriesWidget.dart';
-import 'package:phoneshop/widgets/HomeAppBar.dart';
-import 'package:phoneshop/widgets/ItemsWidget.dart';
-import 'CategoryPage.dart';
-import 'PersonPage.dart';
+import 'package:phoneshop/providers/Product_provider.dart';
+import 'package:provider/provider.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key, required this.cart});
@@ -20,34 +17,36 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  //Mã index màn hình đang hiển thị
   int _selectedIndex = 0;
   final PageController _pageController = PageController();
-  //Danh sách các màn hình
   final List<Widget> _screens = [
     const Screen1(),
     Screen2(),
     const Screen3(),
   ];
 
-  //Hàm xử lý khi nhấn vào một icon trên thanh điều hướng
   void _onItemTapped(int index) {
+    // Reset filter khi chuyển khỏi trang category (Screen2)
+    if (_selectedIndex == 1 && index != 1) {
+      final productProvider =
+          Provider.of<ProductProvider>(context, listen: false);
+      productProvider.resetFilter();
+    }
+
     setState(() {
       _selectedIndex = index;
     });
 
-    // Điều hướng PageView tới trang tương ứng
-    _pageController.animateToPage(index,
-        duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
-
-    //Điều hướng đến trang tương ứng trong PageView
-    _pageController.jumpToPage(index);
+    _pageController.animateToPage(
+      index,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // Kiểm tra nếu ở màn hình 3 thì không hiển thị AppBar
       appBar: _selectedIndex == 2
           ? null
           : AppBar(
@@ -112,9 +111,15 @@ class _HomeScreenState extends State<HomeScreen> {
       body: PageView(
         controller: _pageController,
         onPageChanged: (index) {
+          // Reset filter khi vuốt khỏi trang category (Screen2)
+          if (_selectedIndex == 1 && index != 1) {
+            final productProvider =
+                Provider.of<ProductProvider>(context, listen: false);
+            productProvider.resetFilter();
+          }
+
           setState(() {
-            _selectedIndex =
-                index; // Đồng bộ _selectedIndex với trạng thái của trang
+            _selectedIndex = index;
           });
         },
         children: _screens,
@@ -144,5 +149,11 @@ class _HomeScreenState extends State<HomeScreen> {
         ],
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
   }
 }

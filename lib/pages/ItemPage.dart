@@ -32,6 +32,45 @@ class _ItemPageState extends State<ItemPage> {
     productProvider.loadProducts();
   }
 
+  // Thêm hàm kiểm tra vào class _ItemPageState
+  void _showWarningDialog(BuildContext context, String message) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          title: Row(
+            children: [
+              Icon(Icons.warning_amber, color: Colors.orange[600]),
+              const SizedBox(width: 8),
+              const Text("Thông báo"),
+            ],
+          ),
+          content: Text(message),
+          actions: [
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.blue[600],
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+              child: const Text(
+                "Đóng",
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -484,6 +523,20 @@ class _ItemPageState extends State<ItemPage> {
                       Expanded(
                         child: ElevatedButton.icon(
                           onPressed: () {
+                            // Kiểm tra xem đã chọn màu và dung lượng chưa
+                            if (!widget.product.colors
+                                .contains(_selectedColor)) {
+                              _showWarningDialog(context,
+                                  "Vui lòng chọn màu sắc trước khi thêm vào giỏ hàng");
+                              return;
+                            }
+
+                            if (!widget.product.storage
+                                .contains(_selectedStorage)) {
+                              _showWarningDialog(context,
+                                  "Vui lòng chọn dung lượng trước khi thêm vào giỏ hàng");
+                              return;
+                            }
                             // Lấy index của storage và price tương ứng
                             int storageIndex = widget.product.storage
                                 .indexOf(_selectedStorage);
@@ -594,6 +647,20 @@ class _ItemPageState extends State<ItemPage> {
                       Expanded(
                         child: ElevatedButton(
                           onPressed: () {
+                            // Kiểm tra xem đã chọn màu và dung lượng chưa
+                            if (!widget.product.colors
+                                .contains(_selectedColor)) {
+                              _showWarningDialog(context,
+                                  "Vui lòng chọn màu sắc trước khi mua hàng");
+                              return;
+                            }
+
+                            if (!widget.product.storage
+                                .contains(_selectedStorage)) {
+                              _showWarningDialog(context,
+                                  "Vui lòng chọn dung lượng trước khi mua hàng");
+                              return;
+                            }
                             // Lấy index của storage và price tương ứng
                             int storageIndex = widget.product.storage
                                 .indexOf(_selectedStorage);

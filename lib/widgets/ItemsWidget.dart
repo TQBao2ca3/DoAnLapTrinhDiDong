@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:phoneshop/models/Product.dart';
-import 'package:phoneshop/models/ProductHomePage.dart';
 import 'package:phoneshop/pages/ItemPage.dart';
 
 class ItemsWidget extends StatelessWidget {

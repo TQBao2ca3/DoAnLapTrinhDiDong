@@ -40,12 +40,6 @@ class _PaymentMethodPageState extends State<PaymentMethodPage> {
       description: "Thanh toán bằng thẻ tín dụng hoặc ghi nợ quốc tế.",
     ),
     PaymentMethod(
-      name: "Google Pay",
-      icon: Icons.g_mobiledata,
-      subtitle: "Thanh toán tiện lợi qua Google Pay",
-      description: "Dễ dàng liên kết với tài khoản ngân hàng của bạn.",
-    ),
-    PaymentMethod(
       name: "Thanh toán khi nhận hàng",
       icon: Icons.local_shipping,
       isEnabled: true,
@@ -161,7 +155,8 @@ class _PaymentMethodPageState extends State<PaymentMethodPage> {
               child: ListView.separated(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 itemCount: methods.length,
-                separatorBuilder: (context, index) => const SizedBox(height: 12),
+                separatorBuilder: (context, index) =>
+                    const SizedBox(height: 12),
                 itemBuilder: (context, index) {
                   final method = methods[index];
                   final isSelected = method.name == selectedMethod;
@@ -173,10 +168,10 @@ class _PaymentMethodPageState extends State<PaymentMethodPage> {
                     child: GestureDetector(
                       onTap: method.isEnabled
                           ? () {
-                        setState(() {
-                          selectedMethod = method.name;
-                        });
-                      }
+                              setState(() {
+                                selectedMethod = method.name;
+                              });
+                            }
                           : null,
                       child: AnimatedContainer(
                         duration: const Duration(milliseconds: 200),
@@ -187,8 +182,8 @@ class _PaymentMethodPageState extends State<PaymentMethodPage> {
                             color: isSelected
                                 ? Colors.blue[600]!
                                 : isHovered
-                                ? Colors.blue[200]!
-                                : Colors.transparent,
+                                    ? Colors.blue[200]!
+                                    : Colors.transparent,
                             width: 2,
                           ),
                           boxShadow: [

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:phoneshop/models/Cart.dart';
 import 'package:phoneshop/pages/UserAuthentication.dart';
 import 'package:phoneshop/providers/ProductHomePage_Provider.dart';
-import 'package:phoneshop/providers/product_detail_provider.dart';
 import 'package:phoneshop/providers/Product_provider.dart';
 import 'package:provider/provider.dart';
 
@@ -11,7 +10,8 @@ void main() {
     providers: [
       //ChangeNotifierProvider(create: (_) => ProductDetailProvider()),
       ChangeNotifierProvider(create: (_) => ProductProvider()),
-      ChangeNotifierProvider(create: (_) => ProductHomePageProvider())
+      ChangeNotifierProvider(create: (_) => ProductHomePageProvider()),
+      //ChangeNotifierProvider(create: (_) => CategoryProvider())
     ],
     child: MyApp(),
   ));
