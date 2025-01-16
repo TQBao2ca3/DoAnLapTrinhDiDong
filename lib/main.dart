@@ -1,9 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:phoneshop/models/Cart.dart';
 import 'package:phoneshop/pages/UserAuthentication.dart';
+import 'package:phoneshop/providers/product_detail_provider.dart';
+import 'package:provider/provider.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(MultiProvider(
+    providers: [
+      ChangeNotifierProvider(create: (_) => ProductDetailProvider()),
+    ],
+    child: MyApp(),
+  ));
 }
 
 class MyApp extends StatelessWidget {

@@ -1,5 +1,5 @@
 class Product {
-  final String id; // Thêm trường id
+  final int id; // Thêm trường id
   final String title;
   final String description;
   final String image;
@@ -28,4 +28,34 @@ class Product {
     required this.createAt, // Đặt yêu cầu ngày sản xuất
     this.quantity = 1,
   });
+
+  //convert Map to dart object
+  factory Product.fromJson(Map<String, dynamic> json) {
+    return Product(
+      id: json['id'],
+      title: json['title'],
+      description: json['description'],
+      image: json['image'],
+      price: json['price'],
+      originalPrice: json['originalPrice'],
+      storage: json['storage'],
+      colors: json['colors'],
+      createAt: json['createAt'],
+    );
+  }
+
+  //convert dart object to Map
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'title': title,
+      'description': description,
+      'image': image,
+      'price': price,
+      'originalPrice': originalPrice,
+      'storage': storage,
+      'colors': colors,
+      'createAt': createAt,
+    };
+  }
 }
