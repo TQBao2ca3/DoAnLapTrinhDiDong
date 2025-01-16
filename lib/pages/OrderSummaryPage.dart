@@ -120,7 +120,7 @@ class _OrderSummaryPageState extends State<OrderSummaryPage> {
                 // Product image
                 ClipRRect(
                   borderRadius: BorderRadius.circular(4),
-                  child: Image.asset(
+                  child: Image.network(
                     item.image,
                     width: 80,
                     height: 80,
@@ -168,7 +168,7 @@ class _OrderSummaryPageState extends State<OrderSummaryPage> {
                         children: [
                           if (item.price != item.originalPrice)
                             Text(
-                              "${formatCurrency(item.originalPrice)}",
+                              "${formatCurrency(item.originalPrice as int)}",
                               style: const TextStyle(
                                 decoration: TextDecoration.lineThrough,
                                 color: Colors.grey,
@@ -176,7 +176,7 @@ class _OrderSummaryPageState extends State<OrderSummaryPage> {
                               ),
                             ),
                           Text(
-                            "${formatCurrency(item.price)}",
+                            "${formatCurrency(item.price as int)}",
                             style: const TextStyle(
                               color: Colors.black,
                             ),
