@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:phoneshop/managers/favorite_manager.dart';
 import 'package:phoneshop/models/Product.dart';
 import 'package:phoneshop/pages/ItemPage.dart';
 
 class ItemsWidget extends StatelessWidget {
+  final String searchQuery;  // Thêm biến searchQuery
+  final String? selectedCategory;
+  final double? minPrice;
+  final double? maxPrice;
   final List<Product> products = [
     Product(
       id: '1',
@@ -145,21 +150,63 @@ class ItemsWidget extends StatelessWidget {
       reviewCount: 567,
     ),
   ];
+  ItemsWidget({
+    super.key,
+    this.searchQuery = '',
+    this.selectedCategory,
+    this.minPrice,
+    this.maxPrice,
+  });
+// Thêm hàm lọc sản phẩm
+  List<Product> _getFilteredProducts() {
+    return products.where((product) {
+      // Lọc theo từ khóa tìm kiếm
+      bool matchesSearch = searchQuery.isEmpty ||
+          product.title.toLowerCase().contains(searchQuery.toLowerCase()) ||
+          product.description.toLowerCase().contains(searchQuery.toLowerCase());
 
-  ItemsWidget({super.key});
+      // Lọc theo danh mục
+      bool matchesCategory = selectedCategory == null ||
+          product.title.toLowerCase().contains(selectedCategory!.toLowerCase());
+
+      // Lọc theo giá
+      bool matchesPrice = (minPrice == null && maxPrice == null) ||
+          (product.price >= (minPrice ?? 0) &&
+              product.price <= (maxPrice ?? double.infinity));
+
+      return matchesSearch && matchesCategory && matchesPrice;
+    }).toList();
+  }
 
   @override
   Widget build(BuildContext context) {
+    final filteredProducts = _getFilteredProducts();
     final screenWidth = MediaQuery.of(context).size.width;
     int crossAxisCount = (screenWidth ~/ 200);
     double childAspectRatio = 0.60;
+
+    if (filteredProducts.isEmpty) {
+      return const Center(
+        child: Padding(
+          padding: EdgeInsets.all(20.0),
+          child: Text(
+            'Không tìm thấy sản phẩm phù hợp',
+            style: TextStyle(
+              fontSize: 16,
+              color: Colors.grey,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+      );
+    }
 
     return GridView.count(
       crossAxisCount: crossAxisCount,
       childAspectRatio: childAspectRatio,
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
-      children: products.map((product) {
+      children: filteredProducts.map((product) {
         return Container(
           padding: const EdgeInsets.all(8),
           margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
@@ -196,9 +243,41 @@ class ItemsWidget extends StatelessWidget {
                       ),
                     ),
                   ),
-                  const Icon(
-                    Icons.favorite_border,
-                    color: Colors.red,
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      ValueListenableBuilder<List<Product>>(
+                        valueListenable: favoriteProductsNotifier,
+                        builder: (context, favoriteProducts, child) {
+                          final isFavorite = isProductFavorite(product);
+                          return IconButton(
+                            icon: Icon(
+                              isFavorite ? Icons.favorite : Icons.favorite_border,
+                              color: Colors.red,
+                            ),
+                            onPressed: () {
+                              if (isFavorite) {
+                                removeFavoriteProduct(product);
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('Đã xóa khỏi danh sách yêu thích'),
+                                    behavior: SnackBarBehavior.floating,
+                                  ),
+                                );
+                              } else {
+                                addFavoriteProduct(product);
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('Đã thêm vào danh sách yêu thích'),
+                                    behavior: SnackBarBehavior.floating,
+                                  ),
+                                );
+                              }
+                            },
+                          );
+                        },
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -208,7 +287,6 @@ class ItemsWidget extends StatelessWidget {
                     context,
                     MaterialPageRoute(
                       builder: (context) => ItemPage(product: product),
-
                     ),
                   );
                 },

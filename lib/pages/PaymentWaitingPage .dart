@@ -176,7 +176,7 @@ class _PaymentWaitingPageState extends State<PaymentWaitingPage> {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          'Vui lòng thanh toán trước 05-01-2025 10:09. Thường xuyên kiểm tra tin nhắn từ Người bán tại PhoneShop/Chỉ nhận & thanh toán khi đơn mua ở trạng thái "Đang giao hàng".',
+                          'Vui lòng thanh toán trước 05-01-2025 10:09. Thường xuyên kiểm tra tin nhắn từ Người bán tại H2DB Mobile/Chỉ nhận & thanh toán khi đơn mua ở trạng thái "Đang giao hàng".',
                           style: TextStyle(
                             color: Colors.grey[800],
                             height: 1.5,

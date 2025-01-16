@@ -356,14 +356,6 @@ class _ItemPageState extends State<ItemPage> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text(
-                              "Thông tin sản phẩm",
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            const SizedBox(height: 12),
                             Container(
                               padding: const EdgeInsets.all(12),
                               decoration: BoxDecoration(
@@ -376,16 +368,21 @@ class _ItemPageState extends State<ItemPage> {
                                       size: 20, color: Colors.blue[700]),
                                   const SizedBox(width: 8),
                                   Text(
-                                    "Ngày sản xuất: ${widget.product.createAt
-                                        .day}/${widget.product.createAt
-                                        .month}/${widget.product.createAt
-                                        .year}",
+                                    "Ngày sản xuất: ${widget.product.createAt.day}/${widget.product.createAt.month}/${widget.product.createAt.year}",
                                     style: TextStyle(
                                       color: Colors.blue[700],
                                       fontWeight: FontWeight.w500,
                                     ),
                                   ),
                                 ],
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+                            const Text(
+                              "Mô tả sản phẩm",
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
                               ),
                             ),
                             const SizedBox(height: 16),

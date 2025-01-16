@@ -1,16 +1,11 @@
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:phoneshop/models/Cart.dart';
 import 'package:phoneshop/pages/CartPage.dart';
 import 'package:phoneshop/pages/CategoryPage.dart';
 import 'package:phoneshop/pages/ListProductPage.dart';
 import 'package:phoneshop/pages/PersonPage.dart';
-import 'package:phoneshop/widgets/CategoriesWidget.dart';
 import 'package:phoneshop/widgets/HomeAppBar.dart';
-import 'package:phoneshop/widgets/ItemsWidget.dart';
-import 'CategoryPage.dart';
-import 'PersonPage.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key, required this.cart});
@@ -20,101 +15,144 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  //Mã index màn hình đang hiển thị
   int _selectedIndex = 0;
   final PageController _pageController = PageController();
-  //Danh sách các màn hình
-  final List<Widget> _screens = [
+  final TextEditingController _searchController = TextEditingController();
+  String _searchQuery = '';
+
+  late final List<Widget> _screens = [
     const Screen1(),
-    Screen2(),
-    const Screen3(),
+    CategoryPage(searchQuery: _searchQuery),
+    const PersonPage(),
   ];
 
-  //Hàm xử lý khi nhấn vào một icon trên thanh điều hướng
+  @override
+  void dispose() {
+    _searchController.dispose();
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  void _onSearch() {
+    setState(() {
+      _searchQuery = _searchController.text.trim();
+      if (_selectedIndex != 1) {
+        _selectedIndex = 1;
+        _pageController.animateToPage(
+          1,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeInOut,
+        );
+      }
+      // Rebuild CategoryPage với query mới
+      _screens[1] = CategoryPage(searchQuery: _searchQuery);
+    });
+  }
+
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
     });
 
-    // Điều hướng PageView tới trang tương ứng
-    _pageController.animateToPage(index,
-        duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
-
-    //Điều hướng đến trang tương ứng trong PageView
-    _pageController.jumpToPage(index);
+    _pageController.animateToPage(
+        index,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // Kiểm tra nếu ở màn hình 3 thì không hiển thị AppBar
       appBar: _selectedIndex == 2
           ? null
-          : AppBar(
-              // Ẩn icon arrow back
-              automaticallyImplyLeading: false,
-
-              backgroundColor: Color(0xFFEDECF2),
-              title: Padding(
-                // Wrap search bar trong Padding
-                padding: const EdgeInsets.symmetric(horizontal: 5),
-                child: Row(
-                  children: [
-                    Container(
-                      width: MediaQuery.of(context).size.width * 0.8,
-                      padding: const EdgeInsets.symmetric(horizontal: 15),
-                      height: 50,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(30),
-                      ),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            // Thay Container width cố định bằng Expanded
-                            child: TextFormField(
-                                decoration: const InputDecoration(
-                                  border: InputBorder.none,
-                                  hintText: " Bạn đang tìm gì...?",
-                                ),
-                                style: const TextStyle(
-                                    fontWeight: FontWeight.bold)),
-                          ),
-                          const Icon(
-                            Icons.camera_alt,
-                            size: 27,
-                            color: Colors.lightBlue,
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(
-                      width: 12,
-                    ),
-                    InkWell(
-                      onTap: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) =>
-                                    CartPage(cart: widget.cart)));
-                      },
-                      child: const Icon(
-                        Icons.shopping_cart,
-                        size: 27,
-                        color: Colors.lightBlue,
-                      ),
-                    )
-                  ],
+          : PreferredSize(
+        preferredSize: Size.fromHeight(_selectedIndex == 0 ? 120 : 60), // Điều chỉnh chiều cao dựa vào index
+        child: SafeArea(
+          child: Column(
+            children: [
+              Container(
+                height: 60,
+                child: HomeAppBar(
+                  cart: widget.cart,
+                  tooltipMessage: "Shopping Cart",
                 ),
               ),
-            ),
+              if (_selectedIndex == 0) // Chỉ hiển thị thanh tìm kiếm ở trang chủ
+                Container(
+                  height: 60,
+                  color: const Color(0xFFEDECF2),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Container(
+                            height: 40,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(30),
+                            ),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: TextFormField(
+                                    controller: _searchController,
+                                    decoration: InputDecoration(
+                                      border: InputBorder.none,
+                                      hintText: " Bạn đang tìm gì...?",
+                                      contentPadding: const EdgeInsets.symmetric(horizontal: 15),
+                                      suffixIcon: _searchController.text.isNotEmpty
+                                          ? IconButton(
+                                        onPressed: () {
+                                          _searchController.clear();
+                                          setState(() {}); // Cập nhật UI
+                                        },
+                                        icon: const Icon(
+                                          Icons.close,
+                                          size: 20,
+                                          color: Colors.grey,
+                                        ),
+                                      )
+                                          : null,
+                                    ),
+                                    style: const TextStyle(
+                                        fontWeight: FontWeight.bold
+                                    ),
+                                    onFieldSubmitted: (value) => _onSearch(),
+                                    onChanged: (value) {
+                                      setState(() {}); // Cập nhật UI để hiển thị/ẩn nút xóa
+                                    },
+                                  ),
+                                ),
+                                GestureDetector(
+                                  onTap: _onSearch,
+                                  child: const Padding(
+                                    padding: EdgeInsets.only(right: 10),
+                                    child: Icon(
+                                      Icons.search,
+                                      size: 25,
+                                      color: Colors.lightBlue,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
       body: PageView(
         controller: _pageController,
         onPageChanged: (index) {
           setState(() {
-            _selectedIndex =
-                index; // Đồng bộ _selectedIndex với trạng thái của trang
+            _selectedIndex = index;
           });
         },
         children: _screens,
@@ -126,20 +164,38 @@ class _HomeScreenState extends State<HomeScreen> {
         height: 70,
         color: Colors.lightBlue,
         items: const [
-          Icon(
-            Icons.home,
-            size: 30,
-            color: Colors.white,
+          Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.home,
+                size: 30,
+                color: Colors.white,
+              ),
+
+            ],
           ),
-          Icon(
-            Icons.list,
-            size: 30,
-            color: Colors.white,
+          Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.list,
+                size: 30,
+                color: Colors.white,
+              ),
+
+            ],
           ),
-          Icon(
-            Icons.person,
-            size: 30,
-            color: Colors.white,
+          Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.person,
+                size: 30,
+                color: Colors.white,
+              ),
+
+            ],
           ),
         ],
       ),
