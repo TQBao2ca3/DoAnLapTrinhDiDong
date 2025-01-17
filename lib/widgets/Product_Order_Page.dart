@@ -5,7 +5,6 @@ import 'dart:async';
 import 'dart:developer' as developer;
 import 'package:phoneshop/widgets/Product_Order_Item.dart';
 
-// Mô hình dữ liệu cho chi tiết đơn hàng
 class OrderDetail {
   final int orderId;
   final String imageUrl;
@@ -16,11 +15,12 @@ class OrderDetail {
   final double total; // Thêm trường total
   final int status;
 
-  // Enum để quản lý trạng thái đơn hàng
+  // Cập nhật statusMap để bao gồm trạng thái đã hủy
   static const Map<int, String> statusMap = {
     0: 'Chờ duyệt',
     1: 'Đang giao',
     2: 'Đã giao',
+    -1: 'Đã hủy', // Thêm trạng thái đã hủy
   };
 
   OrderDetail({
@@ -30,11 +30,10 @@ class OrderDetail {
     required this.quantity,
     required this.storage,
     required this.price,
-    required this.total, // Thêm total vào constructor
+    required this.total,
     required this.status,
   });
 
-  // Phương thức chuyển đổi từ JSON sang đối tượng OrderDetail
   factory OrderDetail.fromJson(Map<String, dynamic> json) {
     return OrderDetail(
       orderId: json['orderId'] ?? 0,
@@ -50,7 +49,6 @@ class OrderDetail {
     );
   }
 
-  // So sánh hai đơn hàng để kiểm tra sự thay đổi
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
@@ -80,7 +78,6 @@ class OrderDetail {
   }
 }
 
-// Màn hình đơn hàng
 class ProductOrderScreen extends StatefulWidget {
   final int userId;
 
@@ -96,7 +93,14 @@ class ProductOrderScreenState extends State<ProductOrderScreen>
   List<OrderDetail> _orders = [];
   bool _isLoading = true;
   Timer? _refreshTimer;
-  final List<int> _tabStatuses = [0, 1, 2];
+
+  // Định nghĩa danh sách status và tab tương ứng
+  final List<Map<String, dynamic>> _tabs = [
+    {'status': 0, 'text': 'Chờ duyệt'},
+    {'status': 1, 'text': 'Đang giao'},
+    {'status': 2, 'text': 'Đã giao'},
+    {'status': -1, 'text': 'Đã hủy'},
+  ];
 
   @override
   bool get wantKeepAlive => true;
@@ -104,10 +108,11 @@ class ProductOrderScreenState extends State<ProductOrderScreen>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this);
+    _tabController = TabController(length: _tabs.length, vsync: this);
     _fetchOrders();
     _setupPeriodicRefresh();
 
+    // Lắng nghe sự kiện thay đổi tab
     _tabController.addListener(() {
       if (!_tabController.indexIsChanging) {
         _fetchOrders();
@@ -164,6 +169,10 @@ class ProductOrderScreenState extends State<ProductOrderScreen>
                         })
                     .toList()
               });
+        } else {
+          setState(() {
+            _isLoading = false;
+          });
         }
       } else if (response.statusCode == 404) {
         setState(() {
@@ -213,26 +222,25 @@ class ProductOrderScreenState extends State<ProductOrderScreen>
   @override
   void dispose() {
     _refreshTimer?.cancel();
-    _tabController.removeListener(() {});
     _tabController.dispose();
     super.dispose();
   }
 
   void _switchToTab(int index) {
-    if (mounted) {
+    if (mounted && index >= 0 && index < _tabs.length) {
       setState(() {
         _tabController.animateTo(index);
       });
     }
   }
 
-  Widget _buildOrderList(int status) {
+  Widget _buildOrderList(Map<String, dynamic> tabInfo) {
     if (_isLoading) {
       return const Center(child: CircularProgressIndicator());
     }
 
     final filteredOrders =
-        _orders.where((order) => order.status == status).toList();
+        _orders.where((order) => order.status == tabInfo['status']).toList();
 
     if (filteredOrders.isEmpty) {
       return const Center(
@@ -267,7 +275,11 @@ class ProductOrderScreenState extends State<ProductOrderScreen>
           onOrderStatusUpdated: () {
             _fetchOrders().then((_) {
               if (mounted) {
-                _switchToTab(2);
+                if (order.status == -1) {
+                  _switchToTab(3); // Chuyển đến tab Đã hủy
+                } else if (order.status == 2) {
+                  _switchToTab(2); // Chuyển đến tab Đã giao
+                }
               }
             });
           },
@@ -303,18 +315,37 @@ class ProductOrderScreenState extends State<ProductOrderScreen>
           unselectedLabelColor: Colors.black54,
           labelStyle: const TextStyle(
             fontWeight: FontWeight.bold,
-            fontSize: 14,
+            fontSize: 13,
           ),
-          tabs: const [
-            Tab(text: "Chờ duyệt"),
-            Tab(text: "Đang giao"),
-            Tab(text: "Đã giao"),
-          ],
+          padding: EdgeInsets.zero,
+          labelPadding: const EdgeInsets.symmetric(horizontal: 4),
+          indicatorWeight: 3,
+          tabAlignment: TabAlignment.fill,
+          tabs: _tabs
+              .map((tab) => Tab(
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(tab['text']),
+                    ),
+                  ))
+              .toList(),
         ),
       ),
       body: TabBarView(
         controller: _tabController,
-        children: _tabStatuses.map(_buildOrderList).toList(),
+        children: _tabs
+            .map((tabInfo) => RefreshIndicator(
+                  onRefresh: () async {
+                    setState(() {
+                      _isLoading = true;
+                    });
+                    await _fetchOrders();
+                  },
+                  child: _buildOrderList(tabInfo),
+                  color: Colors.blue,
+                  backgroundColor: Colors.white,
+                ))
+            .toList(),
       ),
     );
   }
