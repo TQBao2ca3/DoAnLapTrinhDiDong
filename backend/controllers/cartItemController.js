@@ -94,3 +94,43 @@ exports.deleteCartItem = async (req, res) => {
         });
     }
 };
+exports.clearCart = async (req, res) => {
+    const { cart_id } = req.body;
+    
+    try {
+        await CartItemModel.clearCart(cart_id);
+        res.status(200).json({
+            success: true,
+            message: 'Cart cleared successfully'
+        });
+    } catch (e) {
+        console.error('Error clearing cart:', e);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to clear cart'
+        });
+    }
+};
+exports.getOrCreateCart = async (req, res) => {
+    const { userId } = req.params;
+    try {
+        // Tìm cart hiện có
+        let cart = await CartItemModel.getCartByUserId(userId);
+        
+        // Nếu không có thì tạo mới
+        if (!cart) {
+            cart = await CartItemModel.createCart(userId);
+        }
+        
+        res.status(200).json({
+            success: true,
+            cart_id: cart.cart_id
+        });
+    } catch (e) {
+        console.error('Error getting/creating cart:', e);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to get/create cart'
+        });
+    }
+};

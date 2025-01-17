@@ -16,21 +16,23 @@ exports.login = (req, res) => {
             return res.status(401).send({message: 'Invalid credentials'});
         }
         
-       
-        // Bỏ expiresIn để token không hết hạn
         const token = jwt.sign(
             { 
                 id: user.id || user.user_id,
                 username: user.username 
             },
             SECRET_KEY
-            // Bỏ { expiresIn: '1h' } để token không hết hạn
         );
 
+        // Log để debug
+        console.log('User found:', user);
+        console.log('Sending response with userId:', user.id || user.user_id);
+
         res.send({
+            success: true,
             message: 'Login successful',
             token: token,
-            userId: user.id || user.user_id
+            userId: user.id || user.user_id  // Đảm bảo trường này được gửi
         });
     });
 };

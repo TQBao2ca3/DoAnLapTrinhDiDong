@@ -4,13 +4,12 @@ const CartItemModel = {
     getCartItemList: async (user_id) => {
         try {
             const [rows] = await db.promise().query(
-                `SELECT a.cart_id, a.user_id, b.cart_item_id, b.product_detail_id, 
-                        b.quantity, c.product_id, c.storage, c.price, 
-                        c.image_url, c.description, c.colors 
-                 FROM Cart a 
-                 INNER JOIN CartItem b ON a.cart_id = b.cart_id 
-                 INNER JOIN ProductDetail c ON b.product_detail_id = c.product_detail_id 
-                 WHERE a.cart_id = ?`,
+                `SELECT ci.cart_item_id, ci.cart_id, ci.product_detail_id, ci.quantity,
+                        pd.storage, pd.price, pd.image_url, pd.description, pd.colors 
+                 FROM Cart c
+                 INNER JOIN CartItem ci ON c.cart_id = ci.cart_id
+                 INNER JOIN ProductDetail pd ON ci.product_detail_id = pd.product_detail_id
+                 WHERE c.user_id = ?`,
                 [user_id]
             );
             return rows;
@@ -88,7 +87,45 @@ const CartItemModel = {
             console.error('Error in deleteCartItem:', e);
             throw e;
         }
+    },
+    clearCart: async (cartId) => {
+        try {
+            const [result] = await db.promise().query(
+                'DELETE FROM CartItem WHERE cart_id = ?',
+                [cartId]
+            );
+            return result;
+        } catch (e) {
+            console.error('Error in clearCart:', e);
+            throw e;
+        }
+    },
+    getCartByUserId: async (userId) => {
+        try {
+            const [rows] = await db.promise().query(
+                'SELECT cart_id FROM Cart WHERE user_id = ?',
+                [userId]
+            );
+            return rows[0];
+        } catch (e) {
+            console.error('Error getting cart:', e);
+            throw e;
+        }
+    },
+
+    createCart: async (userId) => {
+        try {
+            const [result] = await db.promise().query(
+                'INSERT INTO Cart (user_id) VALUES (?)',
+                [userId]
+            );
+            return { cart_id: result.insertId };
+        } catch (e) {
+            console.error('Error creating cart:', e);
+            throw e;
+        }
     }
 };
+
 
 module.exports=CartItemModel;

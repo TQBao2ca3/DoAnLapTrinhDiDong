@@ -7,6 +7,8 @@ import 'package:phoneshop/pages/ListProductPage.dart';
 import 'package:phoneshop/pages/PersonPage.dart';
 import 'package:phoneshop/providers/CartItems_Provider.dart';
 import 'package:phoneshop/providers/Product_provider.dart';
+import 'package:phoneshop/providers/user_provider.dart';
+import 'package:phoneshop/services/userPreference.dart';
 import 'package:provider/provider.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -20,6 +22,17 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _initializeCart();
+    });
+  }
+
+  Future<void> _initializeCart() async {
+    final userId = await UserPreferences.getUserId();
+    if (userId != null) {
+      print('HomeScreen - Initializing cart with userId: $userId');
+      await context.read<CartProvider>().initializeWithUserId(userId);
+    }
   }
 
   final TextEditingController searchController = TextEditingController();

@@ -135,7 +135,7 @@ class ProductOrderScreenState extends State<ProductOrderScreen>
     try {
       final response = await http
           .get(
-        Uri.parse('http://192.168.250.252:3000/api/orders/${widget.userId}'),
+        Uri.parse('http://192.168.31.18:3000/api/orders/${widget.userId}'),
       )
           .timeout(
         const Duration(seconds: 10),

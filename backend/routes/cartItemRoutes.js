@@ -15,5 +15,9 @@ router.put('/updateQuantity', cartItemController.updateQuantity);
 // Thêm route để xóa item
 router.delete('/deleteCartItem', cartItemController.deleteCartItem);
 
+router.post('/clear', cartItemController.clearCart);
+
+router.get('/getCart/:userId', cartItemController.getOrCreateCart);
+
 
 module.exports=router;

@@ -14,13 +14,19 @@ class UserProvider with ChangeNotifier {
   bool _isLoading = false;
   String? _error;
   Map<String, dynamic> _userData = {};
-  int _userId = 0;
+  int? _userId;
   // Getters
   bool get isLoading => _isLoading;
   Map<String, dynamic> get userData => _userData;
   String? get error => _error;
 
   int? get userId => _userId;
+
+// Setter for userId
+  set userId(int? value) {
+    _userId = value;
+    notifyListeners();
+  }
 
   // Hàm xử lý đăng ký
   Future<void> register({
@@ -58,41 +64,28 @@ class UserProvider with ChangeNotifier {
   }
 
   Future<bool> login(String username, String password) async {
-    _isLoading = true;
-    _error = null;
-    notifyListeners();
-
     try {
       final response = await _userService.login(username, password);
 
       if (response['success']) {
         final token = response['token'];
-        _userId = response['userId'];
+        final userId = response['userId'];
 
-        // Lưu userId vào provider
-        _userId = userId!;
-        // Lưu token và userId
-        await Future.wait([
-          UserPreferences.saveToken(token),
-          UserPreferences.saveUserId(userId!),
-        ]);
+        print('Login response: $response');
+        print('Extracted userId: $userId');
 
-        _error = null;
-        _isLoading = false;
+        _userId = userId;
+        // Thêm dòng này để lưu userId
+        await UserPreferences.saveUserId(userId);
+        await UserPreferences.saveToken(token);
+
         notifyListeners();
         return true;
-      } else {
-        _error = response['message'];
-        _isLoading = false;
-        notifyListeners();
-        return false;
       }
     } catch (e) {
-      _error = 'Lỗi kết nối: $e';
-      _isLoading = false;
-      notifyListeners();
-      return false;
+      print('Login error: $e');
     }
+    return false;
   }
 
   // user_provider.dart
@@ -194,11 +187,5 @@ class UserProvider with ChangeNotifier {
       _isLoading = false;
       notifyListeners();
     }
-  }
-
-  // Setter for userId
-  set userId(int? value) {
-    _userId = value!;
-    notifyListeners();
   }
 }

@@ -7,7 +7,8 @@ import 'dart:convert';
 
 class CartProvider with ChangeNotifier {
   final CartItemService _cartItemService = CartItemService();
-
+  int? _userId;
+  int _cartId = 0;
   List<CartItem> _items = [];
   bool _isLoading = false;
 
@@ -32,18 +33,53 @@ class CartProvider with ChangeNotifier {
     return _items.length;
   }
 
-  //tải danh sách giỏ hàng
-  Future<void> loadCartItems(int cart_id) async {
-    print('loadCartItems called with cart_id: $cart_id'); // Thêm log
+// Thêm setter cho userId
+  Future<void> setUserId(int userId) async {
+    _userId = userId;
+    await loadCartItems();
+    notifyListeners();
+  }
+
+  Future<void> initializeWithUserId(int userId) async {
+    _userId = userId;
+    // Cần thêm code để lấy cart_id từ userId
+    try {
+      // Kiểm tra xem user có cart chưa
+      final response = await http.get(
+        Uri.parse('http://192.168.31.18:3000/api/cart/getCart/$userId'),
+        headers: {'Content-Type': 'application/json'},
+      );
+
+      final data = jsonDecode(response.body);
+      if (data['success']) {
+        _cart_id = data['cart_id'];
+      }
+    } catch (e) {
+      print('Error getting cart: $e');
+    }
+    print(
+        'CartProvider initializing with userId: $_userId and cart_id: $_cart_id');
+    await loadCartItems();
+  }
+
+  // Sửa lại loadCartItems để dùng userId
+  Future<void> loadCartItems() async {
+    if (_userId == null) {
+      print('CartProvider - userId is null, cannot load items');
+      return;
+    }
+
     _isLoading = true;
     notifyListeners();
 
     try {
-      print('Attempting to load cart items'); // Thêm log
-      _items = await _cartItemService.getCartByID(cart_id);
-      print('Cart items loaded: ${_items.length} items'); // Thêm log
+      print('CartProvider - Loading items for userId: $_userId');
+      _items = await _cartItemService.getCartByUserId(_userId!);
+      if (_items.isNotEmpty) {
+        _cartId = _items.first.cart_id;
+      }
     } catch (e) {
-      print('Error loading cart items: $e'); // Thêm detailed error
+      print('Error loading cart items: $e');
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -51,8 +87,12 @@ class CartProvider with ChangeNotifier {
   }
 
   Future<void> add(Product product) async {
+    if (_cart_id == 0) {
+      print('Error: cart_id not initialized');
+      return;
+    }
     try {
-      final url = Uri.parse('http://192.168.250.252:3000/api/cart/addToCart');
+      final url = Uri.parse('http://192.168.31.18:3000/api/cart/addToCart');
       final response = await http.post(
         url,
         headers: {'Content-Type': 'application/json'},
@@ -84,7 +124,7 @@ class CartProvider with ChangeNotifier {
               storage: product.storage[0],
               storeName: 'Phone Shop'));
         }
-        await loadCartItems(_cart_id); // Tải lại danh sách giỏ hàng
+        await loadCartItems(); // Tải lại danh sách giỏ hàng
         notifyListeners();
       } else {
         print('Error adding to cart: ${response.body}');
@@ -99,7 +139,7 @@ class CartProvider with ChangeNotifier {
   Future<void> remove(CartItem product) async {
     try {
       final url =
-          Uri.parse('http://192.168.250.252:3000/api/cart/deleteCartItem');
+          Uri.parse('http://192.168.31.18:3000/api/cart/deleteCartItem');
       final response = await http.delete(
         url,
         headers: {'Content-Type': 'application/json'},
@@ -127,7 +167,7 @@ class CartProvider with ChangeNotifier {
   Future<void> updateQuantity(CartItem product, int quantity) async {
     try {
       final url =
-          Uri.parse('http://192.168.250.252:3000/api/cart/updateQuantity');
+          Uri.parse('http://192.168.31.18:3000/api/cart/updateQuantity');
 
       final response = await http.put(
         url,
@@ -163,5 +203,29 @@ class CartProvider with ChangeNotifier {
   double getTotalPrice() {
     return _items.fold(
         0, (total, current) => total + current.price * current.quantity);
+  }
+
+  // Hoặc nếu bạn muốn xóa trên server
+  Future<void> clearCart() async {
+    try {
+      final url = Uri.parse('http://192.168.31.18:3000/api/cart/clear');
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'cart_id': _cartId,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        _items = [];
+        notifyListeners();
+      } else {
+        throw Exception('Failed to clear cart');
+      }
+    } catch (e) {
+      print('Error clearing cart: $e');
+      throw e;
+    }
   }
 }

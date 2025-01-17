@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:phoneshop/pages/ChangePassword.dart';
 import 'dart:convert';
 
@@ -33,7 +32,7 @@ class _UserAuthenticationState extends State<UserAuthentication> {
     final cartItemProvider = Provider.of<CartProvider>(context, listen: false);
     final cart_id = context.watch<CartProvider>().cart_id;
     if (cartItemProvider.items.isEmpty) {
-      await cartItemProvider.loadCartItems(cart_id);
+      await cartItemProvider.loadCartItems();
     }
   }
 

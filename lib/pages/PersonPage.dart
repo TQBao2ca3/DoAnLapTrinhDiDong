@@ -1,20 +1,39 @@
 import 'package:flutter/material.dart';
 import 'package:phoneshop/pages/UserInformation.dart';
 import 'package:phoneshop/pages/userAuthentication.dart';
-import 'package:phoneshop/providers/user_provider.dart'; // Make sure this path is correct
+import 'package:phoneshop/providers/user_provider.dart';
 import 'package:phoneshop/services/userPreference.dart';
 import 'package:phoneshop/widgets/Product_Order_Page.dart';
 import 'package:provider/provider.dart';
 
-class Screen3 extends StatelessWidget {
+class Screen3 extends StatefulWidget {
   const Screen3({super.key});
+
+  @override
+  State<Screen3> createState() => _Screen3State();
+}
+
+class _Screen3State extends State<Screen3> {
+  @override
+  void initState() {
+    super.initState();
+    _checkUserData();
+  }
+
+  Future<void> _checkUserData() async {
+    if (mounted) {
+      final userProvider = Provider.of<UserProvider>(context, listen: false);
+      final userId = userProvider.userId;
+      print('Screen3 initialized with userId: $userId');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Consumer<UserProvider>(
       builder: (context, userProvider, child) {
         final userId = userProvider.userId;
-        print('Current userId in Screen3: $userId'); // Debug print
+        print('Screen3 rebuilding with userId: $userId');
 
         return Scaffold(
           backgroundColor: Colors.blue,
@@ -25,11 +44,11 @@ class Screen3 extends StatelessWidget {
             actions: [
               IconButton(
                 onPressed: () async {
+                  // Xóa token và userId khi đăng xuất
                   await Future.wait([
                     UserPreferences.removeToken(),
                     UserPreferences.removeUserId(),
                   ]);
-
                   if (context.mounted) {
                     Navigator.pushReplacement(
                       context,
@@ -43,7 +62,7 @@ class Screen3 extends StatelessWidget {
                   Icons.logout,
                   color: Colors.white,
                 ),
-              ),
+              )
             ],
           ),
           body: Container(
@@ -134,7 +153,14 @@ class Screen3 extends StatelessWidget {
                                     ),
                                   );
                                 }
-                              : null, // Button will be disabled if userId is null
+                              : () {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text('Vui lòng đăng nhập lại'),
+                                      backgroundColor: Colors.red,
+                                    ),
+                                  );
+                                },
                           style: ElevatedButton.styleFrom(
                             minimumSize: const Size(100, 80),
                             backgroundColor: Colors.white,

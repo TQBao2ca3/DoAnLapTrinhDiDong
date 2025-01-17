@@ -229,7 +229,7 @@ class _ItemPageState extends State<ItemPage> {
                                 Text(
                                   "đ${widget.product.price.toString().replaceAllMapped(RegExp(r'(\d)(?=(\d{3})+(?!\d))'), (match) => '${match[1]}.')}",
                                   style: TextStyle(
-                                    fontSize: 24,
+                                    fontSize: 20,
                                     fontWeight: FontWeight.bold,
                                     color: Colors.blue[700],
                                   ),

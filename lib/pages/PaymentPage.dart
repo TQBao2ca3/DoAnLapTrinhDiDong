@@ -6,6 +6,10 @@ import 'package:phoneshop/pages/AddressListPage%20.dart';
 import 'package:phoneshop/pages/PaymentMethodPage.dart';
 import 'package:phoneshop/pages/PaymentWaitingPage%20.dart';
 import 'package:phoneshop/pages/ShippingMethodPage%20.dart';
+import 'package:phoneshop/providers/CartItems_Provider.dart';
+import 'package:phoneshop/providers/user_provider.dart';
+import 'package:phoneshop/services/order_service.dart';
+import 'package:provider/provider.dart';
 
 class PaymentPage extends StatefulWidget {
   final List<dynamic>
@@ -711,18 +715,89 @@ class _PaymentPageState extends State<PaymentPage> {
                 ],
               ),
               ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => PaymentWaitingPage(
-                        totalAmount: widget.totalAmount,
-                        cartItems: List<CartItem>.from(widget.cartItems),
-                        paymentMethod:
-                            selectedPaymentMethod ?? "Thẻ nội địa Napas",
-                      ),
-                    ),
-                  );
+                onPressed: () async {
+                  try {
+                    print('=== Start placing order ===');
+                    // Lấy các provider cần thiết trước khi async operation
+                    final orderService = OrderService();
+                    final userId = context.read<UserProvider>().userId;
+                    final cartProvider = context.read<CartProvider>();
+
+                    print('User ID: $userId');
+                    print('Selected Address: ${selectedAddress?.address}');
+                    print('Payment Method: $selectedPaymentMethod');
+
+                    if (userId == null) {
+                      if (!mounted) return;
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Vui lòng đăng nhập lại')),
+                      );
+                      return;
+                    }
+
+                    if (selectedAddress == null ||
+                        selectedAddress!.address.isEmpty) {
+                      if (!mounted) return;
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                            content: Text('Vui lòng chọn địa chỉ giao hàng')),
+                      );
+                      return;
+                    }
+
+                    final orderDetails = widget.cartItems
+                        .map((item) => {
+                              'product_detail_id': item.product_detail_id,
+                              'quantity': item.quantity,
+                              'price': item.price
+                            })
+                        .toList();
+
+                    print('Order Details: $orderDetails');
+
+                    final result = await orderService.createOrder(
+                      userId: userId,
+                      shippingAddress: selectedAddress!.address,
+                      paymentMethod: selectedPaymentMethod ?? 'COD',
+                      orderDetails: orderDetails,
+                    );
+
+                    print('API Response: $result');
+
+                    // Kiểm tra mounted trước khi sử dụng context
+                    if (!mounted) return;
+
+                    if (result['success']) {
+                      print('Order placed successfully');
+
+                      // Load lại cart
+                      await cartProvider.loadCartItems();
+
+                      // Sử dụng Navigator.of(context) thay vì Navigator trực tiếp
+                      await Navigator.of(context).pushReplacement(
+                        MaterialPageRoute(
+                          builder: (context) => PaymentWaitingPage(
+                            totalAmount: widget.totalAmount,
+                            cartItems: List<CartItem>.from(widget.cartItems),
+                            paymentMethod:
+                                selectedPaymentMethod ?? "Thẻ nội địa Napas",
+                          ),
+                        ),
+                      );
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                            content:
+                                Text(result['message'] ?? 'Đặt hàng thất bại')),
+                      );
+                    }
+                  } catch (e) {
+                    print('Error during order placement: $e');
+                    if (!mounted) return;
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Đặt hàng thất bại: $e')),
+                    );
+                  }
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.blue[600],

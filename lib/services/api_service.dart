@@ -5,7 +5,7 @@ import 'package:phoneshop/pages/userAuthentication.dart';
 
 class ApiService {
   // Khai báo baseUrl là static
-  static const String baseUrl = 'http://192.168.250.252:3000/api';
+  static const String baseUrl = 'http://192.168.31.18:3000/api';
 
   // Khai báo phương thức getRequest là static
   static Future<http.Response> getRequest(String endpoint) async {
