@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:phoneshop/pages/UserAuthentication.dart';
-import 'package:phoneshop/providers/Cart_Provider.dart';
-import 'package:phoneshop/providers/ProductHomePage_Provider.dart';
+import 'package:phoneshop/providers/CartItems_Provider.dart';
 import 'package:phoneshop/providers/Product_provider.dart';
 import 'package:phoneshop/providers/User_Provider.dart';
 import 'package:provider/provider.dart';
@@ -11,7 +10,7 @@ void main() {
     providers: [
       ChangeNotifierProvider(create: (_) => CartProvider()),
       ChangeNotifierProvider(create: (_) => ProductProvider()),
-      ChangeNotifierProvider(create: (_) => ProductHomePageProvider()),
+      // ChangeNotifierProvider(create: (_) => ProductHomePageProvider()),
       ChangeNotifierProvider(create: (_) => UserProvider()),
     ],
     child: MyApp(),
@@ -19,8 +18,6 @@ void main() {
 }
 
 class MyApp extends StatelessWidget {
-  final CartProvider cart = CartProvider();
-
   MyApp({super.key}); // Sử dụng Cart từ models/cart.dart
 
   @override

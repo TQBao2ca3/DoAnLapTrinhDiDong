@@ -219,7 +219,7 @@ class _PaymentPageState extends State<PaymentPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Image.network(
-                item.image,
+                item.image_url,
                 width: 80,
                 height: 80,
                 fit: BoxFit.cover,
@@ -230,14 +230,14 @@ class _PaymentPageState extends State<PaymentPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      item.name,
+                      item.description,
                       style: const TextStyle(fontSize: 14),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      "Màu: ${item.color}, ${item.storage}",
+                      "Màu: ${item.colors}, ${item.storage}",
                       style: TextStyle(
                         color: Colors.grey[600],
                         fontSize: 14,
@@ -257,9 +257,9 @@ class _PaymentPageState extends State<PaymentPage> {
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
-                            if (item.price != item.originalPrice)
+                            if (item.price != item.price)
                               Text(
-                                "đ${item.originalPrice}",
+                                "đ${item.price}",
                                 style: const TextStyle(
                                   decoration: TextDecoration.lineThrough,
                                   color: Colors.grey,

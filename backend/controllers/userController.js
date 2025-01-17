@@ -1,30 +1,37 @@
-const jwt = require('jsonwebtoken');//import model user
-const User=require('../models/UserModel');//import JWT secret key
-const {SECRET_KEY} = require('../config/JWTConfig')
+// controller.js
+const jwt = require('jsonwebtoken');
+const User = require('../models/UserModel');
+const {SECRET_KEY} = require('../config/JWTConfig');
 
-//hàm xử lý logic login
-exports.login=(req,res)=>{
-    const {username,password}=req.body;
+exports.login = (req, res) => {
+    const {username, password} = req.body;
     console.log("login");
-    //gọi model để tìm user theo username
-    User.findByUsername(username,(err,user)=>{
-        if(err) return res.status(500).send({message:'Server error'});
-        if(!user) return res.status(401).send({message:'User not found'});
-
-        // Thêm log để kiểm tra user object
-        //console.log("Found user:", user);
-        //console.log("User ID:", user.id);
     
-        //kiểm tra password
-        if(password!==user.password){
-            return res.status(401).send({message:'Invalid credentials'});
+    User.findByUsername(username, (err, user) => {
+        if(err) return res.status(500).send({message: 'Server error'});
+        if(!user) return res.status(401).send({message: 'User not found'});
+        
+        if(password !== user.password) {
+            return res.status(401).send({message: 'Invalid credentials'});
         }
+        
+        // Tạo token với user_id và cart_id
+        const token = jwt.sign(
+            {
+                id: user.user_id,
+                username: user.username,
+                cart_id: user.cart_id
+            },
+            SECRET_KEY,
+            {expiresIn: '1h'}
+        );
 
-        // Log token payload trước khi gửi response
-        //console.log("Token payload:", {id:user.id, username:user.username});
-
-        //tạo JWT token
-        const token=jwt.sign({id:user.user_id,username:user.username},SECRET_KEY,{expiresIn:'1h'});
-        res.send({message:'Login successful',token,userId: user.user_id});
+        // Trả về token, user_id và cart_id
+        res.send({
+            message: 'Login successful',
+            token,
+            userId: user.user_id,
+            cartId: user.cart_id
+        });
     });
 };

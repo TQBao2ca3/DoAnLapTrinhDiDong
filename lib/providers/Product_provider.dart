@@ -17,12 +17,15 @@ class ProductProvider with ChangeNotifier {
   String get selectedBrand => _selectedBrand;
 
   Future<void> loadProducts() async {
+    if (_isLoading) return; // Tránh load nhiều lần
+
     _isLoading = true;
     notifyListeners();
+
     try {
       _products = await _productService.getProductList();
-    } catch (error) {
-      //handle error
+    } catch (e) {
+      print('Error loading products: $e');
     } finally {
       _isLoading = false;
       notifyListeners();

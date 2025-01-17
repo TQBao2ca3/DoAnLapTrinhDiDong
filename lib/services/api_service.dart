@@ -5,9 +5,16 @@ class ApiService {
 
   //hàm GET
   static Future<http.Response> getRequest(String endpoint) async {
-    print('${baseUrl}/${endpoint}');
+    print('Making GET request to: ${baseUrl}/${endpoint}'); // Thêm log
     final url = Uri.parse('$baseUrl/$endpoint');
-    return await http.get(url, headers: _headers());
+    try {
+      final response = await http.get(url, headers: _headers());
+      print('Response received from API'); // Thêm log
+      return response;
+    } catch (e) {
+      print('Error in API request: $e'); // Thêm log
+      rethrow;
+    }
   }
 
   //hàm POST

@@ -4,7 +4,8 @@ const userRoutes=require('./routes/userRoutes')
 const productDetailRoutes= require('./routes/productDetailRoutes')
 const productRoutes=require('./routes/productRoute')
 const productHomePageRoutes=require('./routes/productHomePageRoute')
-const mysql = require('mysql2');
+const cartItemRoutes=require('./routes/cartItemRoutes')
+// const mysql = require('mysql2');
 const app = express();
 app.use(express.json());
 
@@ -23,6 +24,9 @@ app.use('/api/product',productRoutes)
 
 //định nghĩa route cho productHomePage
 app.use('/api/productHomePage',productHomePageRoutes)
+
+//định nghĩa route cho cartItem
+app.use('/api/cart',cartItemRoutes)
 
 
 

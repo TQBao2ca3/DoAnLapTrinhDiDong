@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:jwt_decoder/jwt_decoder.dart';
+import 'package:phoneshop/models/CartItem.dart';
 import 'package:phoneshop/pages/ChangePassword.dart';
 import 'dart:convert';
 
 import 'package:phoneshop/pages/Homepage.dart';
-import 'package:phoneshop/providers/Cart_Provider.dart';
+import 'package:phoneshop/providers/CartItems_Provider.dart';
 import 'package:phoneshop/providers/User_Provider.dart';
 import 'package:provider/provider.dart';
 
@@ -20,8 +21,21 @@ class _UserAuthenticationState extends State<UserAuthentication> {
 // Controller để lấy dữ liệu từ TextField
   final TextEditingController _userNameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  CartProvider cart = CartProvider();
+  //CartProvider cart = CartProvider();
   String _errorMessage = '';
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  Future<void> _loadCartItem() async {
+    final cartItemProvider = Provider.of<CartProvider>(context, listen: false);
+    final cart_id = context.watch<CartProvider>().cart_id;
+    if (cartItemProvider.items.isEmpty) {
+      await cartItemProvider.loadCartItems(cart_id);
+    }
+  }
 
   //login
   Future<void> login() async {
@@ -42,50 +56,65 @@ class _UserAuthenticationState extends State<UserAuthentication> {
         final token = responseData['token'];
         Map<String, dynamic> decodedToken = JwtDecoder.decode(token);
 
-        // In ra toàn bộ decoded token để kiểm tra cấu trúc
-        print("Decoded token content: $decodedToken");
-
+        // Lấy user_id và cart_id từ token
         final userIdFromToken = decodedToken['id'];
-        print(
-            "Raw userIdFromToken: $userIdFromToken (${userIdFromToken.runtimeType})");
+        final cartIdFromToken = decodedToken['cart_id'];
 
-        // In ra response data để kiểm tra
-        print("Response data: $responseData");
+        // Lấy user_id và cart_id từ response
         final userIdFromResponse = responseData['userId'];
-        print(
-            "Raw userIdFromResponse: $userIdFromResponse (${userIdFromResponse.runtimeType})");
+        final cartIdFromResponse = responseData['cartId'];
 
-        // Chuyển đổi sang int một cách an toàn
+        // Chuyển đổi userId và cartId sang int một cách an toàn
         int? userId;
+        int? cartId;
 
-        // Thử lấy từ token và in ra kết quả
+        // Ưu tiên lấy từ token
         if (userIdFromToken != null) {
           userId = int.tryParse(userIdFromToken.toString());
-          // print("userId từ token sau khi parse: $userId");
+        }
+        if (cartIdFromToken != null) {
+          cartId = int.tryParse(cartIdFromToken.toString());
         }
 
-        // Thử lấy từ response và in ra kết quả
+        // Nếu không có trong token thì lấy từ response
         if (userId == null && userIdFromResponse != null) {
           userId = int.tryParse(userIdFromResponse.toString());
-          //print("userId từ response sau khi parse: $userId");
+        }
+        if (cartId == null && cartIdFromResponse != null) {
+          cartId = int.tryParse(cartIdFromResponse.toString());
         }
 
-        // Kiểm tra và lưu vào Provider
+        // Lưu userId vào UserProvider
         if (userId != null) {
           context.read<UserProvider>().setUserId(userId);
-        } else {
-          print("Không thể lấy được user ID hợp lệ");
+        }
+
+        // Lưu cartId vào CartProvider và load danh sách cartItem
+        if (cartId != null) {
+          print('CartId received: $cartId'); // Thêm log
+          final cartProvider = context.read<CartProvider>();
+          cartProvider.setCartId(cartId);
+          print('CartId set in provider'); // Thêm log
+          try {
+            print('Loading cart items...'); // Thêm log
+            await cartProvider.loadCartItems(cartId);
+            print(
+                'Cart items loaded. Items count: ${cartProvider.items.length}'); // Thêm log
+          } catch (e) {
+            print('Error loading cart items: $e'); // Thêm log
+          }
         }
 
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-            builder: (_) => HomeScreen(cart: cart),
+            builder: (_) => HomeScreen(),
           ),
         );
       }
     } catch (e) {
       print("Error during login: $e");
+      // Có thể thêm thông báo lỗi cho người dùng ở đây
     }
   }
 

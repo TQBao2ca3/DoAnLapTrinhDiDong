@@ -216,7 +216,7 @@ class OrderDetailsPage extends StatelessWidget {
                                 ClipRRect(
                                   borderRadius: BorderRadius.circular(12),
                                   child: Image.network(
-                                    item.image,
+                                    item.image_url,
                                     width: 80,
                                     height: 80,
                                     fit: BoxFit.cover,
@@ -229,7 +229,7 @@ class OrderDetailsPage extends StatelessWidget {
                                         CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                        item.name,
+                                        item.description,
                                         style: const TextStyle(
                                           fontSize: 16,
                                           fontWeight: FontWeight.bold,
@@ -248,7 +248,7 @@ class OrderDetailsPage extends StatelessWidget {
                                               BorderRadius.circular(6),
                                         ),
                                         child: Text(
-                                          "Màu: ${item.color}",
+                                          "Màu: ${item.colors}",
                                           style: TextStyle(
                                             color: Colors.grey[600],
                                             fontSize: 12,

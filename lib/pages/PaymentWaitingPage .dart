@@ -3,7 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:phoneshop/models/CartItem.dart';
 import 'package:phoneshop/pages/Homepage.dart';
 import 'package:phoneshop/pages/OrderSummaryPage.dart';
-import 'package:phoneshop/providers/Cart_Provider.dart';
+import 'package:phoneshop/providers/CartItems_Provider.dart';
 
 class PaymentWaitingPage extends StatefulWidget {
   final int totalAmount;
@@ -29,7 +29,7 @@ class _PaymentWaitingPageState extends State<PaymentWaitingPage> {
         'PaymentWaitingPage - Initial Cart Items: ${widget.cartItems.length}');
     for (var item in widget.cartItems) {
       print(
-          'Item Debug - Name: ${item.name}, Price: ${item.price}, Color: ${item.color}, Quantity: ${item.quantity}');
+          'Item Debug - Name: ${item.description}, Price: ${item.price}, Color: ${item.colors}, Quantity: ${item.quantity}');
     }
   }
 
@@ -219,8 +219,7 @@ class _PaymentWaitingPageState extends State<PaymentWaitingPage> {
                           Navigator.pushAndRemoveUntil(
                             context,
                             MaterialPageRoute(
-                              builder: (context) =>
-                                  HomeScreen(cart: CartProvider()),
+                              builder: (context) => HomeScreen(),
                             ),
                             (route) => false,
                           );
@@ -250,7 +249,7 @@ class _PaymentWaitingPageState extends State<PaymentWaitingPage> {
                           print(
                               'Navigating to OrderSummaryPage with ${widget.cartItems.length} items');
                           for (var item in widget.cartItems) {
-                            print('Sending item: ${item.name}');
+                            print('Sending item: ${item.description}');
                           }
                           Navigator.push(
                             context,

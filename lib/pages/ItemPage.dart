@@ -4,7 +4,7 @@ import 'package:phoneshop/models/CartItem.dart';
 import 'package:phoneshop/models/Product.dart';
 import 'package:phoneshop/pages/CartPage.dart';
 import 'package:phoneshop/pages/PaymentPage.dart';
-import 'package:phoneshop/providers/Cart_Provider.dart';
+import 'package:phoneshop/providers/CartItems_Provider.dart';
 import 'package:phoneshop/providers/Product_provider.dart';
 import 'package:provider/provider.dart';
 
@@ -23,7 +23,6 @@ class _ItemPageState extends State<ItemPage> {
   String _selectedColor = 'Đen';
   PageController _pageController = PageController();
   bool _isFavorite = false;
-  CartProvider cart = CartProvider();
   @override
   void initState() {
     super.initState();
@@ -523,20 +522,21 @@ class _ItemPageState extends State<ItemPage> {
                       Expanded(
                         child: ElevatedButton.icon(
                           onPressed: () {
-                            // Kiểm tra xem đã chọn màu và dung lượng chưa
+                            //kiểm tra màu sắc đã được chọn chưa
                             if (!widget.product.colors
                                 .contains(_selectedColor)) {
                               _showWarningDialog(context,
                                   "Vui lòng chọn màu sắc trước khi thêm vào giỏ hàng");
                               return;
                             }
-
+                            //kiểm tra dung lượng đã được chọn chưa
                             if (!widget.product.storage
                                 .contains(_selectedStorage)) {
                               _showWarningDialog(context,
                                   "Vui lòng chọn dung lượng trước khi thêm vào giỏ hàng");
                               return;
                             }
+
                             // Lấy index của storage và price tương ứng
                             int storageIndex = widget.product.storage
                                 .indexOf(_selectedStorage);
@@ -547,29 +547,24 @@ class _ItemPageState extends State<ItemPage> {
                               name: widget.product.name,
                               description: widget.product.description,
                               image_url: widget.product.image_url,
-                              // Lấy giá tương ứng với storage đã chọn
                               price: storageIndex != -1 &&
                                       storageIndex < widget.product.price.length
-                                  ? [
-                                      widget.product.price[storageIndex]
-                                    ] // Lấy giá theo storage
-                                  : [
-                                      widget.product.price[0]
-                                    ], // Mặc định lấy giá đầu tiên
+                                  ? [widget.product.price[storageIndex]]
+                                  : [widget.product.price[0]],
                               discount: widget.product.discount,
                               rating: widget.product.rating,
                               reviewCount: widget.product.reviewCount,
-                              storage: [
-                                _selectedStorage
-                              ], // Storage đang được chọn
-                              colors: [_selectedColor], // Màu đang được chọn
+                              storage: [_selectedStorage],
+                              colors: [_selectedColor],
                               created_at: widget.product.created_at,
                               stock_quantity: 1,
                             );
 
+                            // Lấy CartProvider từ context
+                            final cartProvider = context.read<CartProvider>();
+
                             // Thêm sản phẩm vào giỏ hàng
-                            final cart = CartProvider();
-                            cart.add(productToAdd);
+                            cartProvider.add(productToAdd);
 
                             // Hiển thị dialog xác nhận
                             showDialog(
@@ -607,8 +602,7 @@ class _ItemPageState extends State<ItemPage> {
                                         Navigator.push(
                                           context,
                                           MaterialPageRoute(
-                                            builder: (context) =>
-                                                CartPage(cart: cart),
+                                            builder: (context) => CartPage(),
                                           ),
                                         );
                                       },
@@ -691,9 +685,18 @@ class _ItemPageState extends State<ItemPage> {
                               stock_quantity: 1,
                             );
 
-                            // Tạo CartItem từ Product đã chọn
-                            CartItem cartItem =
-                                CartItem.fromProduct(selectedProduct);
+                            // Tạo CartItem trực tiếp từ Product đã chọn
+                            CartItem cartItem = CartItem(
+                                cart_id: widget.product.product_id,
+                                cart_item_id: 0, // Hoặc một giá trị phù hợp
+                                description: widget.product.name,
+                                price: widget.product.price[
+                                    storageIndex], // Lấy giá tương ứng với storage
+                                quantity: 1,
+                                image_url: widget.product.image_url,
+                                colors: _selectedColor,
+                                storage: _selectedStorage,
+                                storeName: 'Phone Shop');
 
                             // Tính tổng tiền dựa trên giá của storage đã chọn
                             int totalAmount = cartItem.price;

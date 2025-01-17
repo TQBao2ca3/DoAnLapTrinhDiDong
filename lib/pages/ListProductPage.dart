@@ -17,25 +17,27 @@ class _Screen1State extends State<Screen1> {
   @override
   void initState() {
     super.initState();
-    _loadProducts();
+    //_loadProducts();
+    Future.microtask(() => context.read<ProductProvider>().loadProducts());
   }
 
-  Future<void> _loadProducts() async {
-    if (!mounted) return;
+  // Future<void> _loadProducts() async {
+  //   if (!mounted) return;
 
-    final productProvider = Provider.of<ProductProvider>(context, listen: false);
-    if (productProvider.products.isEmpty) {
-      await productProvider.loadProducts();
-    }
-  }
+  //   final productProvider = Provider.of<ProductProvider>(context, listen: false);
+  //   if (productProvider.products.isEmpty) {
+  //     await productProvider.loadProducts();
+  //   }
+  // }
 
   // Sửa kiểu dữ liệu thành List<Product>
   List<Product> _filterProducts(List<Product> products, String query) {
     if (query.isEmpty) return products;
 
-    return products.where((product) =>
-        product.name.toLowerCase().contains(query.toLowerCase())
-    ).toList();
+    return products
+        .where((product) =>
+            product.name.toLowerCase().contains(query.toLowerCase()))
+        .toList();
   }
 
   @override
@@ -67,12 +69,11 @@ class _Screen1State extends State<Screen1> {
                       );
                     }
 
-                    final filteredProducts = _filterProducts(
-                        provider.products,
-                        widget.searchQuery
-                    );
+                    final filteredProducts =
+                        _filterProducts(provider.products, widget.searchQuery);
 
-                    if (widget.searchQuery.isNotEmpty && filteredProducts.isEmpty) {
+                    if (widget.searchQuery.isNotEmpty &&
+                        filteredProducts.isEmpty) {
                       return Center(
                         child: Text(
                           'Không tìm thấy sản phẩm phù hợp với "${widget.searchQuery}"',
@@ -96,8 +97,7 @@ class _Screen1State extends State<Screen1> {
                             style: const TextStyle(
                                 fontSize: 25,
                                 fontWeight: FontWeight.bold,
-                                color: Colors.lightBlue
-                            ),
+                                color: Colors.lightBlue),
                           ),
                         ),
                         ItemsWidget(

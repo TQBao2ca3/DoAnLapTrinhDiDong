@@ -115,7 +115,7 @@ class _OrderSummaryPageState extends State<OrderSummaryPage> {
                 ClipRRect(
                   borderRadius: BorderRadius.circular(4),
                   child: Image.network(
-                    item.image,
+                    item.image_url,
                     width: 80,
                     height: 80,
                     fit: BoxFit.cover,
@@ -137,14 +137,14 @@ class _OrderSummaryPageState extends State<OrderSummaryPage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        item.name,
+                        item.description,
                         style: const TextStyle(fontSize: 14),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        item.color,
+                        item.colors,
                         style: TextStyle(
                           color: Colors.grey[600],
                           fontSize: 14,
@@ -160,9 +160,9 @@ class _OrderSummaryPageState extends State<OrderSummaryPage> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          if (item.price != item.originalPrice)
+                          if (item.price != item.price)
                             Text(
-                              "${formatCurrency(item.originalPrice as int)}",
+                              "${formatCurrency(item.price as int)}",
                               style: const TextStyle(
                                 decoration: TextDecoration.lineThrough,
                                 color: Colors.grey,
