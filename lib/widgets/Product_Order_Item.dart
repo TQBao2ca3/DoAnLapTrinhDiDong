@@ -14,14 +14,13 @@ class ItemOrder extends StatelessWidget {
     this.onOrderStatusUpdated,
   }) : super(key: key);
 
-  // Hàm định dạng tiền tệ
   String _formatCurrency(double amount) {
     final formatter = NumberFormat.currency(locale: 'vi_VN', symbol: 'đ');
     return formatter.format(amount);
   }
 
-  // Phương thức cập nhật trạng thái đơn hàng
-  Future<void> _updateOrderStatus(BuildContext context) async {
+  // Thêm phương thức hủy đơn hàng
+  Future<void> _cancelOrder(BuildContext context) async {
     try {
       final response = await http.put(
         Uri.parse(
@@ -33,25 +32,22 @@ class ItemOrder extends StatelessWidget {
 
       if (response.statusCode == 200) {
         if (context.mounted) {
-          // Hiển thị thông báo thành công
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text('Đã xác nhận nhận hàng thành công'),
+              content: Text('Đã hủy đơn hàng thành công'),
               backgroundColor: Colors.green,
             ),
           );
 
-          // Gọi callback để làm mới danh sách đơn hàng
           if (onOrderStatusUpdated != null) {
             onOrderStatusUpdated!();
           }
         }
       } else {
         if (context.mounted) {
-          // Hiển thị thông báo lỗi nếu không thể cập nhật
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text('Không thể cập nhật trạng thái đơn hàng'),
+              content: Text('Không thể hủy đơn hàng'),
               backgroundColor: Colors.red,
             ),
           );
@@ -59,7 +55,6 @@ class ItemOrder extends StatelessWidget {
       }
     } catch (e) {
       if (context.mounted) {
-        // Hiển thị thông báo lỗi kết nối
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Lỗi kết nối: $e'),
@@ -70,7 +65,50 @@ class ItemOrder extends StatelessWidget {
     }
   }
 
-  // Phương thức lấy nhãn trạng thái đơn hàng
+  Future<void> _updateOrderStatus(BuildContext context) async {
+    try {
+      final response = await http.put(
+        Uri.parse(
+            'http://192.168.250.252:3000/api/orders/update-status/${orderDetails.orderId}'),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode({'status': 2}),
+      );
+
+      if (response.statusCode == 200) {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Đã xác nhận nhận hàng thành công'),
+              backgroundColor: Colors.green,
+            ),
+          );
+
+          if (onOrderStatusUpdated != null) {
+            onOrderStatusUpdated!();
+          }
+        }
+      } else {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Không thể cập nhật trạng thái đơn hàng'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Lỗi kết nối: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
   String _getOrderStatusLabel(int status) {
     switch (status) {
       case 0:
@@ -79,14 +117,13 @@ class ItemOrder extends StatelessWidget {
         return 'Đang giao';
       case 2:
         return 'Đã giao';
-      case 3:
+      case -1:
         return 'Đã hủy';
       default:
         return 'Trạng thái không xác định';
     }
   }
 
-  // Phương thức lấy màu của trạng thái đơn hàng
   Color _getOrderStatusColor(int status) {
     switch (status) {
       case 0:
@@ -95,7 +132,7 @@ class ItemOrder extends StatelessWidget {
         return Colors.blue;
       case 2:
         return Colors.green;
-      case 3:
+      case -1:
         return Colors.red;
       default:
         return Colors.grey;
@@ -115,7 +152,6 @@ class ItemOrder extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Hiển thị trạng thái đơn hàng
             Padding(
               padding: const EdgeInsets.only(bottom: 8),
               child: Row(
@@ -131,10 +167,8 @@ class ItemOrder extends StatelessWidget {
               ),
             ),
 
-            // Chi tiết sản phẩm
             Row(
               children: [
-                // Hình ảnh sản phẩm
                 ClipRRect(
                   borderRadius: BorderRadius.circular(8),
                   child: Image.network(
@@ -153,8 +187,6 @@ class ItemOrder extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 10),
-
-                // Thông tin sản phẩm
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -191,7 +223,28 @@ class ItemOrder extends StatelessWidget {
               ],
             ),
 
-            // Nút xác nhận đơn hàng chỉ hiển thị khi đang ở trạng thái Đang giao (1)
+            // Hiển thị nút hủy đơn hàng khi ở trạng thái Chờ duyệt (0)
+            if (orderDetails.status == 0) ...[
+              const Divider(),
+              const SizedBox(height: 10),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () => _cancelOrder(context),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.red,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8)),
+                  ),
+                  child: const Text(
+                    "Hủy đơn hàng",
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
+              ),
+            ],
+
+            // Nút xác nhận đơn hàng khi ở trạng thái Đang giao (1)
             if (orderDetails.status == 1) ...[
               const Divider(),
               const SizedBox(height: 10),
@@ -208,9 +261,7 @@ class ItemOrder extends StatelessWidget {
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(
-                        onPressed: () async {
-                          await _updateOrderStatus(context);
-                        },
+                        onPressed: () => _updateOrderStatus(context),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.blue,
                           shape: RoundedRectangleBorder(
