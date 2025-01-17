@@ -23,11 +23,29 @@ class _UserAuthenticationState extends State<UserAuthentication> {
   String _errorMessage = '';
 
   //login
+  // Trong hàm login của userAuthentication.dart
   Future<void> login() async {
+    if (_userNameController.text.isEmpty || _passwordController.text.isEmpty) {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Thông báo'),
+            content: const Text('Vui lòng nhập đầy đủ tài khoản và mật khẩu'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Đóng'),
+              ),
+            ],
+          );
+        },
+      );
+      return;
+    }
+
     final url = Uri.parse('http://192.168.1.9:3000/api/user/login');
     try {
-      print('username: ${_userNameController.text}');
-      print('password: ${_passwordController.text}');
       final response = await http.post(
         url,
         headers: {'Content-Type': 'application/json'},
@@ -36,54 +54,59 @@ class _UserAuthenticationState extends State<UserAuthentication> {
           'password': _passwordController.text,
         }),
       );
-      print('Statuscode: ${response.statusCode}');
+
       final responseData = jsonDecode(response.body);
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        final data = jsonDecode(response.body);
-        final token = data['token'];
-
-        // Debug token
-        print('Token received: $token');
-
+      if (response.statusCode == 200) {
+        final token = responseData['token'];
         await UserPreferences.saveToken(token);
 
-        // Kiểm tra token vừa lưu
-        final savedToken = await UserPreferences.getToken();
-        print('Saved token: $savedToken');
-
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-              builder: (_) => HomeScreen(
-                    cart: cart,
-                  )),
-        );
+        if (mounted) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (_) => HomeScreen(cart: cart)),
+          );
+        }
       } else {
         showDialog(
           context: context,
           builder: (BuildContext context) {
+            String errorMessage = 'Đăng nhập không thành công';
+            if (responseData['message']?.contains('not found') ?? false) {
+              errorMessage = 'Tài khoản không tồn tại';
+            } else if (responseData['message']
+                    ?.contains('Invalid credentials') ??
+                false) {
+              errorMessage = 'Sai mật khẩu';
+            }
             return AlertDialog(
-              title: Text('Lỗi'),
-              content: Text('Đăng nhập không thành công'),
+              title: const Text('Lỗi'),
+              content: Text(errorMessage),
               actions: [
                 TextButton(
                   onPressed: () => Navigator.pop(context),
-                  child: Text('OK'),
+                  child: const Text('Đóng'),
                 ),
               ],
             );
           },
         );
-        print(
-            'Login failed. Status: ${response.statusCode}, Error: ${responseData['error'] ?? 'Unknown error'}');
-        setState(() {
-          _errorMessage = responseData['message'] ?? 'Login failed';
-        });
       }
     } catch (e) {
-      setState(() {
-        _errorMessage = 'An error occurred. Please try again.';
-      });
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Lỗi'),
+            content: const Text('Không thể kết nối đến server'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Đóng'),
+              ),
+            ],
+          );
+        },
+      );
     }
   }
 

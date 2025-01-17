@@ -18,11 +18,14 @@ class Screen3 extends StatelessWidget {
           actions: [
             IconButton(
                 onPressed: () async {
-                  final token = await UserPreferences.removeToken();
-                  Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => UserAuthentication()));
+                  await UserPreferences
+                      .removeToken(); // Xóa token khi đăng xuất
+                  if (context.mounted) {
+                    Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => UserAuthentication()));
+                  }
                 },
                 icon: const Icon(
                   Icons.logout,

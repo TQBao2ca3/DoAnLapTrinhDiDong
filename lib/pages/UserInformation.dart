@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
+import 'package:phoneshop/pages/ChangePassword.dart';
+import 'package:phoneshop/pages/Homepage.dart';
 import 'package:phoneshop/pages/userAuthentication.dart';
 import 'package:phoneshop/providers/user_provider.dart';
 import 'package:phoneshop/services/userPreference.dart';
@@ -67,12 +69,36 @@ class _UserInformationState extends State<UserInformation> {
   void _toggleEdit(String field) {
     setState(() {
       if (_editingFields[field]!) {
+        // Khi nhấn lưu, gọi phương thức update
+        if (_tempValues[field] != null &&
+            _tempValues[field] != _userData[field]) {
+          _updateSpecificField(field, _tempValues[field]!);
+        }
         _userData[field] = _tempValues[field] ?? _userData[field]!;
       } else {
         _tempValues[field] = _userData[field]!;
       }
       _editingFields[field] = !_editingFields[field]!;
     });
+  }
+
+  void _updateSpecificField(String field, String value) {
+    // Ánh xạ field sang tên backend
+    final Map<String, String> fieldMapping = {
+      'name': 'full_name',
+      'email': 'email',
+      'phone': 'phone',
+      'address': 'address'
+    };
+
+    // Gọi phương thức update từ provider
+    context.read<UserProvider>().updateUserProfile(
+          context,
+          full_name: field == 'name' ? value : null,
+          email: field == 'email' ? value : null,
+          phone: field == 'phone' ? value : null,
+          address: field == 'address' ? value : null,
+        );
   }
 
   bool get isAnyFieldEditing => _editingFields.values.any((editing) => editing);
@@ -88,6 +114,14 @@ class _UserInformationState extends State<UserInformation> {
         print('User data: ${userProvider.userData}');
         print('Error: ${userProvider.error}');
 
+        if (userProvider.error != null) {
+          return Center(
+            child: Text(
+              'Error: ${userProvider.error}',
+              style: const TextStyle(color: Colors.red),
+            ),
+          );
+        }
         return Scaffold(
           appBar: AppBar(
             title: Text(
@@ -112,12 +146,12 @@ class _UserInformationState extends State<UserInformation> {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
                         children: [
-                          const Row(
+                          Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Text(
-                                'Tài khoản: User',
-                                style: TextStyle(
+                                "Tài khoản: ${userProvider.userData['username']}",
+                                style: const TextStyle(
                                     fontSize: 20, fontWeight: FontWeight.bold),
                               )
                             ],
@@ -148,17 +182,84 @@ class _UserInformationState extends State<UserInformation> {
                           ElevatedButton(
                             onPressed: isAnyFieldEditing
                                 ? () {
-                                    setState(() {
-                                      _editingFields.forEach((field, editing) {
-                                        if (editing) {
-                                          _userData[field] =
-                                              _tempValues[field] ??
-                                                  _userData[field]!;
-                                          _editingFields[field] = false;
+                                    // Kiểm tra form validation nếu cần
+                                    if (_formKey.currentState!.validate()) {
+                                      // Tạo map chứa các field cần update
+                                      Map<String, String> updatedFields = {};
+
+                                      // Duyệt qua các field đang được editing
+                                      _editingFields
+                                          .forEach((field, isEditing) {
+                                        if (isEditing &&
+                                            _tempValues[field] != null) {
+                                          switch (field) {
+                                            case 'name':
+                                              updatedFields['full_name'] =
+                                                  _tempValues[field]!;
+                                              break;
+                                            case 'email':
+                                              updatedFields['email'] =
+                                                  _tempValues[field]!;
+                                              break;
+                                            case 'phone':
+                                              updatedFields['phone'] =
+                                                  _tempValues[field]!;
+                                              break;
+                                            case 'address':
+                                              updatedFields['address'] =
+                                                  _tempValues[field]!;
+                                              break;
+                                          }
                                         }
                                       });
-                                      _tempValues.clear();
-                                    });
+
+                                      // Gọi phương thức update từ provider
+                                      context
+                                          .read<UserProvider>()
+                                          .updateUserProfile(
+                                            context,
+                                            full_name:
+                                                updatedFields['full_name'],
+                                            email: updatedFields['email'],
+                                            phone: updatedFields['phone'],
+                                            address: updatedFields['address'],
+                                          )
+                                          .then((_) {
+                                        // Kiểm tra sau khi update
+                                        final userProvider =
+                                            context.read<UserProvider>();
+
+                                        if (userProvider.error == null) {
+                                          // Update thành công
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(
+                                            SnackBar(
+                                              content: Text(
+                                                  'Cập nhật thông tin thành công'),
+                                              backgroundColor: Colors.green,
+                                            ),
+                                          );
+
+                                          // Reset trạng thái editing
+                                          setState(() {
+                                            _editingFields.updateAll(
+                                                (key, value) => false);
+                                            _tempValues.clear();
+                                          });
+                                        } else {
+                                          // Update thất bại
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(
+                                            SnackBar(
+                                              content: Text(
+                                                  userProvider.error ??
+                                                      'Cập nhật thất bại'),
+                                              backgroundColor: Colors.red,
+                                            ),
+                                          );
+                                        }
+                                      });
+                                    }
                                   }
                                 : null,
                             style: ElevatedButton.styleFrom(
@@ -174,7 +275,15 @@ class _UserInformationState extends State<UserInformation> {
                           ),
                           const SizedBox(height: 16),
                           TextButton(
-                            onPressed: !isAnyFieldEditing ? () {} : null,
+                            onPressed: isAnyFieldEditing
+                                ? null
+                                : () {
+                                    Navigator.pushReplacement(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                ChangePassword()));
+                                  },
                             child: Text(
                               'Đổi mật khẩu',
                               style: TextStyle(

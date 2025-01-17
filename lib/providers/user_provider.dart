@@ -95,4 +95,65 @@ class UserProvider with ChangeNotifier {
       notifyListeners();
     }
   }
+
+  // Thêm phương thức updateUserProfile
+  // user_provider.dart
+  Future<void> updateUserProfile(
+    BuildContext context, {
+    String? full_name,
+    String? email,
+    String? phone,
+    String? address,
+  }) async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      final updateData = <String, dynamic>{};
+      if (full_name != null) updateData['full_name'] = full_name;
+      if (email != null) updateData['email'] = email;
+      if (phone != null) updateData['phone'] = phone;
+      if (address != null) updateData['address'] = address;
+
+      final response = await _userService.updateUserProfile(updateData);
+
+      if (response['success'] == true) {
+        _userData = response['data'];
+        _error = null;
+      } else {
+        _error = response['message'] ?? 'Update failed';
+      }
+    } catch (e) {
+      _error = 'Connection error: $e';
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  // user_provider.dart
+  Future<void> changePassword(String oldPassword, String newPassword) async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      final response = await _userService.changePassword(
+        oldPassword: oldPassword,
+        newPassword: newPassword,
+      );
+
+      if (response['success'] == true) {
+        _error = null;
+      } else {
+        _error = response['message'] ?? 'Password change failed';
+      }
+    } catch (e) {
+      _error = 'Connection error: $e';
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
 }

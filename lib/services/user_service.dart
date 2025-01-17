@@ -56,17 +56,10 @@ class UserService {
     }
   }
 
-  // user_service.dart
   Future<Map<String, dynamic>> getUserInformation() async {
-    print('Calling URL: $baseUrl/user/profile');
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('auth_token');
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final token = prefs.getString('auth_token');
-
-      if (token == null) {
-        return {'success': false, 'message': 'No authentication token'};
-      }
-
       final response = await http.get(
         Uri.parse('$baseUrl/user/profile'),
         headers: {
@@ -75,33 +68,77 @@ class UserService {
         },
       );
 
-      // Kiểm tra response type
-      String contentType = response.headers['content-type'] ?? '';
-      if (!contentType.contains('application/json')) {
-        return {
-          'success': false,
-          'message': 'Invalid response format from server'
-        };
-      }
-
-      if (response.statusCode == 401 || response.statusCode == 403) {
-        // Token invalid hoặc expired
-        await UserPreferences.removeToken(); // Xóa token
-        return {'success': false, 'message': 'Authentication failed'};
-      }
-
-      final responseBody = json.decode(response.body);
-
-      if (response.statusCode == 200) {
-        return {'success': true, 'data': responseBody['data']};
+      print('Response headers: ${response.headers}');
+      // Check the content type here
+      if (response.headers['content-type']?.contains('application/json') ??
+          false) {
+        return jsonDecode(response.body);
       } else {
-        return {
-          'success': false,
-          'message': responseBody['message'] ?? 'Failed to load user profile'
-        };
+        return {'success': false, 'message': 'Invalid response format'};
       }
     } catch (e) {
       return {'success': false, 'message': 'Network error: $e'};
+    }
+  }
+
+  // Thêm phương thức updateUserProfile
+  // user_service.dart
+  Future<Map<String, dynamic>> updateUserProfile(
+      Map<String, dynamic> userData) async {
+    try {
+      final token = await UserPreferences.getToken();
+      if (token == null) {
+        throw Exception('No token found');
+      }
+
+      final response = await http.put(
+        Uri.parse('${ApiService.baseUrl}/user/profile'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+        body: jsonEncode(userData),
+      );
+
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body);
+      } else {
+        throw Exception('Failed to update profile: ${response.body}');
+      }
+    } catch (e) {
+      throw Exception('Connection error: $e');
+    }
+  }
+
+  Future<Map<String, dynamic>> changePassword({
+    required String oldPassword,
+    required String newPassword,
+  }) async {
+    try {
+      final token = await UserPreferences.getToken();
+      if (token == null) {
+        throw Exception('No token found');
+      }
+
+      final response = await http.put(
+        Uri.parse('${ApiService.baseUrl}/user/change-password'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+        body: jsonEncode({
+          'old_password': oldPassword,
+          'new_password': newPassword,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body);
+      } else {
+        throw Exception('Failed to change password: ${response.body}');
+      }
+    } catch (e) {
+      throw Exception('Connection error: $e');
     }
   }
 }

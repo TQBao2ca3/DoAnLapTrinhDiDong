@@ -54,45 +54,40 @@ class _SignUpState extends State<SignUp> {
         .showSnackBar(SnackBar(content: Text(message)));
   }
 
+  // Trong signUp.dart
   Future<void> register() async {
+    // Validate các trường
+    if (_userNameController.text.isEmpty ||
+        _passwordController.text.isEmpty ||
+        _fullNameController.text.isEmpty ||
+        _emailController.text.isEmpty ||
+        _phoneController.text.isEmpty) {
+      _showError('Vui lòng điền đầy đủ thông tin');
+      return;
+    }
+
+    // Validate mật khẩu
+    if (_passwordController.text.length < 6) {
+      _showError('Mật khẩu phải có ít nhất 6 ký tự');
+      return;
+    }
+
+    // Validate email
+    final emailRegExp = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+    if (!emailRegExp.hasMatch(_emailController.text)) {
+      _showError('Email không hợp lệ');
+      return;
+    }
+
+    // Validate số điện thoại
+    final phoneRegExp = RegExp(r'^\d{10}$');
+    if (!phoneRegExp.hasMatch(_phoneController.text)) {
+      _showError('Số điện thoại không hợp lệ (phải có 10 chữ số)');
+      return;
+    }
+
     final url = Uri.parse('http://192.168.1.9:3000/api/user/register');
-    // try {
-    //   // Lấy UserProvider
-    //   final userProvider = Provider.of<UserProvider>(context, listen: false);
-
-    //   // Gọi hàm đăng ký
-    //   await userProvider.register(
-    //     username: _userNameController.text,
-    //     password: _passwordController.text,
-    //     full_name: _fullNameController.text,
-    //     email: _emailController.text,
-    //     phone: _phoneController.text,
-    //   );
-
-    //   // Kiểm tra lỗi từ provider
-    //   if (userProvider.error != null) {
-    //     _showError(userProvider.error!);
-    //   } else {
-    //     // Đăng ký thành công
-    //     ScaffoldMessenger.of(context).showSnackBar(
-    //       const SnackBar(content: Text('Đăng ký thành công')),
-    //     );
-    //     // Chuyển về trang đăng nhập
-    //     Navigator.pushReplacement(
-    //         context,
-    //         MaterialPageRoute(
-    //             builder: (context) => const UserAuthentication()));
-    //   }
-    // } catch (e) {
-    //   _showError('Đã có lỗi xảy ra');
-    // }
-
     try {
-      print('username: ${_userNameController.text}');
-      print('password: ${_passwordController.text}');
-      print('email: ${_emailController.text}');
-      print('phone: ${_phoneController.text}');
-      print('fullname: ${_fullNameController.text}');
       final response = await http.post(
         url,
         headers: {'Content-Type': 'application/json'},
@@ -104,39 +99,49 @@ class _SignUpState extends State<SignUp> {
           'email': _emailController.text,
         }),
       );
-      print('Statuscode: ${response.statusCode}');
+
       final responseData = jsonDecode(response.body);
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (_) => const UserAuthentication()),
-        );
+      if (response.statusCode == 201) {
+        if (mounted) {
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: const Text('Thành công'),
+                content: const Text('Đăng ký thành công'),
+                actions: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                            builder: (_) => const UserAuthentication()),
+                      );
+                    },
+                    child: const Text('Đóng'),
+                  ),
+                ],
+              );
+            },
+          );
+        }
       } else {
-        showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return AlertDialog(
-              title: Text('Lỗi'),
-              content: Text('Đăng nhập không thành công'),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: Text('OK'),
-                ),
-              ],
-            );
-          },
-        );
-        print(
-            'Login failed. Status: ${response.statusCode}, Error: ${responseData['error'] ?? 'Unknown error'}');
-        setState(() {
-          _showError("Login failed");
-        });
+        String errorMessage = 'Đăng ký không thành công';
+        if (responseData['message']?.contains('Username already exists') ??
+            false) {
+          errorMessage = 'Tên đăng nhập đã tồn tại';
+        } else if (responseData['message']?.contains('Email already exists') ??
+            false) {
+          errorMessage = 'Email đã được sử dụng';
+        } else if (responseData['message']?.contains('Phone already exists') ??
+            false) {
+          errorMessage = 'Số điện thoại đã được sử dụng';
+        }
+        _showError(errorMessage);
       }
     } catch (e) {
-      setState(() {
-        _showError("An error occurred. Please try again.");
-      });
+      _showError('Có lỗi xảy ra, vui lòng thử lại sau');
     }
   }
 
