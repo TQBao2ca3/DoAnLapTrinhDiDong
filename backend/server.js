@@ -23,7 +23,7 @@ app.use('/api/productdetail',productDetailRoutes)
 app.use('/api/product',productRoutes)
 
 //định nghĩa route cho productHomePage
-app.use('/api/productHomePage',productHomePageRoutes)
+app.use('/api/productHomePage', productHomePageRoutes)
 
 //định nghĩa route cho cartItem
 app.use('/api/cart',cartItemRoutes)

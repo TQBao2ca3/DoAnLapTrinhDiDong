@@ -17,10 +17,11 @@ class ProductProvider with ChangeNotifier {
   String get selectedBrand => _selectedBrand;
 
   Future<void> loadProducts() async {
-    if (_isLoading) return; // Tránh load nhiều lần
+    if (_isLoading) return; // Tránh gọi nhiều lần
 
     _isLoading = true;
-    notifyListeners();
+    // Đợi frame tiếp theo trước khi notify
+    Future.microtask(() => notifyListeners());
 
     try {
       _products = await _productService.getProductList();
@@ -28,7 +29,8 @@ class ProductProvider with ChangeNotifier {
       print('Error loading products: $e');
     } finally {
       _isLoading = false;
-      notifyListeners();
+      // Đợi frame tiếp theo trước khi notify
+      Future.microtask(() => notifyListeners());
     }
   }
 

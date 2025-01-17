@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:jwt_decoder/jwt_decoder.dart';
-import 'package:phoneshop/models/CartItem.dart';
 import 'package:phoneshop/pages/ChangePassword.dart';
 import 'dart:convert';
 
 import 'package:phoneshop/pages/Homepage.dart';
+import 'package:phoneshop/pages/signUp.dart';
 import 'package:phoneshop/providers/CartItems_Provider.dart';
-import 'package:phoneshop/providers/User_Provider.dart';
+import 'package:phoneshop/providers/user_provider.dart';
+import 'package:phoneshop/services/userPreference.dart';
 import 'package:provider/provider.dart';
 
 class UserAuthentication extends StatefulWidget {
@@ -37,84 +37,83 @@ class _UserAuthenticationState extends State<UserAuthentication> {
     }
   }
 
-  //login
+  // userAuthentication.dart
   Future<void> login() async {
-    final url = Uri.parse('http://192.168.250.252:3000/api/user/login');
+    if (_userNameController.text.isEmpty || _passwordController.text.isEmpty) {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Thông báo'),
+            content: const Text('Vui lòng nhập đầy đủ tài khoản và mật khẩu'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Đóng'),
+              ),
+            ],
+          );
+        },
+      );
+      return;
+    }
+
     try {
-      final response = await http.post(
-        url,
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
-          'username': _userNameController.text,
-          'password': _passwordController.text,
-        }),
+      // Lấy UserProvider
+      final userProvider = Provider.of<UserProvider>(context, listen: false);
+
+      // Gọi login từ UserProvider
+      final result = await userProvider.login(
+        _userNameController.text,
+        _passwordController.text,
       );
 
-      final responseData = jsonDecode(response.body);
-
-      if (response.statusCode == 200) {
-        final token = responseData['token'];
-        Map<String, dynamic> decodedToken = JwtDecoder.decode(token);
-
-        // Lấy user_id và cart_id từ token
-        final userIdFromToken = decodedToken['id'];
-        final cartIdFromToken = decodedToken['cart_id'];
-
-        // Lấy user_id và cart_id từ response
-        final userIdFromResponse = responseData['userId'];
-        final cartIdFromResponse = responseData['cartId'];
-
-        // Chuyển đổi userId và cartId sang int một cách an toàn
-        int? userId;
-        int? cartId;
-
-        // Ưu tiên lấy từ token
-        if (userIdFromToken != null) {
-          userId = int.tryParse(userIdFromToken.toString());
+      if (mounted) {
+        if (result) {
+          // Login thành công, chuyển đến HomeScreen
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (_) => const HomeScreen()),
+          );
+        } else {
+          // Login thất bại, hiển thị lỗi
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              String errorMessage =
+                  userProvider.error ?? 'Đăng nhập không thành công';
+              return AlertDialog(
+                title: const Text('Lỗi'),
+                content: Text(errorMessage),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: const Text('Đóng'),
+                  ),
+                ],
+              );
+            },
+          );
         }
-        if (cartIdFromToken != null) {
-          cartId = int.tryParse(cartIdFromToken.toString());
-        }
-
-        // Nếu không có trong token thì lấy từ response
-        if (userId == null && userIdFromResponse != null) {
-          userId = int.tryParse(userIdFromResponse.toString());
-        }
-        if (cartId == null && cartIdFromResponse != null) {
-          cartId = int.tryParse(cartIdFromResponse.toString());
-        }
-
-        // Lưu userId vào UserProvider
-        if (userId != null) {
-          context.read<UserProvider>().setUserId(userId);
-        }
-
-        // Lưu cartId vào CartProvider và load danh sách cartItem
-        if (cartId != null) {
-          print('CartId received: $cartId'); // Thêm log
-          final cartProvider = context.read<CartProvider>();
-          cartProvider.setCartId(cartId);
-          print('CartId set in provider'); // Thêm log
-          try {
-            print('Loading cart items...'); // Thêm log
-            await cartProvider.loadCartItems(cartId);
-            print(
-                'Cart items loaded. Items count: ${cartProvider.items.length}'); // Thêm log
-          } catch (e) {
-            print('Error loading cart items: $e'); // Thêm log
-          }
-        }
-
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (_) => HomeScreen(),
-          ),
-        );
       }
     } catch (e) {
-      print("Error during login: $e");
-      // Có thể thêm thông báo lỗi cho người dùng ở đây
+      if (mounted) {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text('Lỗi'),
+              content: const Text('Không thể kết nối đến server'),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('Đóng'),
+                ),
+              ],
+            );
+          },
+        );
+      }
     }
   }
 
@@ -232,7 +231,10 @@ class _UserAuthenticationState extends State<UserAuthentication> {
                   ),
                   TextButton(
                     onPressed: () {
-                      Navigator.pushReplacementNamed(context, 'signUp');
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const SignUp()));
                     },
                     child: const Text(
                       'Đăng ký',

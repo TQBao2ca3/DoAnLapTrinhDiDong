@@ -1,4 +1,11 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:phoneshop/pages/userAuthentication.dart';
+import 'package:phoneshop/providers/Product_provider.dart';
+import 'package:phoneshop/providers/user_provider.dart';
+import 'package:provider/provider.dart';
+import 'package:http/http.dart' as http;
 
 class SignUp extends StatefulWidget {
   const SignUp({super.key});
@@ -8,6 +15,22 @@ class SignUp extends StatefulWidget {
 }
 
 class _SignUpState extends State<SignUp> {
+  @override
+  void initState() {
+    super.initState();
+    //lấy ProductProvider và gọi loadProducts
+    Future.microtask(() async {
+      final userProvider = Provider.of<UserProvider>(context, listen: false);
+      await userProvider.register(
+          username: _userNameController.text,
+          password: _passwordController.text,
+          email: _emailController.text,
+          full_name: _fullNameController.text,
+          phone: _phoneController.text);
+      print("Đăng ký");
+    });
+  }
+
   final TextEditingController _userNameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _fullNameController = TextEditingController();
@@ -20,8 +43,7 @@ class _SignUpState extends State<SignUp> {
         _passwordController.text.isEmpty ||
         _fullNameController.text.isEmpty ||
         _emailController.text.isEmpty ||
-        _phoneController.text.isEmpty ||
-        _andressController.text.isEmpty) {
+        _phoneController.text.isEmpty) {
       _showError('Vui lòng điền đầy đủ thông tin');
       return;
     }
@@ -30,6 +52,97 @@ class _SignUpState extends State<SignUp> {
   _showError(String message) {
     ScaffoldMessenger.of(context)
         .showSnackBar(SnackBar(content: Text(message)));
+  }
+
+  // Trong signUp.dart
+  Future<void> register() async {
+    // Validate các trường
+    if (_userNameController.text.isEmpty ||
+        _passwordController.text.isEmpty ||
+        _fullNameController.text.isEmpty ||
+        _emailController.text.isEmpty ||
+        _phoneController.text.isEmpty) {
+      _showError('Vui lòng điền đầy đủ thông tin');
+      return;
+    }
+
+    // Validate mật khẩu
+    if (_passwordController.text.length < 6) {
+      _showError('Mật khẩu phải có ít nhất 6 ký tự');
+      return;
+    }
+
+    // Validate email
+    final emailRegExp = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+    if (!emailRegExp.hasMatch(_emailController.text)) {
+      _showError('Email không hợp lệ');
+      return;
+    }
+
+    // Validate số điện thoại
+    final phoneRegExp = RegExp(r'^\d{10}$');
+    if (!phoneRegExp.hasMatch(_phoneController.text)) {
+      _showError('Số điện thoại không hợp lệ (phải có 10 chữ số)');
+      return;
+    }
+
+    final url = Uri.parse('http://192.168.250.252:3000/api/user/register');
+    try {
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'username': _userNameController.text,
+          'password': _passwordController.text,
+          'full_name': _fullNameController.text,
+          'phone': _phoneController.text,
+          'email': _emailController.text,
+        }),
+      );
+
+      final responseData = jsonDecode(response.body);
+      if (response.statusCode == 201) {
+        if (mounted) {
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: const Text('Thành công'),
+                content: const Text('Đăng ký thành công'),
+                actions: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                            builder: (_) => const UserAuthentication()),
+                      );
+                    },
+                    child: const Text('Đóng'),
+                  ),
+                ],
+              );
+            },
+          );
+        }
+      } else {
+        String errorMessage = 'Đăng ký không thành công';
+        if (responseData['message']?.contains('Username already exists') ??
+            false) {
+          errorMessage = 'Tên đăng nhập đã tồn tại';
+        } else if (responseData['message']?.contains('Email already exists') ??
+            false) {
+          errorMessage = 'Email đã được sử dụng';
+        } else if (responseData['message']?.contains('Phone already exists') ??
+            false) {
+          errorMessage = 'Số điện thoại đã được sử dụng';
+        }
+        _showError(errorMessage);
+      }
+    } catch (e) {
+      _showError('Có lỗi xảy ra, vui lòng thử lại sau');
+    }
   }
 
   @override
@@ -146,6 +259,7 @@ class _SignUpState extends State<SignUp> {
               ElevatedButton(
                 onPressed: () {
                   _handleAuthentication();
+                  register();
                 },
                 style: ElevatedButton.styleFrom(
                   minimumSize: const Size(152, 42),
@@ -168,8 +282,10 @@ class _SignUpState extends State<SignUp> {
                   const Text('Bạn đã có tài khoản? '),
                   TextButton(
                     onPressed: () {
-                      Navigator.pushReplacementNamed(
-                          context, 'userAuthentication');
+                      Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => UserAuthentication()));
                     },
                     child: const Text(
                       'Đăng nhập',

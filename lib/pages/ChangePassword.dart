@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:phoneshop/pages/userAuthentication.dart';
+import 'package:provider/provider.dart';
+import 'package:phoneshop/providers/user_provider.dart';
 
 class ChangePassword extends StatefulWidget {
   const ChangePassword({super.key});
@@ -8,117 +11,153 @@ class ChangePassword extends StatefulWidget {
 }
 
 class _ChangePasswordState extends State<ChangePassword> {
-  @override
-  _showError(String message) {
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(message)));
-  }
-
-  // Controller để lấy dữ liệu từ TextField
+  final _formKey = GlobalKey<FormState>();
   final TextEditingController _oldPass = TextEditingController();
   final TextEditingController _newPass = TextEditingController();
-  final TextEditingController _comfirmPass = TextEditingController();
-  // ignore: unused_element
-  _handleAuthentication() async {
-    if (_oldPass.text.isEmpty ||
-        _newPass.text.isEmpty ||
-        _comfirmPass.text.isEmpty) {
-      _showError('Vui lòng điền đầy đủ thông tin');
+  final TextEditingController _confirmPass = TextEditingController();
+  bool _isLoading = false;
+
+  void _showMessage(String message, bool isError) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: isError ? Colors.red : Colors.green,
+      ),
+    );
+  }
+
+  // Trong ChangePassword.dart
+  Future<void> _handleChangePassword() async {
+    if (!_formKey.currentState!.validate()) {
       return;
+    }
+
+    if (_newPass.text.length < 6) {
+      _showMessage('Mật khẩu mới phải có ít nhất 6 ký tự', true);
+      return;
+    }
+
+    if (_newPass.text == _oldPass.text) {
+      _showMessage('Mật khẩu mới phải khác mật khẩu hiện tại', true);
+      return;
+    }
+
+    if (_newPass.text != _confirmPass.text) {
+      _showMessage('Mật khẩu xác nhận không khớp', true);
+      return;
+    }
+
+    setState(() => _isLoading = true);
+
+    try {
+      await context.read<UserProvider>().changePassword(
+            _oldPass.text,
+            _newPass.text,
+          );
+
+      if (!mounted) return;
+
+      final userProvider = context.read<UserProvider>();
+      if (userProvider.error != null) {
+        String errorMessage = userProvider.error!;
+        if (errorMessage.contains('Incorrect old password')) {
+          _showMessage('Mật khẩu hiện tại không đúng', true);
+        } else {
+          _showMessage(errorMessage, true);
+        }
+      } else {
+        _showMessage('Đổi mật khẩu thành công', false);
+        Navigator.pushReplacement(context,
+            MaterialPageRoute(builder: (context) => UserAuthentication()));
+      }
+    } catch (e) {
+      _showMessage('Có lỗi xảy ra: $e', true);
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // AppBar với nút quay lại và tiêu đề động
       appBar: AppBar(
         title: const Text(
           'Đổi mật khẩu',
-          style: TextStyle(
-            fontSize: 28,
-            fontWeight: FontWeight.bold,
-          ),
+          style: TextStyle(fontSize: 20),
         ),
         centerTitle: true,
       ),
-
-      body: SingleChildScrollView(
-        child: Container(
-          height: MediaQuery.of(context).size.height,
-          color: const Color(0xffEDECF2),
+      body: Form(
+        key: _formKey,
+        child: SingleChildScrollView(
           padding: const EdgeInsets.all(20.0),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              const SizedBox(height: 50),
-              const Text(
-                'Đăng nhập',
-                style: TextStyle(
-                  fontSize: 25,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 60),
-
-              // TextField Email
-              TextField(
+              TextFormField(
                 controller: _oldPass,
+                obscureText: true,
                 decoration: const InputDecoration(
                   labelText: 'Mật khẩu cũ',
-                  prefixText: 'Mật khẩu cũ: ',
-                  // prefixStyle: TextStyle(),
                   border: OutlineInputBorder(),
                 ),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Vui lòng nhập mật khẩu cũ';
+                  }
+                  return null;
+                },
               ),
               const SizedBox(height: 20),
-
-              // TextField Password
-              TextField(
+              TextFormField(
                 controller: _newPass,
                 obscureText: true,
                 decoration: const InputDecoration(
                   labelText: 'Mật khẩu mới',
-                  prefixText: 'Mật khẩu mới: ',
                   border: OutlineInputBorder(),
                 ),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Vui lòng nhập mật khẩu mới';
+                  }
+                  if (value.length < 6) {
+                    return 'Mật khẩu phải có ít nhất 6 ký tự';
+                  }
+                  return null;
+                },
               ),
-
               const SizedBox(height: 20),
-
-              TextField(
-                controller: _newPass,
+              TextFormField(
+                controller: _confirmPass,
                 obscureText: true,
                 decoration: const InputDecoration(
                   labelText: 'Xác nhận mật khẩu mới',
-                  prefixText: 'Xác nhận MK: ',
                   border: OutlineInputBorder(),
                 ),
-              ),
-
-              const SizedBox(height: 10),
-
-              const SizedBox(height: 50),
-              // Nút đăng nhập/đăng ký
-              ElevatedButton(
-                onPressed: () {
-                  _handleAuthentication();
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Vui lòng xác nhận mật khẩu mới';
+                  }
+                  if (value != _newPass.text) {
+                    return 'Mật khẩu xác nhận không khớp';
+                  }
+                  return null;
                 },
-                style: ElevatedButton.styleFrom(
-                  minimumSize: const Size(152, 42),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8)),
-                  foregroundColor: Colors.white,
-                  backgroundColor: const Color(0xff03A9F4),
-                ),
-                child: const Text(
-                  'Đổi mật khẩu',
-                  style: TextStyle(fontSize: 18),
-                ),
               ),
-              const SizedBox(height: 20),
-
-              // Text và TextButton để chuyển đổi giữa đăng nhập và đăng ký
+              const SizedBox(height: 30),
+              ElevatedButton(
+                onPressed: _isLoading ? null : _handleChangePassword,
+                style: ElevatedButton.styleFrom(
+                  minimumSize: const Size(double.infinity, 50),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                child: _isLoading
+                    ? const CircularProgressIndicator()
+                    : const Text('Đổi mật khẩu'),
+              ),
             ],
           ),
         ),
@@ -128,10 +167,9 @@ class _ChangePasswordState extends State<ChangePassword> {
 
   @override
   void dispose() {
-    // Giải phóng bộ nhớ khi widget bị hủy
-    _comfirmPass.dispose();
-    _newPass.dispose();
     _oldPass.dispose();
+    _newPass.dispose();
+    _confirmPass.dispose();
     super.dispose();
   }
 }

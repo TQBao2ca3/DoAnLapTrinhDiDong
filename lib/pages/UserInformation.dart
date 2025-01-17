@@ -1,4 +1,13 @@
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
+import 'package:phoneshop/pages/ChangePassword.dart';
+import 'package:phoneshop/pages/Homepage.dart';
+import 'package:phoneshop/pages/userAuthentication.dart';
+import 'package:phoneshop/providers/user_provider.dart';
+import 'package:phoneshop/services/userPreference.dart';
+import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class UserInformation extends StatefulWidget {
   const UserInformation({super.key});
@@ -10,7 +19,35 @@ class UserInformation extends StatefulWidget {
 class _UserInformationState extends State<UserInformation> {
   final _formKey = GlobalKey<FormState>();
 
-  // Theo dõi trạng thái edit của từng trường
+  @override
+  void initState() {
+    super.initState();
+    print('UserInformation - initState called');
+
+    // Sử dụng addPostFrameCallback để đảm bảo widget đã được build
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _fetchUserInformation();
+    });
+  }
+
+  Future<void> _fetchUserInformation() async {
+    print('UserInformation - Fetching user information');
+
+    // Kiểm tra token trước khi fetch
+    final token = await UserPreferences.getToken();
+    if (token == null) {
+      print('UserInformation - No token found');
+      // Chuyển đến trang đăng nhập nếu không có token
+      Navigator.pushReplacement(context,
+          MaterialPageRoute(builder: (context) => UserAuthentication()));
+      return;
+    }
+
+    // Truyền context khi gọi getUserInformation
+    context.read<UserProvider>().getUserInformation(context);
+  }
+
+  // Các biến state giữ nguyên
   final Map<String, bool> _editingFields = {
     'name': false,
     'email': false,
@@ -18,7 +55,6 @@ class _UserInformationState extends State<UserInformation> {
     'address': false,
   };
 
-  // Data
   final Map<String, String> _userData = {
     'username': 'user1234',
     'name': 'name',
@@ -27,127 +63,244 @@ class _UserInformationState extends State<UserInformation> {
     'address': 'HCMC',
   };
 
-  // Temporary values while editing
   final Map<String, String> _tempValues = {};
 
+  // Các hàm xử lý giữ nguyên
   void _toggleEdit(String field) {
     setState(() {
       if (_editingFields[field]!) {
-        // Nếu đang edit thì lưu giá trị
+        // Khi nhấn lưu, gọi phương thức update
+        if (_tempValues[field] != null &&
+            _tempValues[field] != _userData[field]) {
+          _updateSpecificField(field, _tempValues[field]!);
+        }
         _userData[field] = _tempValues[field] ?? _userData[field]!;
       } else {
-        // Bắt đầu edit thì lưu giá trị tạm
         _tempValues[field] = _userData[field]!;
       }
       _editingFields[field] = !_editingFields[field]!;
     });
   }
 
+  void _updateSpecificField(String field, String value) {
+    // Ánh xạ field sang tên backend
+    final Map<String, String> fieldMapping = {
+      'name': 'full_name',
+      'email': 'email',
+      'phone': 'phone',
+      'address': 'address'
+    };
+
+    // Gọi phương thức update từ provider
+    context.read<UserProvider>().updateUserProfile(
+          context,
+          full_name: field == 'name' ? value : null,
+          email: field == 'email' ? value : null,
+          phone: field == 'phone' ? value : null,
+          address: field == 'address' ? value : null,
+        );
+  }
+
   bool get isAnyFieldEditing => _editingFields.values.any((editing) => editing);
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        // leading: IconButton(
-        //   icon: Icon(Icons.arrow_back),
-        //   onPressed: () => Navigator.pop(context),
-        // ),
-        title: Text(
-          isAnyFieldEditing ? 'Thông tin user đang sửa' : 'Thông tin user',
-          style: const TextStyle(fontSize: 18),
-        ),
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black,
-        elevation: 0,
-      ),
-      body: Form(
-        key: _formKey,
-        child: SingleChildScrollView(
-            padding: const EdgeInsets.all(16),
-            child: Container(
-              constraints: BoxConstraints(
-                  minHeight: MediaQuery.of(context).size.height * 0.8),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  const Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        'Tài khoản: User',
-                        style: TextStyle(
-                            fontSize: 20, fontWeight: FontWeight.bold),
-                      )
-                    ],
-                  ),
-                  _buildInfoField(
-                    label: 'Họ và tên:',
-                    field: 'name',
-                    value: _userData['name']!,
-                  ),
-                  _buildInfoField(
-                    label: 'Email:',
-                    field: 'email',
-                    value: _userData['email']!,
-                  ),
-                  _buildInfoField(
-                    label: 'SĐT:',
-                    field: 'phone',
-                    value: _userData['phone']!,
-                  ),
-                  _buildInfoField(
-                    label: 'Địa chỉ:',
-                    field: 'address',
-                    value: _userData['address']!,
-                  ),
-                  const SizedBox(height: 24),
-                  ElevatedButton(
-                    onPressed: isAnyFieldEditing
-                        ? () {
-                            // Lưu tất cả các thay đổi
-                            setState(() {
-                              _editingFields.forEach((field, editing) {
-                                if (editing) {
-                                  _userData[field] =
-                                      _tempValues[field] ?? _userData[field]!;
-                                  _editingFields[field] = false;
-                                }
-                              });
-                              _tempValues.clear();
-                            });
-                          }
-                        : null,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor:
-                          isAnyFieldEditing ? Colors.blue : Colors.grey,
-                      foregroundColor: Colors.white,
-                      minimumSize: const Size(200, 45),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
+    print('UserInformation - build called');
+    // Sửa lại Consumer với type cụ thể
+    return Consumer<UserProvider>(
+      builder: (context, userProvider, child) {
+        print('UserInformation - Consumer building');
+        print('Loading state: ${userProvider.isLoading}');
+        print('User data: ${userProvider.userData}');
+        print('Error: ${userProvider.error}');
+
+        if (userProvider.error != null) {
+          return Center(
+            child: Text(
+              'Error: ${userProvider.error}',
+              style: const TextStyle(color: Colors.red),
+            ),
+          );
+        }
+        return Scaffold(
+          appBar: AppBar(
+            title: Text(
+              isAnyFieldEditing
+                  ? 'Thông tin user đang sửa'
+                  : 'Thông tin ${userProvider.userData['username']}',
+              style: const TextStyle(fontSize: 18),
+            ),
+            backgroundColor: Colors.white,
+            foregroundColor: Colors.black,
+            elevation: 0,
+          ),
+          body: Form(
+            key: _formKey,
+            child: userProvider.isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : SingleChildScrollView(
+                    padding: const EdgeInsets.all(16),
+                    child: Container(
+                      constraints: BoxConstraints(
+                          minHeight: MediaQuery.of(context).size.height * 0.8),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                "Tài khoản: ${userProvider.userData['username']}",
+                                style: const TextStyle(
+                                    fontSize: 20, fontWeight: FontWeight.bold),
+                              )
+                            ],
+                          ),
+                          // Sử dụng data từ userProvider
+                          _buildInfoField(
+                            label: 'Họ và tên:',
+                            field: 'name',
+                            value: userProvider.userData['full_name'] ?? '',
+                          ),
+                          _buildInfoField(
+                            label: 'Email:',
+                            field: 'email',
+                            value: userProvider.userData['email'] ?? '',
+                          ),
+                          _buildInfoField(
+                            label: 'SĐT:',
+                            field: 'phone',
+                            value: userProvider.userData['phone'] ?? '',
+                          ),
+                          _buildInfoField(
+                            label: 'Địa chỉ:',
+                            field: 'address',
+                            value: userProvider.userData['address'] ?? '',
+                          ),
+                          // Các widget còn lại giữ nguyên
+                          const SizedBox(height: 24),
+                          ElevatedButton(
+                            onPressed: isAnyFieldEditing
+                                ? () {
+                                    // Kiểm tra form validation nếu cần
+                                    if (_formKey.currentState!.validate()) {
+                                      // Tạo map chứa các field cần update
+                                      Map<String, String> updatedFields = {};
+
+                                      // Duyệt qua các field đang được editing
+                                      _editingFields
+                                          .forEach((field, isEditing) {
+                                        if (isEditing &&
+                                            _tempValues[field] != null) {
+                                          switch (field) {
+                                            case 'name':
+                                              updatedFields['full_name'] =
+                                                  _tempValues[field]!;
+                                              break;
+                                            case 'email':
+                                              updatedFields['email'] =
+                                                  _tempValues[field]!;
+                                              break;
+                                            case 'phone':
+                                              updatedFields['phone'] =
+                                                  _tempValues[field]!;
+                                              break;
+                                            case 'address':
+                                              updatedFields['address'] =
+                                                  _tempValues[field]!;
+                                              break;
+                                          }
+                                        }
+                                      });
+
+                                      // Gọi phương thức update từ provider
+                                      context
+                                          .read<UserProvider>()
+                                          .updateUserProfile(
+                                            context,
+                                            full_name:
+                                                updatedFields['full_name'],
+                                            email: updatedFields['email'],
+                                            phone: updatedFields['phone'],
+                                            address: updatedFields['address'],
+                                          )
+                                          .then((_) {
+                                        // Kiểm tra sau khi update
+                                        final userProvider =
+                                            context.read<UserProvider>();
+
+                                        if (userProvider.error == null) {
+                                          // Update thành công
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(
+                                            SnackBar(
+                                              content: Text(
+                                                  'Cập nhật thông tin thành công'),
+                                              backgroundColor: Colors.green,
+                                            ),
+                                          );
+
+                                          // Reset trạng thái editing
+                                          setState(() {
+                                            _editingFields.updateAll(
+                                                (key, value) => false);
+                                            _tempValues.clear();
+                                          });
+                                        } else {
+                                          // Update thất bại
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(
+                                            SnackBar(
+                                              content: Text(
+                                                  userProvider.error ??
+                                                      'Cập nhật thất bại'),
+                                              backgroundColor: Colors.red,
+                                            ),
+                                          );
+                                        }
+                                      });
+                                    }
+                                  }
+                                : null,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor:
+                                  isAnyFieldEditing ? Colors.blue : Colors.grey,
+                              foregroundColor: Colors.white,
+                              minimumSize: const Size(200, 45),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                            ),
+                            child: const Text('Cập nhật thông tin'),
+                          ),
+                          const SizedBox(height: 16),
+                          TextButton(
+                            onPressed: isAnyFieldEditing
+                                ? null
+                                : () {
+                                    Navigator.pushReplacement(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                ChangePassword()));
+                                  },
+                            child: Text(
+                              'Đổi mật khẩu',
+                              style: TextStyle(
+                                color: !isAnyFieldEditing
+                                    ? Colors.red
+                                    : Colors.grey,
+                                fontSize: 16,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                    child: Text('Cập nhật thông tin'),
                   ),
-                  const SizedBox(height: 16),
-                  TextButton(
-                    onPressed: !isAnyFieldEditing
-                        ? () {
-                            // Xử lý đổi mật khẩu
-                          }
-                        : null,
-                    child: Text(
-                      'Đổi mật khẩu',
-                      style: TextStyle(
-                        color: !isAnyFieldEditing ? Colors.red : Colors.grey,
-                        fontSize: 16,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            )),
-      ),
+          ),
+        );
+      },
     );
   }
 
