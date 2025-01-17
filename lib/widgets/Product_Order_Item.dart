@@ -25,7 +25,7 @@ class ItemOrder extends StatelessWidget {
     try {
       final response = await http.put(
         Uri.parse(
-            'http://192.168.1.4:3000/api/orders/update-status/${orderDetails.orderId}'),
+            'http://192.168.250.252:3000/api/orders/update-status/${orderDetails.orderId}'),
         headers: {'Content-Type': 'application/json'},
         body:
             json.encode({'status': 2}), // Cập nhật sang trạng thái Đã giao (2)

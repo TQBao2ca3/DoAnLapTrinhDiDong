@@ -52,7 +52,7 @@ class CartProvider with ChangeNotifier {
 
   Future<void> add(Product product) async {
     try {
-      final url = Uri.parse('http://192.168.1.4:3000/api/cart/addToCart');
+      final url = Uri.parse('http://192.168.250.252:3000/api/cart/addToCart');
       final response = await http.post(
         url,
         headers: {'Content-Type': 'application/json'},
