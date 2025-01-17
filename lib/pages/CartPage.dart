@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:phoneshop/models/CartItem.dart';
-import 'package:phoneshop/models/Product.dart';
 import 'package:phoneshop/pages/PaymentPage.dart';
 import 'package:intl/intl.dart';
 import 'package:phoneshop/providers/CartItems_Provider.dart';
@@ -22,10 +21,10 @@ class _CartPageState extends State<CartPage> {
     List<CartItem> selectedItems = [];
     for (int index in _selectedProductIndices) {
       CartItem cartItem = cartProvider.items[index];
-      // Tạo một CartItem mới với các thuộc tính từ cartItem hiện có
       selectedItems.add(CartItem(
         cart_id: cartItem.cart_id,
         cart_item_id: cartItem.cart_item_id,
+        product_detail_id: cartItem.product_detail_id, // Thêm product_detail_id
         description: cartItem.description,
         price: cartItem.price,
         quantity: cartItem.quantity,
@@ -91,7 +90,16 @@ class _CartPageState extends State<CartPage> {
   Widget build(BuildContext context) {
     return Consumer<CartProvider>(
       builder: (context, cartProvider, child) {
+        if (cartProvider.isLoading) {
+          return const Center(
+            child: CircularProgressIndicator(),
+          );
+        }
         List<CartItem> cartItems = cartProvider.items;
+        print(
+            'Building CartPage with ${cartItems.length} items'); // Log số items khi build
+        print(
+            'Cart items in build: $cartItems'); // Log chi tiết items khi build
         return Scaffold(
           backgroundColor: Colors.grey[50],
           body: SafeArea(
@@ -223,14 +231,36 @@ class _CartPageState extends State<CartPage> {
                                                 ),
                                               ),
                                               ElevatedButton(
-                                                onPressed: () {
-                                                  cartProvider.remove(cartItem);
-                                                  if (_selectedProductIndices
-                                                      .contains(index)) {
-                                                    _selectedProductIndices
-                                                        .remove(index);
+                                                onPressed: () async {
+                                                  try {
+                                                    await cartProvider
+                                                        .remove(cartItem);
+                                                    Navigator.pop(context);
+                                                    // Hiển thị thông báo thành công
+                                                    ScaffoldMessenger.of(
+                                                            context)
+                                                        .showSnackBar(
+                                                      const SnackBar(
+                                                        content: Text(
+                                                            'Đã xóa sản phẩm khỏi giỏ hàng'),
+                                                        backgroundColor:
+                                                            Colors.green,
+                                                      ),
+                                                    );
+                                                  } catch (e) {
+                                                    Navigator.pop(context);
+                                                    // Hiển thị thông báo lỗi
+                                                    ScaffoldMessenger.of(
+                                                            context)
+                                                        .showSnackBar(
+                                                      const SnackBar(
+                                                        content: Text(
+                                                            'Có lỗi xảy ra khi xóa sản phẩm'),
+                                                        backgroundColor:
+                                                            Colors.red,
+                                                      ),
+                                                    );
                                                   }
-                                                  Navigator.pop(context);
                                                 },
                                                 style: ElevatedButton.styleFrom(
                                                   backgroundColor:
@@ -351,14 +381,28 @@ class _CartPageState extends State<CartPage> {
                                                             .remove_circle_outline,
                                                         color: Colors.blue[700],
                                                       ),
-                                                      onPressed: () {
+                                                      onPressed: () async {
                                                         if (cartItem.quantity >
                                                             1) {
-                                                          cartProvider
-                                                              .updateQuantity(
-                                                                  cartItem,
-                                                                  cartItem.quantity -
-                                                                      1);
+                                                          try {
+                                                            await cartProvider
+                                                                .updateQuantity(
+                                                                    cartItem,
+                                                                    cartItem.quantity -
+                                                                        1);
+                                                          } catch (e) {
+                                                            // Hiển thị thông báo lỗi
+                                                            ScaffoldMessenger
+                                                                    .of(context)
+                                                                .showSnackBar(
+                                                              const SnackBar(
+                                                                content: Text(
+                                                                    'Có lỗi xảy ra khi cập nhật số lượng'),
+                                                                backgroundColor:
+                                                                    Colors.red,
+                                                              ),
+                                                            );
+                                                          }
                                                         }
                                                       },
                                                     ),
@@ -385,12 +429,26 @@ class _CartPageState extends State<CartPage> {
                                                             .add_circle_outline,
                                                         color: Colors.blue[700],
                                                       ),
-                                                      onPressed: () {
-                                                        cartProvider
-                                                            .updateQuantity(
-                                                                cartItem,
-                                                                cartItem.quantity +
-                                                                    1);
+                                                      onPressed: () async {
+                                                        try {
+                                                          await cartProvider
+                                                              .updateQuantity(
+                                                                  cartItem,
+                                                                  cartItem.quantity +
+                                                                      1);
+                                                        } catch (e) {
+                                                          // Hiển thị thông báo lỗi
+                                                          ScaffoldMessenger.of(
+                                                                  context)
+                                                              .showSnackBar(
+                                                            const SnackBar(
+                                                              content: Text(
+                                                                  'Có lỗi xảy ra khi cập nhật số lượng'),
+                                                              backgroundColor:
+                                                                  Colors.red,
+                                                            ),
+                                                          );
+                                                        }
                                                       },
                                                     ),
                                                   ],

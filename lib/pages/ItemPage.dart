@@ -521,15 +521,13 @@ class _ItemPageState extends State<ItemPage> {
                     children: [
                       Expanded(
                         child: ElevatedButton.icon(
-                          onPressed: () {
-                            //kiểm tra màu sắc đã được chọn chưa
+                          onPressed: () async {
                             if (!widget.product.colors
                                 .contains(_selectedColor)) {
                               _showWarningDialog(context,
                                   "Vui lòng chọn màu sắc trước khi thêm vào giỏ hàng");
                               return;
                             }
-                            //kiểm tra dung lượng đã được chọn chưa
                             if (!widget.product.storage
                                 .contains(_selectedStorage)) {
                               _showWarningDialog(context,
@@ -537,91 +535,76 @@ class _ItemPageState extends State<ItemPage> {
                               return;
                             }
 
-                            // Lấy index của storage và price tương ứng
-                            int storageIndex = widget.product.storage
-                                .indexOf(_selectedStorage);
-
-                            // Tạo sản phẩm mới với storage và color đã chọn
-                            Product productToAdd = Product(
-                              product_id: widget.product.product_id,
-                              name: widget.product.name,
-                              description: widget.product.description,
-                              image_url: widget.product.image_url,
-                              price: storageIndex != -1 &&
-                                      storageIndex < widget.product.price.length
-                                  ? [widget.product.price[storageIndex]]
-                                  : [widget.product.price[0]],
-                              discount: widget.product.discount,
-                              rating: widget.product.rating,
-                              reviewCount: widget.product.reviewCount,
-                              storage: [_selectedStorage],
-                              colors: [_selectedColor],
-                              created_at: widget.product.created_at,
-                              stock_quantity: 1,
-                            );
-
-                            // Lấy CartProvider từ context
+                            // Lấy CartProvider
                             final cartProvider = context.read<CartProvider>();
 
-                            // Thêm sản phẩm vào giỏ hàng
-                            cartProvider.add(productToAdd);
+                            try {
+                              await cartProvider.add(widget.product);
 
-                            // Hiển thị dialog xác nhận
-                            showDialog(
-                              context: context,
-                              builder: (BuildContext context) {
-                                return AlertDialog(
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(20),
-                                  ),
-                                  title: Row(
-                                    children: [
-                                      Icon(Icons.check_circle,
-                                          color: Colors.blue[600]),
-                                      const SizedBox(width: 8),
-                                      const Text("Thông báo"),
-                                    ],
-                                  ),
-                                  content: Text(
-                                    'Sản phẩm "${widget.product.name}" với màu $_selectedColor và dung lượng $_selectedStorage đã được thêm vào giỏ hàng.',
-                                  ),
-                                  actions: [
-                                    TextButton(
-                                      onPressed: () {
-                                        Navigator.of(context).pop();
-                                      },
-                                      child: Text(
-                                        "Đóng",
-                                        style:
-                                            TextStyle(color: Colors.grey[600]),
-                                      ),
+                              // Hiển thị dialog thành công
+                              showDialog(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return AlertDialog(
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(20),
                                     ),
-                                    ElevatedButton(
-                                      onPressed: () {
-                                        Navigator.of(context).pop();
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) => CartPage(),
-                                          ),
-                                        );
-                                      },
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: Colors.blue[600],
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(10),
+                                    title: Row(
+                                      children: [
+                                        Icon(Icons.check_circle,
+                                            color: Colors.blue[600]),
+                                        const SizedBox(width: 8),
+                                        const Text("Thông báo"),
+                                      ],
+                                    ),
+                                    content: Text(
+                                      'Sản phẩm "${widget.product.name}" với màu $_selectedColor và dung lượng $_selectedStorage đã được thêm vào giỏ hàng.',
+                                    ),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () {
+                                          Navigator.of(context).pop();
+                                        },
+                                        child: Text(
+                                          "Đóng",
+                                          style: TextStyle(
+                                              color: Colors.grey[600]),
                                         ),
                                       ),
-                                      child: const Text(
-                                        "Đến giỏ hàng",
-                                        style: TextStyle(color: Colors.white),
+                                      ElevatedButton(
+                                        onPressed: () {
+                                          Navigator.of(context).pop();
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) => CartPage(),
+                                            ),
+                                          );
+                                        },
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: Colors.blue[600],
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(10),
+                                          ),
+                                        ),
+                                        child: const Text(
+                                          "Đến giỏ hàng",
+                                          style: TextStyle(color: Colors.white),
+                                        ),
                                       ),
-                                    ),
-                                  ],
-                                );
-                              },
-                            );
+                                    ],
+                                  );
+                                },
+                              );
+                            } catch (e) {
+                              // Hiển thị thông báo lỗi
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                    content: Text(
+                                        'Có lỗi xảy ra khi thêm vào giỏ hàng')),
+                              );
+                            }
                           },
                           icon: const Icon(Icons.shopping_cart,
                               color: Colors.white),
@@ -688,10 +671,11 @@ class _ItemPageState extends State<ItemPage> {
                             // Tạo CartItem trực tiếp từ Product đã chọn
                             CartItem cartItem = CartItem(
                                 cart_id: widget.product.product_id,
-                                cart_item_id: 0, // Hoặc một giá trị phù hợp
+                                cart_item_id: 0,
+                                product_detail_id: widget.product
+                                    .product_id, // Thêm product_detail_id
                                 description: widget.product.name,
-                                price: widget.product.price[
-                                    storageIndex], // Lấy giá tương ứng với storage
+                                price: widget.product.price[storageIndex],
                                 quantity: 1,
                                 image_url: widget.product.image_url,
                                 colors: _selectedColor,

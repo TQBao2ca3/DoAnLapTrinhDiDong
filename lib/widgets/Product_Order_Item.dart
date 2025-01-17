@@ -24,9 +24,11 @@ class ItemOrder extends StatelessWidget {
   Future<void> _updateOrderStatus(BuildContext context) async {
     try {
       final response = await http.put(
-        Uri.parse('http://192.168.1.7:3000/api/orders/update-status/${orderDetails.orderId}'),
+        Uri.parse(
+            'http://192.168.1.4:3000/api/orders/update-status/${orderDetails.orderId}'),
         headers: {'Content-Type': 'application/json'},
-        body: json.encode({'status': 2}), // Cập nhật sang trạng thái Đã giao (2)
+        body:
+            json.encode({'status': 2}), // Cập nhật sang trạng thái Đã giao (2)
       );
 
       if (response.statusCode == 200) {
@@ -160,9 +162,7 @@ class ItemOrder extends StatelessWidget {
                       Text(
                         orderDetails.name,
                         style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16
-                        ),
+                            fontWeight: FontWeight.bold, fontSize: 16),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -182,8 +182,7 @@ class ItemOrder extends StatelessWidget {
                         style: const TextStyle(
                             color: Colors.blue,
                             fontWeight: FontWeight.bold,
-                            fontSize: 16
-                        ),
+                            fontSize: 16),
                       ),
                       const SizedBox(height: 5),
                     ],
@@ -215,8 +214,7 @@ class ItemOrder extends StatelessWidget {
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.blue,
                           shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8)
-                          ),
+                              borderRadius: BorderRadius.circular(8)),
                         ),
                         child: const Text(
                           "Đã nhận được hàng",

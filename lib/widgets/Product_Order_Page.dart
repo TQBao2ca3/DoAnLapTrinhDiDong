@@ -13,7 +13,7 @@ class OrderDetail {
   final int quantity;
   final String storage;
   final double price;
-  final double total;  // Thêm trường total
+  final double total; // Thêm trường total
   final int status;
 
   // Enum để quản lý trạng thái đơn hàng
@@ -30,7 +30,7 @@ class OrderDetail {
     required this.quantity,
     required this.storage,
     required this.price,
-    required this.total,  // Thêm total vào constructor
+    required this.total, // Thêm total vào constructor
     required this.status,
   });
 
@@ -43,7 +43,9 @@ class OrderDetail {
       quantity: json['quantity'] ?? 0,
       storage: json['storage'] ?? '',
       price: (json['price'] is num) ? json['price'].toDouble() : 0.0,
-      total: (json['total'] is num) ? json['total'].toDouble() : 0.0,  // Parse total
+      total: (json['total'] is num)
+          ? json['total'].toDouble()
+          : 0.0, // Parse total
       status: json['status'] ?? 0,
     );
   }
@@ -59,7 +61,7 @@ class OrderDetail {
         quantity == other.quantity &&
         storage == other.storage &&
         price == price &&
-        total == other.total &&  // Thêm total vào so sánh
+        total == other.total && // Thêm total vào so sánh
         status == other.status;
   }
 
@@ -72,7 +74,7 @@ class OrderDetail {
       quantity,
       storage,
       price,
-      total,  // Thêm total vào hash
+      total, // Thêm total vào hash
       status,
     );
   }
@@ -114,7 +116,8 @@ class ProductOrderScreenState extends State<ProductOrderScreen>
   }
 
   void _setupPeriodicRefresh() {
-    _refreshTimer = Timer.periodic(const Duration(seconds: 30), (_) {  // Tăng thời gian refresh lên 30s
+    _refreshTimer = Timer.periodic(const Duration(seconds: 30), (_) {
+      // Tăng thời gian refresh lên 30s
       if (mounted) {
         _fetchOrders();
       }
@@ -125,9 +128,11 @@ class ProductOrderScreenState extends State<ProductOrderScreen>
     if (!mounted) return;
 
     try {
-      final response = await http.get(
-        Uri.parse('http://192.168.1.7:3000/api/orders/${widget.userId}'),
-      ).timeout(
+      final response = await http
+          .get(
+        Uri.parse('http://192.168.1.4:3000/api/orders/${widget.userId}'),
+      )
+          .timeout(
         const Duration(seconds: 10),
         onTimeout: () {
           throw TimeoutException('Không thể kết nối đến máy chủ');
@@ -139,7 +144,7 @@ class ProductOrderScreenState extends State<ProductOrderScreen>
       if (response.statusCode == 200) {
         final List<dynamic> jsonData = json.decode(response.body);
         final List<OrderDetail> fetchedOrders =
-        jsonData.map((data) => OrderDetail.fromJson(data)).toList();
+            jsonData.map((data) => OrderDetail.fromJson(data)).toList();
 
         if (!_listEquals(_orders, fetchedOrders)) {
           setState(() {
@@ -147,18 +152,18 @@ class ProductOrderScreenState extends State<ProductOrderScreen>
             _isLoading = false;
           });
 
-          developer.log(
-              'Danh sách đơn hàng đã được cập nhật',
+          developer.log('Danh sách đơn hàng đã được cập nhật',
               name: 'OrderDebug',
               error: {
                 'total_orders': fetchedOrders.length,
-                'orders': fetchedOrders.map((order) => {
-                  'orderId': order.orderId,
-                  'name': order.name,
-                  'status': order.status
-                }).toList()
-              }
-          );
+                'orders': fetchedOrders
+                    .map((order) => {
+                          'orderId': order.orderId,
+                          'name': order.name,
+                          'status': order.status
+                        })
+                    .toList()
+              });
         }
       } else if (response.statusCode == 404) {
         setState(() {
@@ -226,9 +231,8 @@ class ProductOrderScreenState extends State<ProductOrderScreen>
       return const Center(child: CircularProgressIndicator());
     }
 
-    final filteredOrders = _orders
-        .where((order) => order.status == status)
-        .toList();
+    final filteredOrders =
+        _orders.where((order) => order.status == status).toList();
 
     if (filteredOrders.isEmpty) {
       return const Center(
