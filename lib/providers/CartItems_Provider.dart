@@ -52,7 +52,7 @@ class CartProvider with ChangeNotifier {
 
   Future<void> add(Product product) async {
     try {
-      final url = Uri.parse('http://192.168.1.4:3000/api/cart/addToCart');
+      final url = Uri.parse('http://192.168.250.252:3000/api/cart/addToCart');
       final response = await http.post(
         url,
         headers: {'Content-Type': 'application/json'},
@@ -98,7 +98,8 @@ class CartProvider with ChangeNotifier {
 
   Future<void> remove(CartItem product) async {
     try {
-      final url = Uri.parse('http://192.168.1.4:3000/api/cart/deleteCartItem');
+      final url =
+          Uri.parse('http://192.168.250.252:3000/api/cart/deleteCartItem');
       final response = await http.delete(
         url,
         headers: {'Content-Type': 'application/json'},
@@ -125,7 +126,8 @@ class CartProvider with ChangeNotifier {
 
   Future<void> updateQuantity(CartItem product, int quantity) async {
     try {
-      final url = Uri.parse('http://192.168.1.4:3000/api/cart/updateQuantity');
+      final url =
+          Uri.parse('http://192.168.250.252:3000/api/cart/updateQuantity');
 
       final response = await http.put(
         url,

@@ -12,7 +12,7 @@ class OrderService {
     required List<CartItem> cartItems,
   }) async {
     try {
-      final url = Uri.parse('http://192.168.1.4:3000/api/orders/create');
+      final url = Uri.parse('http://192.168.250.252:3000/api/orders/create');
 
       // Chuẩn bị dữ liệu để gửi lên server
       // final orderData = {
