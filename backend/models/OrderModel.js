@@ -1,7 +1,7 @@
 const db = require('../config/Database');
 
-const OrderModel = {
-    createOrder: async (orderData) => {
+class OrderModel {
+    static async createOrder(orderData) {
         try {
             const [result] = await db.promise().query(
                 `INSERT INTO Orders (
@@ -9,14 +9,16 @@ const OrderModel = {
                     shipping_address,
                     status_order,
                     status_payment,
-                    payment_method
-                ) VALUES (?, ?, ?, ?, ?)`,
+                    payment_method,
+                    payment_date
+                ) VALUES (?, ?, ?, ?, ?, ?)`,
                 [
                     orderData.user_id,
                     orderData.shipping_address,
-                    orderData.status_order,
-                    orderData.status_payment,
-                    orderData.payment_method
+                    0,  // status_order mặc định là 0
+                    orderData.payment_method === 1 ? 1 : 0,  // status_payment
+                    orderData.payment_method,
+                    orderData.payment_method === 1 ? new Date() : null
                 ]
             );
             return result;
@@ -24,22 +26,26 @@ const OrderModel = {
             console.error('Error in createOrder:', error);
             throw error;
         }
-    },
+    }
 
-    createOrderDetail: async (detailData) => {
+    static async createOrderDetail(detailData) {
         try {
             const [result] = await db.promise().query(
                 `INSERT INTO OrdersDetail (
                     order_id,
                     product_detail_id,
                     quantity,
-                    price
-                ) VALUES (?, ?, ?, ?)`,
+                    price,
+                    storage,
+                    color
+                ) VALUES (?, ?, ?, ?, ?, ?)`,
                 [
                     detailData.order_id,
                     detailData.product_detail_id,
                     detailData.quantity,
-                    detailData.price
+                    detailData.price,
+                    detailData.storage,
+                    detailData.color
                 ]
             );
             return result;
@@ -47,9 +53,9 @@ const OrderModel = {
             console.error('Error in createOrderDetail:', error);
             throw error;
         }
-    },
+    }
 
-    getOrdersByUserId: async (userId) => {
+    static async getOrdersByUserId(userId) {
         try {
             const [rows] = await db.promise().query(
                 'SELECT * FROM Orders WHERE user_id = ? ORDER BY order_date DESC',
@@ -59,9 +65,9 @@ const OrderModel = {
         } catch (error) {
             throw error;
         }
-    },
+    }
 
-    getOrderDetailById: async (orderId) => {
+    static async getOrderDetailById(orderId) {
         try {
             const [rows] = await db.promise().query(
                 `SELECT 
@@ -82,6 +88,6 @@ const OrderModel = {
             throw error;
         }
     }
-};
+}
 
 module.exports = OrderModel;

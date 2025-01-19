@@ -10,6 +10,10 @@ class OrderService {
     required List<Map<String, dynamic>> orderDetails,
   }) async {
     try {
+      // Chuyển đổi payment_method sang dạng số
+      int paymentMethodValue =
+          paymentMethod == "Thanh toán khi nhận hàng" ? 0 : 1;
+
       final response = await http.post(
         Uri.parse('${ApiService.baseUrl}/orders/create'),
         headers: {
@@ -18,10 +22,16 @@ class OrderService {
         body: jsonEncode({
           'user_id': userId,
           'shipping_address': shippingAddress,
-          'payment_method': paymentMethod,
-          'status_order': 'Pending',
-          'status_payment': 'Unpaid',
-          'order_details': orderDetails,
+          'payment_method': paymentMethodValue, // Gửi giá trị số
+          'order_details': orderDetails
+              .map((detail) => {
+                    'product_detail_id': detail['product_detail_id'],
+                    'quantity': detail['quantity'],
+                    'price': detail['price'],
+                    'storage': detail['storage'],
+                    'color': detail['colors'],
+                  })
+              .toList(),
         }),
       );
 
@@ -32,6 +42,26 @@ class OrderService {
       }
     } catch (e) {
       throw Exception('Error creating order: $e');
+    }
+  }
+
+  Future<void> updateOrderStatus(int orderId, int status) async {
+    try {
+      final response = await http.put(
+        Uri.parse('${ApiService.baseUrl}/orders/update-status/$orderId'),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          'status': status,
+        }),
+      );
+
+      if (response.statusCode != 200) {
+        throw Exception('Failed to update order status');
+      }
+    } catch (e) {
+      throw Exception('Error updating order status: $e');
     }
   }
 }

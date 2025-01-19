@@ -161,6 +161,17 @@ class CartProvider with ChangeNotifier {
     }
   }
 
+  Future<void> removeOrderedItems(List<CartItem> orderedItems) async {
+    try {
+      for (var item in orderedItems) {
+        await remove(item); // Sử dụng hàm remove có sẵn
+      }
+    } catch (e) {
+      print('Error removing ordered items: $e');
+      throw e;
+    }
+  }
+
   Future<void> updateQuantity(CartItem product, int quantity) async {
     try {
       final url = Uri.parse('${ApiService.baseUrl}/cart/updateQuantity');

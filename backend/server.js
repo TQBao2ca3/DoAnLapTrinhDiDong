@@ -27,7 +27,7 @@ app.use('/api/productHomePage', productHomePageRoutes)
 app.use('/api/cart', cartItemRoutes)
 
 //định nghĩa route cho order
-// app.use('/api/orders', orderRoutes)
+ app.use('/api/orders', orderRoutes)
 
 // API đăng nhập
 

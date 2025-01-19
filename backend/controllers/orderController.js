@@ -1,51 +1,49 @@
 const OrderModel = require('../models/OrderModel');
 
 exports.createOrder = async (req, res) => {
-    const {
-        user_id,
-        shipping_address,
-        payment_method,
-        status_order,
-        status_payment,
-        order_details
-    } = req.body;
+  const {
+      user_id,
+      shipping_address,
+      payment_method,
+      order_details
+  } = req.body;
 
-    try {
-        // Tạo order mới
-        const orderResult = await OrderModel.createOrder({
-            user_id,
-            shipping_address,
-            status_order,
-            status_payment,
-            payment_method
-        });
+  try {
+      // Tạo order mới
+      const orderResult = await OrderModel.createOrder({
+          user_id,
+          shipping_address,
+          payment_method
+      });
 
-        const order_id = orderResult.insertId;
+      const order_id = orderResult.insertId;
 
-        // Tạo order details
-        await Promise.all(order_details.map(detail => 
-            OrderModel.createOrderDetail({
-                order_id,
-                product_detail_id: detail.product_detail_id,
-                quantity: detail.quantity,
-                price: detail.price
-            })
-        ));
+      // Tạo order details với storage và color
+      await Promise.all(order_details.map(detail => 
+          OrderModel.createOrderDetail({
+              order_id,
+              product_detail_id: detail.product_detail_id,
+              quantity: detail.quantity,
+              price: detail.price,
+              storage: detail.storage,
+              color: detail.color
+          })
+      ));
 
-        res.status(200).json({
-            success: true,
-            message: 'Order created successfully',
-            data: {
-                order_id
-            }
-        });
-    } catch (error) {
-        console.error('Error creating order:', error);
-        res.status(500).json({
-            success: false,
-            message: 'Failed to create order'
-        });
-    }
+      res.status(200).json({
+          success: true,
+          message: 'Order created successfully',
+          data: {
+              order_id
+          }
+      });
+  } catch (error) {
+      console.error('Error creating order:', error);
+      res.status(500).json({
+          success: false,
+          message: 'Failed to create order'
+      });
+  }
 };
 
 exports.getOrders = async (req, res) => {

@@ -13,8 +13,8 @@ import 'package:phoneshop/services/order_service.dart';
 import 'package:provider/provider.dart';
 
 class PaymentPage extends StatefulWidget {
-  final List<dynamic>
-      cartItems; // Thay thế dynamic bằng kiểu dữ liệu thực tế của item trong giỏ hàng
+  final List<CartItem>
+      cartItems; // Thay vì List<dynamic> // Thay thế dynamic bằng kiểu dữ liệu thực tế của item trong giỏ hàng
   final int totalAmount;
 
   const PaymentPage({
@@ -732,7 +732,7 @@ class _PaymentPageState extends State<PaymentPage> {
                 onPressed: () async {
                   try {
                     print('=== Start placing order ===');
-                    // Lấy các provider cần thiết trước khi async operation
+                    // Lấy các provider cần thiết
                     final orderService = OrderService();
                     final userId = context.read<UserProvider>().userId;
                     final cartProvider = context.read<CartProvider>();
@@ -741,6 +741,7 @@ class _PaymentPageState extends State<PaymentPage> {
                     print('Selected Address: ${selectedAddress?.address}');
                     print('Payment Method: $selectedPaymentMethod');
 
+                    // Kiểm tra user đã đăng nhập
                     if (userId == null) {
                       if (!mounted) return;
                       ScaffoldMessenger.of(context).showSnackBar(
@@ -749,6 +750,7 @@ class _PaymentPageState extends State<PaymentPage> {
                       return;
                     }
 
+                    // Kiểm tra địa chỉ
                     if (selectedAddress == null ||
                         selectedAddress!.address.isEmpty) {
                       if (!mounted) return;
@@ -759,35 +761,49 @@ class _PaymentPageState extends State<PaymentPage> {
                       return;
                     }
 
+                    // Chuẩn bị thông tin chi tiết đơn hàng
                     final orderDetails = widget.cartItems
                         .map((item) => {
                               'product_detail_id': item.product_detail_id,
                               'quantity': item.quantity,
-                              'price': item.price
+                              'price': item.price,
+                              'storage': item.storage,
+                              'colors': item.colors
                             })
                         .toList();
 
                     print('Order Details: $orderDetails');
 
+                    // Xác định phương thức thanh toán (0: COD, 1: Thẻ)
+                    int paymentMethodValue =
+                        selectedPaymentMethod == "Thanh toán khi nhận hàng"
+                            ? 0
+                            : 1;
+
+                    // Tạo đơn hàng
                     final result = await orderService.createOrder(
                       userId: userId,
                       shippingAddress: selectedAddress!.address,
-                      paymentMethod: selectedPaymentMethod ?? 'COD',
+                      paymentMethod:
+                          paymentMethodValue.toString(), // Chuyển thành string
                       orderDetails: orderDetails,
                     );
 
                     print('API Response: $result');
 
-                    // Kiểm tra mounted trước khi sử dụng context
                     if (!mounted) return;
 
                     if (result['success']) {
                       print('Order placed successfully');
-
-                      // Load lại cart
+                      try {
+                        await cartProvider.removeOrderedItems(widget.cartItems);
+                      } catch (e) {
+                        print('Error removing ordered items from cart: $e');
+                      }
+                      // Load lại giỏ hàng
                       await cartProvider.loadCartItems();
-
-                      // Sử dụng Navigator.of(context) thay vì Navigator trực tiếp
+                      if (!mounted) return;
+                      // Chuyển đến trang thanh toán thành công
                       await Navigator.of(context).pushReplacement(
                         MaterialPageRoute(
                           builder: (context) => PaymentWaitingPage(
