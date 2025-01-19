@@ -391,7 +391,6 @@ class _CartPageState extends State<CartPage> {
                                                                     cartItem.quantity -
                                                                         1);
                                                           } catch (e) {
-                                                            // Hiển thị thông báo lỗi
                                                             ScaffoldMessenger
                                                                     .of(context)
                                                                 .showSnackBar(
@@ -403,6 +402,105 @@ class _CartPageState extends State<CartPage> {
                                                               ),
                                                             );
                                                           }
+                                                        } else {
+                                                          // Hiện dialog xác nhận xóa khi số lượng = 1
+                                                          showDialog(
+                                                            context: context,
+                                                            builder:
+                                                                (context) =>
+                                                                    AlertDialog(
+                                                              shape:
+                                                                  RoundedRectangleBorder(
+                                                                borderRadius:
+                                                                    BorderRadius
+                                                                        .circular(
+                                                                            20),
+                                                              ),
+                                                              title: Row(
+                                                                children: [
+                                                                  Icon(
+                                                                      Icons
+                                                                          .warning,
+                                                                      color: Colors
+                                                                              .orange[
+                                                                          700]),
+                                                                  const SizedBox(
+                                                                      width: 8),
+                                                                  const Text(
+                                                                      'Xác nhận xóa'),
+                                                                ],
+                                                              ),
+                                                              content: const Text(
+                                                                  'Bạn có chắc muốn xóa sản phẩm này?'),
+                                                              actions: [
+                                                                TextButton(
+                                                                  onPressed: () =>
+                                                                      Navigator.pop(
+                                                                          context),
+                                                                  child: Text(
+                                                                    'Hủy',
+                                                                    style: TextStyle(
+                                                                        color: Colors
+                                                                            .grey[600]),
+                                                                  ),
+                                                                ),
+                                                                ElevatedButton(
+                                                                  onPressed:
+                                                                      () async {
+                                                                    try {
+                                                                      await cartProvider
+                                                                          .remove(
+                                                                              cartItem);
+                                                                      Navigator.pop(
+                                                                          context);
+                                                                      ScaffoldMessenger.of(
+                                                                              context)
+                                                                          .showSnackBar(
+                                                                        const SnackBar(
+                                                                          content:
+                                                                              Text('Đã xóa sản phẩm khỏi giỏ hàng'),
+                                                                          backgroundColor:
+                                                                              Colors.green,
+                                                                        ),
+                                                                      );
+                                                                    } catch (e) {
+                                                                      Navigator.pop(
+                                                                          context);
+                                                                      ScaffoldMessenger.of(
+                                                                              context)
+                                                                          .showSnackBar(
+                                                                        const SnackBar(
+                                                                          content:
+                                                                              Text('Có lỗi xảy ra khi xóa sản phẩm'),
+                                                                          backgroundColor:
+                                                                              Colors.red,
+                                                                        ),
+                                                                      );
+                                                                    }
+                                                                  },
+                                                                  style: ElevatedButton
+                                                                      .styleFrom(
+                                                                    backgroundColor:
+                                                                        Colors.red[
+                                                                            400],
+                                                                    shape:
+                                                                        RoundedRectangleBorder(
+                                                                      borderRadius:
+                                                                          BorderRadius.circular(
+                                                                              10),
+                                                                    ),
+                                                                  ),
+                                                                  child:
+                                                                      const Text(
+                                                                    'Xóa',
+                                                                    style: TextStyle(
+                                                                        color: Colors
+                                                                            .white),
+                                                                  ),
+                                                                ),
+                                                              ],
+                                                            ),
+                                                          );
                                                         }
                                                       },
                                                     ),
