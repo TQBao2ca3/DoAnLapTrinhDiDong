@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:phoneshop/admin/TrangChu.dart';
 import 'package:phoneshop/pages/ChangePassword.dart';
 import 'dart:convert';
 
@@ -8,6 +9,7 @@ import 'package:phoneshop/providers/CartItems_Provider.dart';
 import 'package:phoneshop/providers/user_provider.dart';
 import 'package:phoneshop/services/userPreference.dart';
 import 'package:provider/provider.dart';
+import 'package:http/http.dart' as http;
 
 class UserAuthentication extends StatefulWidget {
   const UserAuthentication({super.key});
@@ -55,6 +57,52 @@ class _UserAuthenticationState extends State<UserAuthentication> {
         },
       );
       return;
+    }
+    if (_userNameController.text == "admin") {
+      try {
+        final response = await http.post(
+          Uri.parse("http://192.168.1.9:3000/api/login"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({
+            'username': _userNameController.text,
+            'password': _passwordController.text,
+          }),
+        );
+
+        if (response.statusCode == 200) {
+          final Map<String, dynamic> data = json.decode(response.body);
+          final user = data['user'];
+
+          if (mounted) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => AdminOrdersScreen(user: user)),
+            );
+          }
+        }
+        return; // Thêm return ở đây để không chạy tiếp code user
+      } catch (e) {
+        // Xử lý lỗi kết nối cho admin
+        if (mounted) {
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: const Text('Lỗi'),
+                content: const Text('Không thể kết nối đến server'),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: const Text('Đóng'),
+                  ),
+                ],
+              );
+            },
+          );
+        }
+        return;
+      }
     }
 
     try {
