@@ -6,7 +6,7 @@ import 'package:phoneshop/services/userPreference.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class UserService {
-  static const String baseUrl = 'http://192.168.30.37:3000/api';
+  static const String baseUrl = 'http://192.168.1.9:3000/api';
 
   // Thêm phương thức login
   Future<Map<String, dynamic>> login(String username, String password) async {

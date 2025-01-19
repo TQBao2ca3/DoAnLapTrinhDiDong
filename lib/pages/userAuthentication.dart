@@ -59,25 +59,49 @@ class _UserAuthenticationState extends State<UserAuthentication> {
       return;
     }
     if (_userNameController.text == "admin") {
-      final response = await http.post(
-        Uri.parse("http://192.168.30.37:3000/api/login"),
-        headers: {'Content-Type': 'application/json'},
-        body: json.encode({
-          'username': _userNameController.text,
-          'password': _passwordController.text,
-        }),
-      );
-
-      if (response.statusCode == 200) {
-        // Parse JSON response
-        final Map<String, dynamic> data = json.decode(response.body);
-        final user = data['user'];
-
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-              builder: (context) => AdminOrdersScreen(user: user)),
+      try {
+        final response = await http.post(
+          Uri.parse("http://192.168.1.9:3000/api/login"),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({
+            'username': _userNameController.text,
+            'password': _passwordController.text,
+          }),
         );
+
+        if (response.statusCode == 200) {
+          final Map<String, dynamic> data = json.decode(response.body);
+          final user = data['user'];
+
+          if (mounted) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => AdminOrdersScreen(user: user)),
+            );
+          }
+        }
+        return; // Thêm return ở đây để không chạy tiếp code user
+      } catch (e) {
+        // Xử lý lỗi kết nối cho admin
+        if (mounted) {
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: const Text('Lỗi'),
+                content: const Text('Không thể kết nối đến server'),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: const Text('Đóng'),
+                  ),
+                ],
+              );
+            },
+          );
+        }
+        return;
       }
     }
 

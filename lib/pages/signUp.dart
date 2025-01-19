@@ -86,7 +86,7 @@ class _SignUpState extends State<SignUp> {
       return;
     }
 
-    final url = Uri.parse('http://192.168.30.37:3000/api/user/register');
+    final url = Uri.parse('http://192.168.1.9:3000/api/user/register');
     try {
       final response = await http.post(
         url,

@@ -25,7 +25,7 @@ class _AdminOrdersScreenState extends State<AdminOrdersScreen> {
   final searchController = TextEditingController();
   String searchQuery = '';
   final mainBlue = const Color(0xFF0066CC);
-  final String apiUrl = 'http://192.168.30.37:3000';
+  final String apiUrl = 'http://192.168.1.9:3000';
   List<Order> orders = [];
 
   final currencyFormat = NumberFormat.currency(
