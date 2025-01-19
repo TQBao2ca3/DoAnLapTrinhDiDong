@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:phoneshop/models/CartItem.dart';
 import 'package:phoneshop/models/Product.dart';
+import 'package:phoneshop/services/api_service.dart';
 import 'package:phoneshop/services/cartitem_service.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -46,7 +47,7 @@ class CartProvider with ChangeNotifier {
     try {
       // Kiểm tra xem user có cart chưa
       final response = await http.get(
-        Uri.parse('http://192.168.30.37:3000/api/cart/getCart/$userId'),
+        Uri.parse('${ApiService.baseUrl}/cart/getCart/$userId'),
         headers: {'Content-Type': 'application/json'},
       );
 
@@ -92,7 +93,7 @@ class CartProvider with ChangeNotifier {
       return;
     }
     try {
-      final url = Uri.parse('http://192.168.30.37:3000/api/cart/addToCart');
+      final url = Uri.parse('${ApiService.baseUrl}/cart/addToCart');
       final response = await http.post(
         url,
         headers: {'Content-Type': 'application/json'},
@@ -138,8 +139,7 @@ class CartProvider with ChangeNotifier {
 
   Future<void> remove(CartItem product) async {
     try {
-      final url =
-          Uri.parse('http://192.168.30.37:3000/api/cart/deleteCartItem');
+      final url = Uri.parse('${ApiService.baseUrl}/cart/deleteCartItem');
       final response = await http.delete(
         url,
         headers: {'Content-Type': 'application/json'},
@@ -166,8 +166,7 @@ class CartProvider with ChangeNotifier {
 
   Future<void> updateQuantity(CartItem product, int quantity) async {
     try {
-      final url =
-          Uri.parse('http://192.168.30.37:3000/api/cart/updateQuantity');
+      final url = Uri.parse('${ApiService.baseUrl}/cart/updateQuantity');
 
       final response = await http.put(
         url,
@@ -208,7 +207,7 @@ class CartProvider with ChangeNotifier {
   // Hoặc nếu bạn muốn xóa trên server
   Future<void> clearCart() async {
     try {
-      final url = Uri.parse('http://192.168.30.37:3000/api/cart/clear');
+      final url = Uri.parse('${ApiService.baseUrl}/cart/clear');
       final response = await http.post(
         url,
         headers: {'Content-Type': 'application/json'},

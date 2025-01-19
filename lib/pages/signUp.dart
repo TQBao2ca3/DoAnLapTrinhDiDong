@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:phoneshop/pages/userAuthentication.dart';
 import 'package:phoneshop/providers/Product_provider.dart';
 import 'package:phoneshop/providers/user_provider.dart';
+import 'package:phoneshop/services/api_service.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
 
@@ -86,7 +87,7 @@ class _SignUpState extends State<SignUp> {
       return;
     }
 
-    final url = Uri.parse('http://192.168.30.37:3000/api/user/register');
+    final url = Uri.parse('${ApiService.baseUrl}/user/register');
     try {
       final response = await http.post(
         url,

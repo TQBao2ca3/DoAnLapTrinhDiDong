@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:phoneshop/services/api_service.dart';
 import 'dart:convert';
 import 'dart:async';
 import 'dart:developer' as developer;
@@ -135,7 +136,7 @@ class ProductOrderScreenState extends State<ProductOrderScreen>
     try {
       final response = await http
           .get(
-        Uri.parse('http://192.168.30.37:3000/api/orders/${widget.userId}'),
+        Uri.parse('${ApiService.baseUrl}/orders/${widget.userId}'),
       )
           .timeout(
         const Duration(seconds: 10),
