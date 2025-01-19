@@ -851,46 +851,27 @@ class _AdminOrdersScreenState extends State<AdminOrdersScreen> {
 
     // Tạo danh sách các trạng thái có thể chuyển đến dựa trên trạng thái hiện tại
     List<DropdownMenuItem<int>> getAvailableStatusItems() {
-      if (order.status == 0) {
-        // Nếu đang chờ xử lý, chỉ cho phép chuyển sang đã duyệt
-        return [
-          DropdownMenuItem(
-            value: 0,
-            child: Text('Chờ xử lý'),
-          ),
-          DropdownMenuItem(
-            value: 1,
-            child: Text('Đã duyệt'),
-          ),
-        ];
-      } else {
-        // Các trạng thái khác sẽ chỉ hiển thị trạng thái hiện tại và không cho phép thay đổi
-        String statusText;
-        switch (order.status) {
-          case 1:
-            statusText = 'Đã duyệt';
-            break;
-          case 2:
-            statusText = 'Hoàn thành';
-            break;
-          case -1:
-            statusText = 'Đã hủy';
-            break;
-          default:
-            statusText = 'Không xác định';
-        }
-        return [
-          DropdownMenuItem(
-            value: order.status,
-            child: Text(statusText),
-            enabled: false,
-          ),
-        ];
-      }
+      return [
+        DropdownMenuItem(
+          value: 0,
+          child: Text('Chờ xử lý'),
+        ),
+        DropdownMenuItem(
+          value: 1,
+          child: Text('Đã duyệt'),
+        ),
+        DropdownMenuItem(
+          value: 2,
+          child: Text('Hoàn thành'),
+        ),
+        DropdownMenuItem(
+          value: -1,
+          child: Text('Đã hủy'),
+        ),
+      ];
     }
 
     // Kiểm tra xem có cho phép thay đổi trạng thái không
-    bool isEditable = order.status == 0;
 
     showModalBottomSheet(
       context: context,
@@ -976,65 +957,67 @@ class _AdminOrdersScreenState extends State<AdminOrdersScreen> {
                     borderRadius: BorderRadius.circular(8),
                   ),
                 ),
-                onChanged: isEditable
-                    ? (int? value) {
-                        if (value != null) {
-                          setState(() {
-                            selectedStatus = value;
-                          });
-                        }
-                      }
-                    : null,
+                onChanged: (int? value) {
+                  if (value != null) {
+                    setState(() {
+                      selectedStatus = value;
+                    });
+                  }
+                },
                 items: getAvailableStatusItems(),
               ),
 
               SizedBox(height: 16),
 
               // Update Button
-              if (isEditable)
-                ElevatedButton(
-                  onPressed: () async {
-                    try {
-                      final response = await http.put(
-                        Uri.parse('$apiUrl/orders/update/${order.id}'),
-                        headers: {
-                          'Content-Type': 'application/json',
-                        },
-                        body: json.encode({'status': selectedStatus}),
-                      );
+              // Xóa dòng này
+// if (isEditable)
 
-                      if (response.statusCode == 200) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                              content: Text('Cập nhật trạng thái thành công'),
-                              backgroundColor: Colors.green),
-                        );
-                        Navigator.pop(context);
-                        onUpdateSuccess();
-                      } else {
-                        throw Exception('Failed to update order status');
-                      }
-                    } catch (error) {
+// Và thay thế bằng nút cập nhật không có điều kiện
+              ElevatedButton(
+                onPressed: () async {
+                  try {
+                    final response = await http.put(
+                      Uri.parse('$apiUrl/orders/update/${order.id}'),
+                      headers: {
+                        'Content-Type': 'application/json',
+                      },
+                      body: json.encode({'status': selectedStatus}),
+                    );
+
+                    if (response.statusCode == 200) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
-                          content: Text('Lỗi khi cập nhật: $error'),
-                          backgroundColor: Colors.red,
+                            content: Text('Cập nhật trạng thái thành công'),
+                            backgroundColor: Colors.green
                         ),
                       );
+                      Navigator.pop(context);
+                      onUpdateSuccess();
+                    } else {
+                      throw Exception('Failed to update order status');
                     }
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: mainBlue,
-                    minimumSize: Size(double.infinity, 50),
-                  ),
-                  child: Text(
-                    'Cập nhật trạng thái',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
+                  } catch (error) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Lỗi khi cập nhật: $error'),
+                        backgroundColor: Colors.red,
+                      ),
+                    );
+                  }
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: mainBlue,
+                  minimumSize: Size(double.infinity, 50),
+                ),
+                child: Text(
+                  'Cập nhật trạng thái',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
+              ),
             ],
           ),
         ),
