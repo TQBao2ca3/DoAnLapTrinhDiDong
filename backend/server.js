@@ -271,22 +271,24 @@ app.get('/api/orders', async (req, res) => {
   try {
     const [orders] = await connection.promise().query(`
       SELECT
-              a.user_id,
-              b.full_name as customerName,
-              b.phone,
-              a.status_order as status,
-              a.order_date as date,
-              SUM(c.quantity * c.price) as total
-            FROM railway.Orders a
-            INNER JOIN railway.Users b ON a.user_id = b.user_id
-            INNER JOIN railway.OrdersDetail c ON a.order_id = c.order_id
-            INNER JOIN railway.ProductDetail d ON c.product_detail_id = d.product_detail_id
-            GROUP BY
-              a.user_id,
-              b.full_name,
-              b.phone,
-              a.status_order,
-              a.order_date;
+      			a.user_id,
+                    b.full_name as customerName,
+                    b.phone,
+                    d.image_url,
+                    a.status_order as status,
+                    a.order_date as date,
+                    SUM(c.quantity * c.price) as total
+                  FROM railway.Orders a
+                  INNER JOIN railway.Users b ON a.user_id = b.user_id
+                  INNER JOIN railway.OrdersDetail c ON a.order_id = c.order_id
+                  INNER JOIN railway.ProductDetail d ON c.product_detail_id = d.product_detail_id
+                  GROUP BY
+                    a.user_id,
+                    b.full_name,
+                    b.phone,
+                    d.image_url,
+                    a.status_order,
+                    a.order_date;
     `);
 
     // Format dữ liệu trả về
@@ -294,6 +296,7 @@ app.get('/api/orders', async (req, res) => {
       id: order.user_id,
       customerName: order.customerName,
       phone: order.phone,
+      image_url:order.image_url,
       status: order.status,
       date: order.date.toISOString().split('T')[0],
       total: parseFloat(order.total)

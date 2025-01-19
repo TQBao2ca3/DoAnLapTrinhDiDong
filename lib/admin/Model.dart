@@ -28,6 +28,7 @@ class Order {
   final String id;
   final String customerName;
   final String phone;
+  final String img;
   final double total;
   final int status;
   final String date;
@@ -36,6 +37,7 @@ class Order {
     required this.id,
     required this.customerName,
     required this.phone,
+    required this.img,
     required this.total,
     required this.status,
     required this.date,
@@ -46,6 +48,7 @@ class Order {
       id: json['id'].toString(),
       customerName: json['customerName'],
       phone: json['phone'],
+      img: json['image_url'],
       total: json['total'].toDouble(),
       status: json['status'],
       date: json['date'],

@@ -334,6 +334,49 @@ class _AdminOrdersScreenState extends State<AdminOrdersScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
+
+
+                if (order.img != null && order.img!.isNotEmpty)
+                  Container(
+                    height: 120,
+                    width: 120,
+                    margin: EdgeInsets.only(bottom: 16),
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: Image.network(
+                        order.img!,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) {
+                          return Container(
+                            color: Colors.grey[200],
+                            child: Center(
+                              child: Icon(
+                                Icons.error_outline,
+                                color: Colors.grey[400],
+                                size: 40,
+                              ),
+                            ),
+                          );
+                        },
+                        loadingBuilder: (context, child, loadingProgress) {
+                          if (loadingProgress == null) return child;
+                          return Center(
+                            child: CircularProgressIndicator(
+                              value: loadingProgress.expectedTotalBytes != null
+                                  ? loadingProgress.cumulativeBytesLoaded /
+                                  loadingProgress.expectedTotalBytes!
+                                  : null,
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+
                 Text(
                   'Đơn hàng #${order.id}',
                   style: TextStyle(
@@ -460,106 +503,116 @@ class _AdminOrdersScreenState extends State<AdminOrdersScreen> {
 
   // Admin Info Dialog
   void _showAdminInfoDialog() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        TextEditingController nameController = TextEditingController(
-          text: "${widget.user['username']}",
-        );
-        TextEditingController emailController = TextEditingController(
-          text: "${widget.user['email']}",
-        );
-        TextEditingController phoneController = TextEditingController(
-          text: "${widget.user['phone']}",
-        );
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          TextEditingController nameController = TextEditingController(
+            text: "${widget.user['username']}",
+          );
+          TextEditingController emailController = TextEditingController(
+            text: "${widget.user['email']}",
+          );
+          TextEditingController phoneController = TextEditingController(
+            text: "${widget.user['phone']}",
+          );
 
-        return AlertDialog(
-          title: Text('Thông tin Admin'),
-          content: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextField(
-                  controller: nameController,
-                  decoration: InputDecoration(
-                    labelText: 'User Name',
-                    prefixIcon: Icon(Icons.person),
-                    border: OutlineInputBorder(),
+          return AlertDialog(
+            title: Text('Thông tin Admin'),
+            content: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextField(
+                    controller: nameController,
+                    decoration: InputDecoration(
+                      labelText: 'User Name',
+                      prefixIcon: Icon(Icons.person),
+                      border: OutlineInputBorder(),
+                    ),
                   ),
-                ),
-                SizedBox(height: 16),
-                TextField(
-                  controller: emailController,
-                  decoration: InputDecoration(
-                    labelText: 'Email',
-                    prefixIcon: Icon(Icons.email),
-                    border: OutlineInputBorder(),
+                  SizedBox(height: 16),
+                  TextField(
+                    controller: emailController,
+                    decoration: InputDecoration(
+                      labelText: 'Email',
+                      prefixIcon: Icon(Icons.email),
+                      border: OutlineInputBorder(),
+                    ),
                   ),
-                ),
-                SizedBox(height: 16),
-                TextField(
-                  controller: phoneController,
-                  decoration: InputDecoration(
-                    labelText: 'Số điện thoại',
-                    prefixIcon: Icon(Icons.phone),
-                    border: OutlineInputBorder(),
+                  SizedBox(height: 16),
+                  TextField(
+                    controller: phoneController,
+                    decoration: InputDecoration(
+                      labelText: 'Số điện thoại',
+                      prefixIcon: Icon(Icons.phone),
+                      border: OutlineInputBorder(),
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text('Hủy'),
-            ),
-            ElevatedButton(
-              onPressed: () async {
-                try {
-                  final response = await http.put(
-                    Uri.parse('$apiUrl/users/update'),
-                    headers: {
-                      'Content-Type': 'application/json',
-                    },
-                    body: json.encode({
-                      'username': nameController.text,
-                      'email': emailController.text,
-                      'phone': phoneController.text,
-                    }),
-                  );
-
-                  if (response.statusCode == 200) {
-                    Navigator.of(context).pop();
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text('Cập nhật thông tin thành công!'),
-                        backgroundColor: Colors.green,
-                      ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text('Hủy'),
+              ),
+              ElevatedButton(
+                onPressed: () async {
+                  try {
+                    final response = await http.put(
+                      Uri.parse('$apiUrl/users/update'),
+                      headers: {
+                        'Content-Type': 'application/json',
+                      },
+                      body: json.encode({
+                        'username': nameController.text,
+                        'email': emailController.text,
+                        'phone': phoneController.text,
+                      }),
                     );
-                  } else {
+
+                    if (response.statusCode == 200) {
+                      // Parse response data
+                      final userData = json.decode(response.body);
+
+                      // Update widget state with new user data
+                      setState(() {
+                        widget.user['username'] = nameController.text;
+                        widget.user['email'] = emailController.text;
+                        widget.user['phone'] = phoneController.text;
+                      });
+
+                      Navigator.of(context).pop();
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('Cập nhật thông tin thành công!'),
+                          backgroundColor: Colors.green,
+                        ),
+                      );
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                              'Lỗi: ${json.decode(response.body)['message']}'),
+                          backgroundColor: Colors.red,
+                        ),
+                      );
+                    }
+                  } catch (error) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
-                        content: Text(
-                            'Lỗi: ${json.decode(response.body)['message']}'),
+                        content: Text('Đã có lỗi xảy ra: $error'),
                         backgroundColor: Colors.red,
                       ),
                     );
                   }
-                } catch (error) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('Đã có lỗi xảy ra: $error'),
-                      backgroundColor: Colors.red,
-                    ),
-                  );
-                }
-              },
-              child: Text('Lưu'),
-            ),
-          ],
-        );
-      },
-    );
+                },
+                child: Text('Lưu'),
+              ),
+            ],
+          );
+        },
+      );
   }
 
   // Logout Confirmation Dialog
@@ -851,46 +904,27 @@ class _AdminOrdersScreenState extends State<AdminOrdersScreen> {
 
     // Tạo danh sách các trạng thái có thể chuyển đến dựa trên trạng thái hiện tại
     List<DropdownMenuItem<int>> getAvailableStatusItems() {
-      if (order.status == 0) {
-        // Nếu đang chờ xử lý, chỉ cho phép chuyển sang đã duyệt
-        return [
-          DropdownMenuItem(
-            value: 0,
-            child: Text('Chờ xử lý'),
-          ),
-          DropdownMenuItem(
-            value: 1,
-            child: Text('Đã duyệt'),
-          ),
-        ];
-      } else {
-        // Các trạng thái khác sẽ chỉ hiển thị trạng thái hiện tại và không cho phép thay đổi
-        String statusText;
-        switch (order.status) {
-          case 1:
-            statusText = 'Đã duyệt';
-            break;
-          case 2:
-            statusText = 'Hoàn thành';
-            break;
-          case -1:
-            statusText = 'Đã hủy';
-            break;
-          default:
-            statusText = 'Không xác định';
-        }
-        return [
-          DropdownMenuItem(
-            value: order.status,
-            child: Text(statusText),
-            enabled: false,
-          ),
-        ];
-      }
+      return [
+        DropdownMenuItem(
+          value: 0,
+          child: Text('Chờ xử lý'),
+        ),
+        DropdownMenuItem(
+          value: 1,
+          child: Text('Đã duyệt'),
+        ),
+        DropdownMenuItem(
+          value: 2,
+          child: Text('Hoàn thành'),
+        ),
+        DropdownMenuItem(
+          value: -1,
+          child: Text('Đã hủy'),
+        ),
+      ];
     }
 
     // Kiểm tra xem có cho phép thay đổi trạng thái không
-    bool isEditable = order.status == 0;
 
     showModalBottomSheet(
       context: context,
@@ -976,65 +1010,67 @@ class _AdminOrdersScreenState extends State<AdminOrdersScreen> {
                     borderRadius: BorderRadius.circular(8),
                   ),
                 ),
-                onChanged: isEditable
-                    ? (int? value) {
-                        if (value != null) {
-                          setState(() {
-                            selectedStatus = value;
-                          });
-                        }
-                      }
-                    : null,
+                onChanged: (int? value) {
+                  if (value != null) {
+                    setState(() {
+                      selectedStatus = value;
+                    });
+                  }
+                },
                 items: getAvailableStatusItems(),
               ),
 
               SizedBox(height: 16),
 
               // Update Button
-              if (isEditable)
-                ElevatedButton(
-                  onPressed: () async {
-                    try {
-                      final response = await http.put(
-                        Uri.parse('$apiUrl/orders/update/${order.id}'),
-                        headers: {
-                          'Content-Type': 'application/json',
-                        },
-                        body: json.encode({'status': selectedStatus}),
-                      );
+              // Xóa dòng này
+// if (isEditable)
 
-                      if (response.statusCode == 200) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                              content: Text('Cập nhật trạng thái thành công'),
-                              backgroundColor: Colors.green),
-                        );
-                        Navigator.pop(context);
-                        onUpdateSuccess();
-                      } else {
-                        throw Exception('Failed to update order status');
-                      }
-                    } catch (error) {
+// Và thay thế bằng nút cập nhật không có điều kiện
+              ElevatedButton(
+                onPressed: () async {
+                  try {
+                    final response = await http.put(
+                      Uri.parse('$apiUrl/orders/update/${order.id}'),
+                      headers: {
+                        'Content-Type': 'application/json',
+                      },
+                      body: json.encode({'status': selectedStatus}),
+                    );
+
+                    if (response.statusCode == 200) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
-                          content: Text('Lỗi khi cập nhật: $error'),
-                          backgroundColor: Colors.red,
+                            content: Text('Cập nhật trạng thái thành công'),
+                            backgroundColor: Colors.green
                         ),
                       );
+                      Navigator.pop(context);
+                      onUpdateSuccess();
+                    } else {
+                      throw Exception('Failed to update order status');
                     }
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: mainBlue,
-                    minimumSize: Size(double.infinity, 50),
-                  ),
-                  child: Text(
-                    'Cập nhật trạng thái',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
+                  } catch (error) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Lỗi khi cập nhật: $error'),
+                        backgroundColor: Colors.red,
+                      ),
+                    );
+                  }
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: mainBlue,
+                  minimumSize: Size(double.infinity, 50),
+                ),
+                child: Text(
+                  'Cập nhật trạng thái',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
+              ),
             ],
           ),
         ),
