@@ -7,6 +7,7 @@ import 'package:phoneshop/pages/Homepage.dart';
 import 'package:phoneshop/pages/signUp.dart';
 import 'package:phoneshop/providers/CartItems_Provider.dart';
 import 'package:phoneshop/providers/user_provider.dart';
+import 'package:phoneshop/services/api_service.dart';
 import 'package:phoneshop/services/userPreference.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
@@ -61,7 +62,7 @@ class _UserAuthenticationState extends State<UserAuthentication> {
     if (_userNameController.text == "admin") {
       try {
         final response = await http.post(
-          Uri.parse("http://192.168.1.9:3000/api/login"),
+          Uri.parse("${ApiService.baseUrl}/login"),
           headers: {'Content-Type': 'application/json'},
           body: json.encode({
             'username': _userNameController.text,

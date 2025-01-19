@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:phoneshop/pages/userAuthentication.dart';
+import 'package:phoneshop/services/api_service.dart';
 import 'package:phoneshop/services/userPreference.dart';
 
 import 'Model.dart';
@@ -25,7 +26,7 @@ class _AdminOrdersScreenState extends State<AdminOrdersScreen> {
   final searchController = TextEditingController();
   String searchQuery = '';
   final mainBlue = const Color(0xFF0066CC);
-  final String apiUrl = 'http://192.168.1.9:3000';
+  final String apiUrl = '${ApiService.baseUrl}';
   List<Order> orders = [];
 
   final currencyFormat = NumberFormat.currency(
@@ -46,7 +47,7 @@ class _AdminOrdersScreenState extends State<AdminOrdersScreen> {
 
   Future<void> fetchOrders() async {
     try {
-      final response = await http.get(Uri.parse('$apiUrl/api/orders'));
+      final response = await http.get(Uri.parse('$apiUrl/orders'));
 
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(response.body);
@@ -516,7 +517,7 @@ class _AdminOrdersScreenState extends State<AdminOrdersScreen> {
               onPressed: () async {
                 try {
                   final response = await http.put(
-                    Uri.parse('$apiUrl/api/users/update'),
+                    Uri.parse('$apiUrl/users/update'),
                     headers: {
                       'Content-Type': 'application/json',
                     },
@@ -605,7 +606,7 @@ class _AdminOrdersScreenState extends State<AdminOrdersScreen> {
       BuildContext context, Order order, bool canEdit) async {
     try {
       final response = await http.get(
-        Uri.parse('$apiUrl/api/orders/${order.id}/details'),
+        Uri.parse('$apiUrl/orders/${order.id}/details'),
       );
 
       if (response.statusCode == 200) {
@@ -995,7 +996,7 @@ class _AdminOrdersScreenState extends State<AdminOrdersScreen> {
                   onPressed: () async {
                     try {
                       final response = await http.put(
-                        Uri.parse('$apiUrl/api/orders/update/${order.id}'),
+                        Uri.parse('$apiUrl/orders/update/${order.id}'),
                         headers: {
                           'Content-Type': 'application/json',
                         },
