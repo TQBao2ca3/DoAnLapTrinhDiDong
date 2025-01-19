@@ -27,25 +27,17 @@ class CartItem {
 
   factory CartItem.fromJson(Map<String, dynamic> json) {
     try {
-      List<dynamic> prices = json['price'] as List;
-      int firstPrice = prices[0] as int;
-
-      List<dynamic> colorsList = json['colors'] as List;
-      String firstColor = colorsList[0] as String;
-
-      List<dynamic> storageList = json['storage'] as List;
-      String firstStorage = storageList[0] as String;
-
+      // Sửa lại cách parse dữ liệu
       return CartItem(
         cart_id: json['cart_id'] as int,
         cart_item_id: json['cart_item_id'] as int,
-        product_detail_id:
-            json['product_detail_id'] as int, // Thêm vào fromJson
-        description: json['description'] as String,
+        product_detail_id: json['product_detail_id'] as int,
+        description: json['name'] ??
+            json['description'], // Sử dụng tên sản phẩm làm description
         image_url: json['image_url'] as String,
-        price: firstPrice,
-        storage: firstStorage,
-        colors: firstColor,
+        price: json['price'] as int, // Parse trực tiếp thành int
+        storage: json['storage'] as String, // Parse trực tiếp thành String
+        colors: json['colors'] as String, // Parse trực tiếp thành String
         quantity: json['quantity'] as int,
         storeName: 'Phone Shop',
       );

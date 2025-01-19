@@ -26,18 +26,30 @@ exports.getCartItemList = async (req, res) => {
 }
 
 exports.addToCart = async (req, res) => {
-    const { cart_id, product_detail_id, quantity } = req.body;
+    const { cart_id, product_detail_id, quantity, color, storage, price } = req.body;
     try {
-        // Kiểm tra xem sản phẩm đã tồn tại trong giỏ hàng chưa
-        const existingItem = await CartItemModel.checkExistingItem(cart_id, product_detail_id);
+        // Check if item exists with same color and storage
+        const existingItem = await CartItemModel.checkExistingItem(
+            cart_id, 
+            product_detail_id, 
+            color, 
+            storage
+        );
         
         if (existingItem.length > 0) {
-            // Nếu đã tồn tại, cập nhật số lượng
+            // If exists with same color and storage, update quantity
             const newQuantity = existingItem[0].quantity + quantity;
-            await CartItemModel.updateCartItem(cart_id, product_detail_id, newQuantity);
+            await CartItemModel.updateQuantity(cart_id, product_detail_id, newQuantity);
         } else {
-            // Nếu chưa tồn tại, thêm mới
-            await CartItemModel.addToCart(cart_id, product_detail_id, quantity);
+            // If not exists or different color/storage, add new item
+            await CartItemModel.addToCart(
+                cart_id, 
+                product_detail_id, 
+                quantity, 
+                color, 
+                storage, 
+                price
+            );
         }
         
         res.status(200).json({
@@ -51,8 +63,7 @@ exports.addToCart = async (req, res) => {
             message: 'Failed to add product to cart'
         });
     }
-}
-
+};
 exports.updateQuantity = async (req, res) => {
     const { cart_id, product_detail_id, quantity } = req.body;
     console.log('Updating quantity:', {cart_id, product_detail_id, quantity}); // Debug log
@@ -74,13 +85,12 @@ exports.updateQuantity = async (req, res) => {
 };
 
 exports.deleteCartItem = async (req, res) => {
-    // Log để debug
     console.log('Delete request body:', req.body);
     
-    const { cart_id, product_detail_id } = req.body;
+    const { cart_id, product_detail_id, color, storage } = req.body;
     
     try {
-        await CartItemModel.deleteCartItem(cart_id, product_detail_id);
+        await CartItemModel.deleteCartItem(cart_id, product_detail_id, color, storage);
         
         res.status(200).json({
             success: true,

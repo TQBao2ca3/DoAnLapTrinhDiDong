@@ -90,12 +90,18 @@ class CartProvider with ChangeNotifier {
     }
   }
 
-  Future<void> add(Product product) async {
+  Future<void> add(
+      Product product, String selectedColor, String selectedStorage) async {
     if (_cart_id == 0) {
       print('Error: cart_id not initialized');
       return;
     }
     try {
+      // Lấy giá tương ứng với storage đã chọn
+      int storageIndex = product.storage.indexOf(selectedStorage);
+      if (storageIndex == -1) storageIndex = 0;
+      int selectedPrice = product.price[storageIndex];
+
       final url = Uri.parse('${ApiService.baseUrl}/cart/addToCart');
       final response = await http.post(
         url,
@@ -103,32 +109,15 @@ class CartProvider with ChangeNotifier {
         body: jsonEncode({
           'cart_id': _cart_id,
           'product_detail_id': product.product_id,
-          'quantity': 1
+          'quantity': 1,
+          'color': selectedColor,
+          'storage': selectedStorage,
+          'price': selectedPrice
         }),
       );
 
       if (response.statusCode == 200) {
-        int index = _items.indexWhere((item) =>
-            item.description == product.name &&
-            item.storage == product.storage[0] &&
-            item.colors == product.colors[0]);
-
-        if (index != -1) {
-          _items[index].quantity += 1;
-        } else {
-          _items.add(CartItem(
-              cart_id: _cart_id,
-              cart_item_id: 0,
-              product_detail_id: product.product_id,
-              description: product.name,
-              price: product.price[0],
-              quantity: 1,
-              image_url: product.image_url,
-              colors: product.colors[0],
-              storage: product.storage[0],
-              storeName: 'Phone Shop'));
-        }
-        await loadCartItems(); // Tải lại danh sách giỏ hàng
+        await loadCartItems();
         notifyListeners();
       } else {
         print('Error adding to cart: ${response.body}');
@@ -149,13 +138,18 @@ class CartProvider with ChangeNotifier {
         body: jsonEncode({
           'cart_id': _cart_id,
           'product_detail_id': product.product_detail_id,
+          'color': product.colors, // Thêm màu sắc
+          'storage': product.storage // Thêm dung lượng
         }),
       );
 
       if (response.statusCode == 200) {
         _items.removeWhere((item) =>
-            item.product_detail_id == product.product_detail_id &&
-            item.cart_id == product.cart_id);
+                item.product_detail_id == product.product_detail_id &&
+                item.cart_id == product.cart_id &&
+                item.colors == product.colors && // Thêm điều kiện màu sắc
+                item.storage == product.storage // Thêm điều kiện dung lượng
+            );
         notifyListeners();
       } else {
         print('Error removing item: ${response.body}');

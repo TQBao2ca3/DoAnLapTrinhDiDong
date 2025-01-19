@@ -539,7 +539,8 @@ class _ItemPageState extends State<ItemPage> {
                             final cartProvider = context.read<CartProvider>();
 
                             try {
-                              await cartProvider.add(widget.product);
+                              await cartProvider.add(widget.product,
+                                  _selectedColor, _selectedStorage);
 
                               // Hiển thị dialog thành công
                               showDialog(

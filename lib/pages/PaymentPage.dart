@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:phoneshop/models/Address.dart';
 import 'package:phoneshop/models/CartItem.dart';
 import 'package:phoneshop/pages/AddressListPage%20.dart';
+import 'package:phoneshop/pages/Homepage.dart';
 import 'package:phoneshop/pages/PaymentMethodPage.dart';
 import 'package:phoneshop/pages/PaymentWaitingPage%20.dart';
 import 'package:phoneshop/pages/ShippingMethodPage%20.dart';
@@ -322,6 +323,19 @@ class _PaymentPageState extends State<PaymentPage> {
                       fontWeight: FontWeight.bold,
                       color: Colors.white,
                     ),
+                  ),
+                  const Spacer(),
+                  IconButton(
+                    icon: const Icon(
+                      Icons.home,
+                      color: Colors.white,
+                    ),
+                    onPressed: () {
+                      Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => HomeScreen()));
+                    },
                   ),
                 ],
               ),
