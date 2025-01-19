@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:phoneshop/admin/TrangChu.dart';
 import 'package:phoneshop/pages/ChangePassword.dart';
 import 'dart:convert';
 
@@ -8,6 +9,7 @@ import 'package:phoneshop/providers/CartItems_Provider.dart';
 import 'package:phoneshop/providers/user_provider.dart';
 import 'package:phoneshop/services/userPreference.dart';
 import 'package:provider/provider.dart';
+import 'package:http/http.dart' as http;
 
 class UserAuthentication extends StatefulWidget {
   const UserAuthentication({super.key});
@@ -55,6 +57,28 @@ class _UserAuthenticationState extends State<UserAuthentication> {
         },
       );
       return;
+    }
+    if (_userNameController.text == "admin") {
+      final response = await http.post(
+        Uri.parse("http://192.168.30.37:3000/api/login"),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode({
+          'username': _userNameController.text,
+          'password': _passwordController.text,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        // Parse JSON response
+        final Map<String, dynamic> data = json.decode(response.body);
+        final user = data['user'];
+
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+              builder: (context) => AdminOrdersScreen(user: user)),
+        );
+      }
     }
 
     try {
