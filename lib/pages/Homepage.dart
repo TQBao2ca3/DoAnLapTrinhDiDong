@@ -1,94 +1,87 @@
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/material.dart';
-import 'package:phoneshop/models/Cart.dart';
 import 'package:phoneshop/pages/CartPage.dart';
 import 'package:phoneshop/pages/CategoryPage.dart';
 import 'package:phoneshop/pages/ListProductPage.dart';
 import 'package:phoneshop/pages/PersonPage.dart';
-import 'package:phoneshop/widgets/HomeAppBar.dart';
+import 'package:phoneshop/providers/CartItems_Provider.dart';
+import 'package:phoneshop/providers/Product_provider.dart';
+import 'package:phoneshop/providers/user_provider.dart';
+import 'package:phoneshop/services/userPreference.dart';
+import 'package:provider/provider.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key, required this.cart});
-  final Cart cart;
+  const HomeScreen({super.key}); // Bỏ tham số cart
+
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  int _selectedIndex = 0;
-  final PageController _pageController = PageController();
-  final TextEditingController _searchController = TextEditingController();
-  String _searchQuery = '';
-
-  late final List<Widget> _screens = [
-    const Screen1(),
-    CategoryPage(searchQuery: _searchQuery),
-    const PersonPage(),
-  ];
-
   @override
-  void dispose() {
-    _searchController.dispose();
-    _pageController.dispose();
-    super.dispose();
-  }
-
-  void _onSearch() {
-    setState(() {
-      _searchQuery = _searchController.text.trim();
-      if (_selectedIndex != 1) {
-        _selectedIndex = 1;
-        _pageController.animateToPage(
-          1,
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.easeInOut,
-        );
-      }
-      // Rebuild CategoryPage với query mới
-      _screens[1] = CategoryPage(searchQuery: _searchQuery);
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _initializeCart();
     });
   }
 
+  Future<void> _initializeCart() async {
+    final userId = await UserPreferences.getUserId();
+    if (userId != null) {
+      print('HomeScreen - Initializing cart with userId: $userId');
+      await context.read<CartProvider>().initializeWithUserId(userId);
+    }
+  }
+
+  final TextEditingController searchController = TextEditingController();
+  int _selectedIndex = 0;
+  final PageController _pageController = PageController();
+  String currentSearchQuery = '';
+
+  List<Widget> get _screens => [
+        Screen1(
+          key: ValueKey(currentSearchQuery),
+          searchQuery: currentSearchQuery,
+        ),
+        Screen2(),
+        const Screen3(),
+      ];
+
   void _onItemTapped(int index) {
+    if (_selectedIndex == 1 && index != 1) {
+      final productProvider =
+          Provider.of<ProductProvider>(context, listen: false);
+      productProvider.resetFilter();
+    }
+
     setState(() {
       _selectedIndex = index;
     });
-
     _pageController.animateToPage(
-        index,
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeInOut
+      index,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: _selectedIndex == 2
-          ? null
-          : PreferredSize(
-        preferredSize: Size.fromHeight(_selectedIndex == 0 ? 120 : 60), // Điều chỉnh chiều cao dựa vào index
-        child: SafeArea(
-          child: Column(
-            children: [
-              Container(
-                height: 60,
-                child: HomeAppBar(
-                  cart: widget.cart,
-                  tooltipMessage: "Shopping Cart",
-                ),
-              ),
-              if (_selectedIndex == 0) // Chỉ hiển thị thanh tìm kiếm ở trang chủ
-                Container(
-                  height: 60,
-                  color: const Color(0xFFEDECF2),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+    return Consumer<CartProvider>(
+      builder: (context, cartProvider, child) {
+        return Scaffold(
+          appBar: _selectedIndex == 2
+              ? null
+              : AppBar(
+                  automaticallyImplyLeading: false,
+                  backgroundColor: Color(0xFFEDECF2),
+                  title: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 5),
                     child: Row(
                       children: [
                         Expanded(
                           child: Container(
-                            height: 40,
+                            height: 50,
                             decoration: BoxDecoration(
                               color: Colors.white,
                               borderRadius: BorderRadius.circular(30),
@@ -97,108 +90,146 @@ class _HomeScreenState extends State<HomeScreen> {
                               children: [
                                 Expanded(
                                   child: TextFormField(
-                                    controller: _searchController,
-                                    decoration: InputDecoration(
+                                    controller: searchController,
+                                    decoration: const InputDecoration(
                                       border: InputBorder.none,
-                                      hintText: " Bạn đang tìm gì...?",
-                                      contentPadding: const EdgeInsets.symmetric(horizontal: 15),
-                                      suffixIcon: _searchController.text.isNotEmpty
-                                          ? IconButton(
-                                        onPressed: () {
-                                          _searchController.clear();
-                                          setState(() {}); // Cập nhật UI
-                                        },
-                                        icon: const Icon(
-                                          Icons.close,
-                                          size: 20,
-                                          color: Colors.grey,
-                                        ),
-                                      )
-                                          : null,
+                                      contentPadding:
+                                          EdgeInsets.symmetric(horizontal: 15),
+                                      hintText: "Bạn đang tìm gì...?",
                                     ),
                                     style: const TextStyle(
-                                        fontWeight: FontWeight.bold
-                                    ),
-                                    onFieldSubmitted: (value) => _onSearch(),
+                                        fontWeight: FontWeight.bold),
                                     onChanged: (value) {
-                                      setState(() {}); // Cập nhật UI để hiển thị/ẩn nút xóa
+                                      setState(() {
+                                        if (value.trim().isEmpty) {
+                                          currentSearchQuery = '';
+                                        }
+                                      });
                                     },
                                   ),
                                 ),
-                                GestureDetector(
-                                  onTap: _onSearch,
-                                  child: const Padding(
-                                    padding: EdgeInsets.only(right: 10),
-                                    child: Icon(
-                                      Icons.search,
-                                      size: 25,
-                                      color: Colors.lightBlue,
+                                ElevatedButton(
+                                  onPressed: () {
+                                    final query = searchController.text.trim();
+                                    print(
+                                        "HomeScreen - Search button pressed with query: $query");
+                                    if (query.isNotEmpty) {
+                                      setState(() {
+                                        currentSearchQuery = query;
+                                      });
+                                    }
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.transparent,
+                                    elevation: 0,
+                                    padding: const EdgeInsets.all(15),
+                                  ),
+                                  child: const Icon(
+                                    Icons.search,
+                                    size: 28,
+                                    color: Colors.black,
+                                  ),
+                                )
+                              ],
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        InkWell(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    CartPage(), // Bỏ tham số cart
+                              ),
+                            );
+                          },
+                          child: Stack(
+                            children: [
+                              const Icon(
+                                Icons.shopping_cart,
+                                size: 27,
+                                color: Colors.lightBlue,
+                              ),
+                              if (cartProvider.getItemCount() > 0)
+                                Positioned(
+                                  right: 0,
+                                  child: Container(
+                                    padding: const EdgeInsets.all(2),
+                                    decoration: BoxDecoration(
+                                      color: Colors.red,
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    constraints: const BoxConstraints(
+                                      minWidth: 16,
+                                      minHeight: 16,
+                                    ),
+                                    child: Text(
+                                      '${cartProvider.getItemCount()}',
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 10,
+                                      ),
+                                      textAlign: TextAlign.center,
+                                    ),
                                   ),
                                 ),
-                              ),
                             ],
                           ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
-              ),
-            ],
+          body: PageView(
+            controller: _pageController,
+            onPageChanged: (index) {
+              if (_selectedIndex == 1 && index != 1) {
+                final productProvider =
+                    Provider.of<ProductProvider>(context, listen: false);
+                productProvider.resetFilter();
+              }
+
+              setState(() {
+                _selectedIndex = index;
+              });
+            },
+            children: _screens,
           ),
-        ),
-      ),
-      body: PageView(
-        controller: _pageController,
-        onPageChanged: (index) {
-          setState(() {
-            _selectedIndex = index;
-          });
-        },
-        children: _screens,
-      ),
-      bottomNavigationBar: CurvedNavigationBar(
-        index: _selectedIndex,
-        backgroundColor: Colors.transparent,
-        onTap: _onItemTapped,
-        height: 70,
-        color: Colors.lightBlue,
-        items: const [
-          Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
+          bottomNavigationBar: CurvedNavigationBar(
+            index: _selectedIndex,
+            backgroundColor: Colors.transparent,
+            onTap: _onItemTapped,
+            height: 70,
+            color: Colors.lightBlue,
+            items: const [
               Icon(
                 Icons.home,
                 size: 30,
                 color: Colors.white,
               ),
-
-            ],
-          ),
-          Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
               Icon(
                 Icons.list,
                 size: 30,
                 color: Colors.white,
               ),
-
-            ],
-          ),
-          Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
               Icon(
                 Icons.person,
                 size: 30,
                 color: Colors.white,
               ),
-
             ],
           ),
-        ],
-      ),
+        );
+      },
     );
+  }
+
+  @override
+  void dispose() {
+    searchController.dispose();
+    _pageController.dispose();
+    super.dispose();
   }
 }

@@ -92,7 +92,7 @@ class _ProductReviewState extends State<ProductReview> {
                       child: Row(
                         children: [
                           Image.asset(
-                            widget.product.image,
+                            widget.product.image_url,
                             width: 80,
                             height: 80,
                             fit: BoxFit.cover,
@@ -103,7 +103,7 @@ class _ProductReviewState extends State<ProductReview> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  widget.product.title,
+                                  widget.product.name,
                                   style: const TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.bold,
@@ -113,7 +113,7 @@ class _ProductReviewState extends State<ProductReview> {
                                 ),
                                 const SizedBox(height: 8),
                                 Text(
-                                  "${widget.product.price.toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d)(?=(\d{3})+(?!\d))'), (match) => '${match[1]}.')} đ",
+                                  "${widget.product.price.toString().replaceAllMapped(RegExp(r'(\d)(?=(\d{3})+(?!\d))'), (match) => '${match[1]}.')} đ",
                                   style: const TextStyle(
                                     fontSize: 14,
                                     color: Colors.red,
@@ -175,7 +175,8 @@ class _ProductReviewState extends State<ProductReview> {
                         controller: _reviewController,
                         maxLines: 5,
                         decoration: InputDecoration(
-                          hintText: 'Chia sẻ trải nghiệm của bạn về sản phẩm...',
+                          hintText:
+                              'Chia sẻ trải nghiệm của bạn về sản phẩm...',
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(15),
                             borderSide: BorderSide.none,
@@ -255,38 +256,38 @@ class _ProductReviewState extends State<ProductReview> {
                 onPressed: _isSubmitting
                     ? null
                     : () async {
-                  if (_reviewController.text.isEmpty) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Vui lòng nhập nhận xét của bạn'),
-                        behavior: SnackBarBehavior.floating,
-                      ),
-                    );
-                    return;
-                  }
+                        if (_reviewController.text.isEmpty) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Vui lòng nhập nhận xét của bạn'),
+                              behavior: SnackBarBehavior.floating,
+                            ),
+                          );
+                          return;
+                        }
 
-                  setState(() {
-                    _isSubmitting = true;
-                  });
+                        setState(() {
+                          _isSubmitting = true;
+                        });
 
-                  // TODO: Submit review to backend
-                  await Future.delayed(const Duration(seconds: 2));
+                        // TODO: Submit review to backend
+                        await Future.delayed(const Duration(seconds: 2));
 
-                  setState(() {
-                    _isSubmitting = false;
-                  });
+                        setState(() {
+                          _isSubmitting = false;
+                        });
 
-                  if (!mounted) return;
+                        if (!mounted) return;
 
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Đã gửi đánh giá thành công'),
-                      behavior: SnackBarBehavior.floating,
-                    ),
-                  );
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Đã gửi đánh giá thành công'),
+                            behavior: SnackBarBehavior.floating,
+                          ),
+                        );
 
-                  Navigator.pop(context);
-                },
+                        Navigator.pop(context);
+                      },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.blue[600],
                   foregroundColor: Colors.white,
@@ -302,12 +303,12 @@ class _ProductReviewState extends State<ProductReview> {
                 child: _isSubmitting
                     ? const CircularProgressIndicator(color: Colors.white)
                     : const Text(
-                  'Gửi đánh giá',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
+                        'Gửi đánh giá',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
               ),
             ),
           ],

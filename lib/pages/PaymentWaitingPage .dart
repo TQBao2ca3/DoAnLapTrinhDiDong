@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:phoneshop/models/Cart.dart';
 import 'package:phoneshop/models/CartItem.dart';
 import 'package:phoneshop/pages/Homepage.dart';
 import 'package:phoneshop/pages/OrderSummaryPage.dart';
-import 'package:phoneshop/pages/PaymentMethodPage.dart';
+import 'package:phoneshop/providers/CartItems_Provider.dart';
 
 class PaymentWaitingPage extends StatefulWidget {
   final int totalAmount;
@@ -26,9 +25,11 @@ class _PaymentWaitingPageState extends State<PaymentWaitingPage> {
   @override
   void initState() {
     super.initState();
-    print('PaymentWaitingPage - Initial Cart Items: ${widget.cartItems.length}');
+    print(
+        'PaymentWaitingPage - Initial Cart Items: ${widget.cartItems.length}');
     for (var item in widget.cartItems) {
-      print('Item Debug - Name: ${item.name}, Price: ${item.price}, Color: ${item.color}, Quantity: ${item.quantity}');
+      print(
+          'Item Debug - Name: ${item.description}, Price: ${item.price}, Color: ${item.colors}, Quantity: ${item.quantity}');
     }
   }
 
@@ -39,7 +40,8 @@ class _PaymentWaitingPageState extends State<PaymentWaitingPage> {
 
   @override
   Widget build(BuildContext context) {
-    print('PaymentWaitingPage Build - Cart Items Count: ${widget.cartItems.length}');
+    print(
+        'PaymentWaitingPage Build - Cart Items Count: ${widget.cartItems.length}');
 
     return Scaffold(
       backgroundColor: Colors.grey[50],
@@ -176,7 +178,7 @@ class _PaymentWaitingPageState extends State<PaymentWaitingPage> {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          'Vui lòng thanh toán trước 05-01-2025 10:09. Thường xuyên kiểm tra tin nhắn từ Người bán tại H2DB Mobile/Chỉ nhận & thanh toán khi đơn mua ở trạng thái "Đang giao hàng".',
+                          'Vui lòng thanh toán trước ${DateTime.now().day + 1}-${DateTime.now().month}-2025 ${DateTime.now().hour}:${DateTime.now().minute}. Thường xuyên kiểm tra tin nhắn từ Người bán tại PhoneShop/Chỉ nhận & thanh toán khi đơn mua ở trạng thái "Đang giao hàng".',
                           style: TextStyle(
                             color: Colors.grey[800],
                             height: 1.5,
@@ -217,9 +219,9 @@ class _PaymentWaitingPageState extends State<PaymentWaitingPage> {
                           Navigator.pushAndRemoveUntil(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => HomeScreen(cart: Cart()),
+                              builder: (context) => HomeScreen(),
                             ),
-                                (route) => false,
+                            (route) => false,
                           );
                         },
                         style: ElevatedButton.styleFrom(
@@ -244,16 +246,18 @@ class _PaymentWaitingPageState extends State<PaymentWaitingPage> {
                     Expanded(
                       child: ElevatedButton(
                         onPressed: () {
-                          print('Navigating to OrderSummaryPage with ${widget.cartItems.length} items');
+                          print(
+                              'Navigating to OrderSummaryPage with ${widget.cartItems.length} items');
                           for (var item in widget.cartItems) {
-                            print('Sending item: ${item.name}');
+                            print('Sending item: ${item.description}');
                           }
                           Navigator.push(
                             context,
                             MaterialPageRoute(
                               builder: (context) => OrderSummaryPage(
                                 totalAmount: widget.totalAmount,
-                                cartItems: List<CartItem>.from(widget.cartItems),
+                                cartItems:
+                                    List<CartItem>.from(widget.cartItems),
                                 paymentMethod: widget.paymentMethod,
                               ),
                             ),

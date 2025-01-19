@@ -1,15 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:phoneshop/models/Cart.dart';
 import 'package:phoneshop/pages/CartPage.dart';
 
 class HomeAppBar extends StatelessWidget {
   final String tooltipMessage;
-  final Cart cart;  // Thêm biến cart
 
   const HomeAppBar({
     super.key,
     required this.tooltipMessage,
-    required this.cart  // Cập nhật constructor
   });
 
   @override
@@ -63,14 +60,15 @@ class HomeAppBar extends StatelessWidget {
                     Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => CartPage(cart: cart)  // Sử dụng biến cart
-                        )
-                    );
+                            builder: (context) =>
+                                CartPage() // Sử dụng biến cart
+                            ));
                   },
                   child: const Icon(
                     Icons.shopping_cart,
                     size: 28,
-                    color: Color.fromARGB(255, 216, 223, 19),  // Đổi màu về màu vàng
+                    color: Color.fromARGB(
+                        255, 216, 223, 19), // Đổi màu về màu vàng
                   ),
                 ),
               ),

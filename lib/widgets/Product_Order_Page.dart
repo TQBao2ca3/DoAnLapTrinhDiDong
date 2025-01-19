@@ -1,167 +1,353 @@
 import 'package:flutter/material.dart';
-import 'package:phoneshop/widgets/ItemsWidget.dart';
+import 'package:http/http.dart' as http;
+import 'package:phoneshop/services/api_service.dart';
+import 'dart:convert';
+import 'dart:async';
+import 'dart:developer' as developer;
 import 'package:phoneshop/widgets/Product_Order_Item.dart';
 
-class ProductOrderScreen extends StatefulWidget {
+class OrderDetail {
+  final int orderId;
+  final String imageUrl;
+  final String name;
+  final int quantity;
+  final String storage;
+  final double price;
+  final double total; // Thêm trường total
+  final int status;
+
+  // Cập nhật statusMap để bao gồm trạng thái đã hủy
+  static const Map<int, String> statusMap = {
+    0: 'Chờ duyệt',
+    1: 'Đang giao',
+    2: 'Đã giao',
+    -1: 'Đã hủy', // Thêm trạng thái đã hủy
+  };
+
+  OrderDetail({
+    required this.orderId,
+    required this.imageUrl,
+    required this.name,
+    required this.quantity,
+    required this.storage,
+    required this.price,
+    required this.total,
+    required this.status,
+  });
+
+  factory OrderDetail.fromJson(Map<String, dynamic> json) {
+    return OrderDetail(
+      orderId: json['orderId'] ?? 0,
+      imageUrl: json['imageUrl'] ?? '',
+      name: json['name'] ?? '',
+      quantity: json['quantity'] ?? 0,
+      storage: json['storage'] ?? '',
+      price: (json['price'] is num) ? json['price'].toDouble() : 0.0,
+      total: (json['total'] is num)
+          ? json['total'].toDouble()
+          : 0.0, // Parse total
+      status: json['status'] ?? 0,
+    );
+  }
+
   @override
-  _ProductOrderScreen createState() => _ProductOrderScreen();
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    return other is OrderDetail &&
+        orderId == other.orderId &&
+        imageUrl == other.imageUrl &&
+        name == other.name &&
+        quantity == other.quantity &&
+        storage == other.storage &&
+        price == price &&
+        total == other.total && // Thêm total vào so sánh
+        status == other.status;
+  }
+
+  @override
+  int get hashCode {
+    return Object.hash(
+      orderId,
+      imageUrl,
+      name,
+      quantity,
+      storage,
+      price,
+      total, // Thêm total vào hash
+      status,
+    );
+  }
 }
 
-class _ProductOrderScreen extends State<ProductOrderScreen>
-    with SingleTickerProviderStateMixin {
+class ProductOrderScreen extends StatefulWidget {
+  final int userId;
+
+  const ProductOrderScreen({Key? key, required this.userId}) : super(key: key);
+
+  @override
+  ProductOrderScreenState createState() => ProductOrderScreenState();
+}
+
+class ProductOrderScreenState extends State<ProductOrderScreen>
+    with SingleTickerProviderStateMixin, AutomaticKeepAliveClientMixin {
   late TabController _tabController;
+  List<OrderDetail> _orders = [];
+  bool _isLoading = true;
+  Timer? _refreshTimer;
+
+  // Định nghĩa danh sách status và tab tương ứng
+  final List<Map<String, dynamic>> _tabs = [
+    {'status': 0, 'text': 'Chờ duyệt'},
+    {'status': 1, 'text': 'Đang giao'},
+    {'status': 2, 'text': 'Đã giao'},
+    {'status': -1, 'text': 'Đã hủy'},
+  ];
+
+  @override
+  bool get wantKeepAlive => true;
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this);
+    _tabController = TabController(length: _tabs.length, vsync: this);
+    _fetchOrders();
+    _setupPeriodicRefresh();
+
+    // Lắng nghe sự kiện thay đổi tab
+    _tabController.addListener(() {
+      if (!_tabController.indexIsChanging) {
+        _fetchOrders();
+      }
+    });
+  }
+
+  void _setupPeriodicRefresh() {
+    _refreshTimer = Timer.periodic(const Duration(seconds: 30), (_) {
+      // Tăng thời gian refresh lên 30s
+      if (mounted) {
+        _fetchOrders();
+      }
+    });
+  }
+
+  Future<void> _fetchOrders() async {
+    if (!mounted) return;
+
+    try {
+      final response = await http
+          .get(
+        Uri.parse('${ApiService.baseUrl}/orders/${widget.userId}'),
+      )
+          .timeout(
+        const Duration(seconds: 10),
+        onTimeout: () {
+          throw TimeoutException('Không thể kết nối đến máy chủ');
+        },
+      );
+
+      if (!mounted) return;
+
+      if (response.statusCode == 200) {
+        final List<dynamic> jsonData = json.decode(response.body);
+        final List<OrderDetail> fetchedOrders =
+            jsonData.map((data) => OrderDetail.fromJson(data)).toList();
+
+        if (!_listEquals(_orders, fetchedOrders)) {
+          setState(() {
+            _orders = fetchedOrders;
+            _isLoading = false;
+          });
+
+          developer.log('Danh sách đơn hàng đã được cập nhật',
+              name: 'OrderDebug',
+              error: {
+                'total_orders': fetchedOrders.length,
+                'orders': fetchedOrders
+                    .map((order) => {
+                          'orderId': order.orderId,
+                          'name': order.name,
+                          'status': order.status
+                        })
+                    .toList()
+              });
+        } else {
+          setState(() {
+            _isLoading = false;
+          });
+        }
+      } else if (response.statusCode == 404) {
+        setState(() {
+          _orders = [];
+          _isLoading = false;
+        });
+      } else {
+        setState(() {
+          _isLoading = false;
+        });
+        _showError('Không thể tải đơn hàng');
+      }
+    } catch (e) {
+      if (!mounted) return;
+
+      setState(() {
+        _isLoading = false;
+      });
+
+      String errorMessage = 'Lỗi kết nối';
+      if (e is TimeoutException) {
+        errorMessage = 'Kết nối quá hạn';
+      }
+      _showError(errorMessage);
+    }
+  }
+
+  void _showError(String message) {
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(message),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
+  bool _listEquals(List<OrderDetail> list1, List<OrderDetail> list2) {
+    if (list1.length != list2.length) return false;
+    for (int i = 0; i < list1.length; i++) {
+      if (list1[i] != list2[i]) return false;
+    }
+    return true;
   }
 
   @override
   void dispose() {
+    _refreshTimer?.cancel();
     _tabController.dispose();
     super.dispose();
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.grey[50],
-      body: SafeArea(
-        child: Column(
-          children: [
-            // Header mới
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.blue[600],
-                borderRadius: const BorderRadius.vertical(
-                  bottom: Radius.circular(30),
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.blue.withOpacity(0.3),
-                    blurRadius: 15,
-                    offset: const Offset(0, 5),
-                  ),
-                ],
-              ),
-              child: Column(
-                children: [
-                  // Top bar
-                  Row(
-                    children: [
-                      IconButton(
-                        icon: const Icon(Icons.arrow_back, color: Colors.white),
-                        onPressed: () => Navigator.pop(context),
-                      ),
-                      const Expanded(
-                        child: Text(
-                          'Đơn hàng của tôi',
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.search, color: Colors.white),
-                        onPressed: () {
-                          // Handle search
-                        },
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  // TabBar
-                  Theme(
-                    data: ThemeData(
-                      highlightColor: Colors.transparent,
-                      splashColor: Colors.transparent,
-                    ),
-                    child: Container(
-                      height: 45,
-                      margin: const EdgeInsets.symmetric(horizontal: 5),
-                      child: TabBar(
-                        controller: _tabController,
-                        labelColor: Colors.blue[600],
-                        unselectedLabelColor: Colors.white,
-                        indicator: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        dividerColor: Colors.transparent,
-                        labelStyle: const TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                        ),
-                        unselectedLabelStyle: const TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.normal,
-                        ),
-                        tabs: [
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 16),
-                            child: const Tab(text: "Đang giao"),
-                          ),
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 16),
-                            child: const Tab(text: "Đã giao"),
-                          ),
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 16),
-                            child: const Tab(text: "Đã hủy"),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
+  void _switchToTab(int index) {
+    if (mounted && index >= 0 && index < _tabs.length) {
+      setState(() {
+        _tabController.animateTo(index);
+      });
+    }
+  }
 
-            // TabBarView
-            Expanded(
-              child: TabBarView(
-                controller: _tabController,
-                children: [
-                  _buildOrderList("Đang giao"),
-                  _buildOrderList("Đã giao"),
-                  _buildOrderList("Đã hủy"),
-                ],
+  Widget _buildOrderList(Map<String, dynamic> tabInfo) {
+    if (_isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    final filteredOrders =
+        _orders.where((order) => order.status == tabInfo['status']).toList();
+
+    if (filteredOrders.isEmpty) {
+      return const Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.shopping_bag_outlined,
+              size: 100,
+              color: Colors.grey,
+            ),
+            SizedBox(height: 16),
+            Text(
+              'Không có đơn hàng',
+              style: TextStyle(
+                fontSize: 16,
+                color: Colors.grey,
               ),
             ),
           ],
         ),
-      ),
+      );
+    }
+
+    return ListView.builder(
+      padding: const EdgeInsets.all(10),
+      itemCount: filteredOrders.length,
+      itemBuilder: (context, index) {
+        final order = filteredOrders[index];
+        return ItemOrder(
+          orderDetails: order,
+          onOrderStatusUpdated: () {
+            _fetchOrders().then((_) {
+              if (mounted) {
+                if (order.status == -1) {
+                  _switchToTab(3); // Chuyển đến tab Đã hủy
+                } else if (order.status == 2) {
+                  _switchToTab(2); // Chuyển đến tab Đã giao
+                }
+              }
+            });
+          },
+        );
+      },
     );
   }
 
-  // Hàm để hiển thị danh sách đơn hàng theo từng tab
-  Widget _buildOrderList(String status) {
-    return ListView.builder(
-      padding: const EdgeInsets.all(16),
-      itemCount: 5,
-      itemBuilder: (context, index) {
-        return Container(
-          margin: const EdgeInsets.only(bottom: 16),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(20),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.grey.withOpacity(0.1),
-                spreadRadius: 1,
-                blurRadius: 10,
-                offset: const Offset(0, 3),
-              ),
-            ],
+  @override
+  Widget build(BuildContext context) {
+    super.build(context);
+
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 1,
+        leading: IconButton(
+          onPressed: () => Navigator.pop(context),
+          icon: const Icon(Icons.arrow_back, color: Colors.blue),
+        ),
+        title: const Text(
+          "Đơn hàng",
+          style: TextStyle(
+            color: Colors.black,
+            fontWeight: FontWeight.bold,
           ),
-          child: ItemOrder(),
-        );
-      },
+        ),
+        centerTitle: true,
+        bottom: TabBar(
+          controller: _tabController,
+          indicatorColor: Colors.blue,
+          labelColor: Colors.blue,
+          unselectedLabelColor: Colors.black54,
+          labelStyle: const TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 13,
+          ),
+          padding: EdgeInsets.zero,
+          labelPadding: const EdgeInsets.symmetric(horizontal: 4),
+          indicatorWeight: 3,
+          tabAlignment: TabAlignment.fill,
+          tabs: _tabs
+              .map((tab) => Tab(
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(tab['text']),
+                    ),
+                  ))
+              .toList(),
+        ),
+      ),
+      body: TabBarView(
+        controller: _tabController,
+        children: _tabs
+            .map((tabInfo) => RefreshIndicator(
+                  onRefresh: () async {
+                    setState(() {
+                      _isLoading = true;
+                    });
+                    await _fetchOrders();
+                  },
+                  child: _buildOrderList(tabInfo),
+                  color: Colors.blue,
+                  backgroundColor: Colors.white,
+                ))
+            .toList(),
+      ),
     );
   }
 }

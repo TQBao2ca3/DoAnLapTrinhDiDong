@@ -137,7 +137,7 @@ class _FavoriteProductsState extends State<FavoriteProducts> {
                                   bottomLeft: Radius.circular(15),
                                 ),
                                 child: Image.asset(
-                                  product.image,
+                                  product.image_url,
                                   width: 120,
                                   height: 120,
                                   fit: BoxFit.cover,
@@ -147,10 +147,11 @@ class _FavoriteProductsState extends State<FavoriteProducts> {
                                 child: Padding(
                                   padding: const EdgeInsets.all(12),
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                        product.title,
+                                        product.name,
                                         style: const TextStyle(
                                           fontSize: 16,
                                           fontWeight: FontWeight.bold,
@@ -161,7 +162,7 @@ class _FavoriteProductsState extends State<FavoriteProducts> {
                                       ),
                                       const SizedBox(height: 8),
                                       Text(
-                                        "${product.price.toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d)(?=(\d{3})+(?!\d))'), (match) => '${match[1]}.')} đ",
+                                        "${product.price.toString().replaceAllMapped(RegExp(r'(\d)(?=(\d{3})+(?!\d))'), (match) => '${match[1]}.')} đ",
                                         style: const TextStyle(
                                           fontSize: 16,
                                           fontWeight: FontWeight.bold,
@@ -209,9 +210,11 @@ class _FavoriteProductsState extends State<FavoriteProducts> {
                                     ),
                                     onPressed: () {
                                       removeFavoriteProduct(product);
-                                      ScaffoldMessenger.of(context).showSnackBar(
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
                                         const SnackBar(
-                                          content: Text('Đã xóa khỏi danh sách yêu thích'),
+                                          content: Text(
+                                              'Đã xóa khỏi danh sách yêu thích'),
                                           behavior: SnackBarBehavior.floating,
                                         ),
                                       );

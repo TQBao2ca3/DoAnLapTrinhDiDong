@@ -89,8 +89,8 @@ class OrderDetailsPage extends StatelessWidget {
                           children: [
                             Row(
                               children: [
-                                Icon(
-                                    Icons.location_on, color: Colors.blue[600]),
+                                Icon(Icons.location_on,
+                                    color: Colors.blue[600]),
                                 const SizedBox(width: 8),
                                 const Text(
                                   'Địa chỉ nhận hàng',
@@ -106,8 +106,8 @@ class OrderDetailsPage extends StatelessWidget {
                               children: [
                                 Expanded(
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment
-                                        .start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       const Text(
                                         'Trần Quốc Bảo',
@@ -181,8 +181,8 @@ class OrderDetailsPage extends StatelessWidget {
                                   ),
                                   child: Row(
                                     children: [
-                                      Icon(Icons.store, size: 16,
-                                          color: Colors.blue[600]),
+                                      Icon(Icons.store,
+                                          size: 16, color: Colors.blue[600]),
                                       const SizedBox(width: 4),
                                       Text(
                                         "Mall",
@@ -215,8 +215,8 @@ class OrderDetailsPage extends StatelessWidget {
                               children: [
                                 ClipRRect(
                                   borderRadius: BorderRadius.circular(12),
-                                  child: Image.asset(
-                                    item.image,
+                                  child: Image.network(
+                                    item.image_url,
                                     width: 80,
                                     height: 80,
                                     fit: BoxFit.cover,
@@ -225,11 +225,11 @@ class OrderDetailsPage extends StatelessWidget {
                                 const SizedBox(width: 12),
                                 Expanded(
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment
-                                        .start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                        item.name,
+                                        item.description,
                                         style: const TextStyle(
                                           fontSize: 16,
                                           fontWeight: FontWeight.bold,
@@ -244,11 +244,11 @@ class OrderDetailsPage extends StatelessWidget {
                                         ),
                                         decoration: BoxDecoration(
                                           color: Colors.grey[100],
-                                          borderRadius: BorderRadius.circular(
-                                              6),
+                                          borderRadius:
+                                              BorderRadius.circular(6),
                                         ),
                                         child: Text(
-                                          "Màu: ${item.color}",
+                                          "Màu: ${item.colors}",
                                           style: TextStyle(
                                             color: Colors.grey[600],
                                             fontSize: 12,
@@ -257,11 +257,12 @@ class OrderDetailsPage extends StatelessWidget {
                                       ),
                                       const SizedBox(height: 8),
                                       Row(
-                                        mainAxisAlignment: MainAxisAlignment
-                                            .spaceBetween,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
                                         children: [
                                           Text(
-                                            formatCurrency(item.price),
+                                            item.price.toString(),
+                                            //formatCurrency(item.price),
                                             style: TextStyle(
                                               color: Colors.blue[700],
                                               fontWeight: FontWeight.bold,
@@ -275,8 +276,8 @@ class OrderDetailsPage extends StatelessWidget {
                                             ),
                                             decoration: BoxDecoration(
                                               color: Colors.blue[50],
-                                              borderRadius: BorderRadius
-                                                  .circular(6),
+                                              borderRadius:
+                                                  BorderRadius.circular(6),
                                             ),
                                             child: Text(
                                               'x${item.quantity}',
@@ -359,8 +360,8 @@ class OrderDetailsPage extends StatelessWidget {
                               children: [
                                 const Text('Thời gian đặt hàng'),
                                 Text(
-                                  DateFormat('dd-MM-yyyy HH:mm').format(
-                                      orderTime),
+                                  DateFormat('dd-MM-yyyy HH:mm')
+                                      .format(orderTime),
                                   style: const TextStyle(
                                     fontWeight: FontWeight.w500,
                                   ),

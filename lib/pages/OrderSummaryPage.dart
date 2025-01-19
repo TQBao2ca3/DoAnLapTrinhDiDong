@@ -21,16 +21,10 @@ class OrderSummaryPage extends StatefulWidget {
 }
 
 class _OrderSummaryPageState extends State<OrderSummaryPage> {
-  List<String> tabs = [
-    "Chờ xác nhận",
-    "Chờ lấy hàng",
-    "Chờ giao hàng",
-    "Trả hàng"
-  ];
   int selectedTabIndex = 0;
   String? currentPaymentMethod;
   String formatCurrency(int amount) {
-    final formatCurrency = NumberFormat('#,##0 đ', 'vi_VN');
+    final formatCurrency = NumberFormat('#,##0đ', 'vi_VN');
     return formatCurrency.format(amount);
   }
 
@@ -63,7 +57,7 @@ class _OrderSummaryPageState extends State<OrderSummaryPage> {
             builder: (context) => OrderDetailsPage(
               item: item,
               orderId: '250104K63J7E16',
-              orderTime: DateTime(2025, 1, 4, 10, 9),
+              orderTime: DateTime(2025, 1, DateTime.now().day, 10, 9),
             ),
           ),
         );
@@ -120,8 +114,8 @@ class _OrderSummaryPageState extends State<OrderSummaryPage> {
                 // Product image
                 ClipRRect(
                   borderRadius: BorderRadius.circular(4),
-                  child: Image.asset(
-                    item.image,
+                  child: Image.network(
+                    item.image_url,
                     width: 80,
                     height: 80,
                     fit: BoxFit.cover,
@@ -143,14 +137,14 @@ class _OrderSummaryPageState extends State<OrderSummaryPage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        item.name,
+                        item.description,
                         style: const TextStyle(fontSize: 14),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        item.color,
+                        item.colors,
                         style: TextStyle(
                           color: Colors.grey[600],
                           fontSize: 14,
@@ -166,9 +160,9 @@ class _OrderSummaryPageState extends State<OrderSummaryPage> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          if (item.price != item.originalPrice)
+                          if (item.price != item.price)
                             Text(
-                              "${formatCurrency(item.originalPrice)}",
+                              "${formatCurrency(item.price as int)}",
                               style: const TextStyle(
                                 decoration: TextDecoration.lineThrough,
                                 color: Colors.grey,
@@ -176,7 +170,7 @@ class _OrderSummaryPageState extends State<OrderSummaryPage> {
                               ),
                             ),
                           Text(
-                            "${formatCurrency(item.price)}",
+                            "${formatCurrency(item.price as int)}",
                             style: const TextStyle(
                               color: Colors.black,
                             ),
@@ -233,65 +227,6 @@ class _OrderSummaryPageState extends State<OrderSummaryPage> {
                     ),
                   ),
                 ],
-              ),
-            ),
-
-            // Tab bar với thiết kế mới
-            Container(
-              height: 56,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.withOpacity(0.1),
-                    spreadRadius: 1,
-                    blurRadius: 4,
-                  ),
-                ],
-              ),
-              child: ListView.builder(
-                scrollDirection: Axis.horizontal,
-                itemCount: tabs.length,
-                itemBuilder: (context, index) {
-                  final isSelected = selectedTabIndex == index;
-                  return InkWell(
-                    onTap: () {
-                      setState(() {
-                        selectedTabIndex = index;
-                      });
-                    },
-                    child: Container(
-                      width: MediaQuery.of(context).size.width / 4,
-                      decoration: BoxDecoration(
-                        border: Border(
-                          bottom: BorderSide(
-                            color: isSelected
-                                ? Colors.blue[600]!
-                                : Colors.transparent,
-                            width: 2,
-                          ),
-                        ),
-                      ),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            tabs[index],
-                            style: TextStyle(
-                              color: isSelected
-                                  ? Colors.blue[600]
-                                  : Colors.grey[600],
-                              fontSize: 14,
-                              fontWeight: isSelected
-                                  ? FontWeight.bold
-                                  : FontWeight.normal,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                },
               ),
             ),
 

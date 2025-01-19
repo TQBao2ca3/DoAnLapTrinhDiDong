@@ -1,6 +1,14 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:phoneshop/pages/ChangePassword.dart';
+import 'package:phoneshop/pages/Homepage.dart';
+import 'package:phoneshop/pages/userAuthentication.dart';
+import 'package:phoneshop/providers/user_provider.dart';
+import 'package:phoneshop/services/userPreference.dart';
+import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-  class UserInformation extends StatefulWidget {
+class UserInformation extends StatefulWidget {
   const UserInformation({super.key});
 
   @override
@@ -10,6 +18,35 @@ import 'package:flutter/material.dart';
 class _UserInformationState extends State<UserInformation> {
   final _formKey = GlobalKey<FormState>();
 
+  @override
+  void initState() {
+    super.initState();
+    print('UserInformation - initState called');
+
+    // Sử dụng addPostFrameCallback để đảm bảo widget đã được build
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _fetchUserInformation();
+    });
+  }
+
+  Future<void> _fetchUserInformation() async {
+    print('UserInformation - Fetching user information');
+
+    // Kiểm tra token trước khi fetch
+    final token = await UserPreferences.getToken();
+    if (token == null) {
+      print('UserInformation - No token found');
+      // Chuyển đến trang đăng nhập nếu không có token
+      Navigator.pushReplacement(context,
+          MaterialPageRoute(builder: (context) => UserAuthentication()));
+      return;
+    }
+
+    // Truyền context khi gọi getUserInformation
+    context.read<UserProvider>().getUserInformation(context);
+  }
+
+  // Các biến state giữ nguyên
   final Map<String, bool> _editingFields = {
     'name': false,
     'email': false,
@@ -19,17 +56,23 @@ class _UserInformationState extends State<UserInformation> {
 
   final Map<String, String> _userData = {
     'username': 'user1234',
-    'name': 'Nguyễn Văn A',
-    'email': 'nguyenvana@gmail.com',
+    'name': 'name',
+    'email': 'email',
     'phone': '0423145136',
-    'address': 'Quận 1, TP.HCM',
+    'address': 'HCMC',
   };
 
   final Map<String, String> _tempValues = {};
 
+  // Các hàm xử lý giữ nguyên
   void _toggleEdit(String field) {
     setState(() {
       if (_editingFields[field]!) {
+        // Khi nhấn lưu, gọi phương thức update
+        if (_tempValues[field] != null &&
+            _tempValues[field] != _userData[field]) {
+          _updateSpecificField(field, _tempValues[field]!);
+        }
         _userData[field] = _tempValues[field] ?? _userData[field]!;
       } else {
         _tempValues[field] = _userData[field]!;
@@ -38,276 +81,225 @@ class _UserInformationState extends State<UserInformation> {
     });
   }
 
+  void _updateSpecificField(String field, String value) {
+    // Ánh xạ field sang tên backend
+    final Map<String, String> fieldMapping = {
+      'name': 'full_name',
+      'email': 'email',
+      'phone': 'phone',
+      'address': 'address'
+    };
+
+    // Gọi phương thức update từ provider
+    context.read<UserProvider>().updateUserProfile(
+          context,
+          full_name: field == 'name' ? value : null,
+          email: field == 'email' ? value : null,
+          phone: field == 'phone' ? value : null,
+          address: field == 'address' ? value : null,
+        );
+  }
+
   bool get isAnyFieldEditing => _editingFields.values.any((editing) => editing);
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.grey[50],
-      body: SafeArea(
-        child: Form(
-          key: _formKey,
-          child: Column(
-            children: [
-              // Header với gradient
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [Colors.blue[700]!, Colors.blue[500]!],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  borderRadius: const BorderRadius.vertical(
-                    bottom: Radius.circular(30),
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.blue.withOpacity(0.3),
-                      blurRadius: 15,
-                      offset: const Offset(0, 5),
-                    ),
-                  ],
-                ),
-                child: Column(
-                  children: [
-                    Row(
-                      children: [
-                        IconButton(
-                          icon: const Icon(Icons.arrow_back, color: Colors.white),
-                          onPressed: () => Navigator.pop(context),
-                        ),
-                        const SizedBox(width: 8),
-                        Text(
-                          isAnyFieldEditing ? 'Đang chỉnh sửa' : 'Thông tin cá nhân',
-                          style: const TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 20),
-                    // Avatar và tên người dùng
-                    Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(3),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            shape: BoxShape.circle,
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.1),
-                                blurRadius: 8,
-                              ),
+    print('UserInformation - build called');
+    // Sửa lại Consumer với type cụ thể
+    return Consumer<UserProvider>(
+      builder: (context, userProvider, child) {
+        print('UserInformation - Consumer building');
+        print('Loading state: ${userProvider.isLoading}');
+        print('User data: ${userProvider.userData}');
+        print('Error: ${userProvider.error}');
+
+        if (userProvider.error != null) {
+          return Center(
+            child: Text(
+              'Error: ${userProvider.error}',
+              style: const TextStyle(color: Colors.red),
+            ),
+          );
+        }
+        return Scaffold(
+          appBar: AppBar(
+            title: Text(
+              isAnyFieldEditing
+                  ? 'Thông tin user đang sửa'
+                  : 'Thông tin ${userProvider.userData['username']}',
+              style: const TextStyle(fontSize: 18),
+            ),
+            backgroundColor: Colors.white,
+            foregroundColor: Colors.black,
+            elevation: 0,
+          ),
+          body: Form(
+            key: _formKey,
+            child: userProvider.isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : SingleChildScrollView(
+                    padding: const EdgeInsets.all(16),
+                    child: Container(
+                      constraints: BoxConstraints(
+                          minHeight: MediaQuery.of(context).size.height * 0.8),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                "Tài khoản: ${userProvider.userData['username']}",
+                                style: const TextStyle(
+                                    fontSize: 20, fontWeight: FontWeight.bold),
+                              )
                             ],
                           ),
-                          child: CircleAvatar(
-                            radius: 35,
-                            backgroundColor: Colors.blue[100],
+                          // Sử dụng data từ userProvider
+                          _buildInfoField(
+                            label: 'Họ và tên:',
+                            field: 'name',
+                            value: userProvider.userData['full_name'] ?? '',
+                          ),
+                          _buildInfoField(
+                            label: 'Email:',
+                            field: 'email',
+                            value: userProvider.userData['email'] ?? '',
+                          ),
+                          _buildInfoField(
+                            label: 'SĐT:',
+                            field: 'phone',
+                            value: userProvider.userData['phone'] ?? '',
+                          ),
+                          _buildInfoField(
+                            label: 'Địa chỉ:',
+                            field: 'address',
+                            value: userProvider.userData['address'] ?? '',
+                          ),
+                          // Các widget còn lại giữ nguyên
+                          const SizedBox(height: 24),
+                          ElevatedButton(
+                            onPressed: isAnyFieldEditing
+                                ? () {
+                                    // Kiểm tra form validation nếu cần
+                                    if (_formKey.currentState!.validate()) {
+                                      // Tạo map chứa các field cần update
+                                      Map<String, String> updatedFields = {};
+
+                                      // Duyệt qua các field đang được editing
+                                      _editingFields
+                                          .forEach((field, isEditing) {
+                                        if (isEditing &&
+                                            _tempValues[field] != null) {
+                                          switch (field) {
+                                            case 'name':
+                                              updatedFields['full_name'] =
+                                                  _tempValues[field]!;
+                                              break;
+                                            case 'email':
+                                              updatedFields['email'] =
+                                                  _tempValues[field]!;
+                                              break;
+                                            case 'phone':
+                                              updatedFields['phone'] =
+                                                  _tempValues[field]!;
+                                              break;
+                                            case 'address':
+                                              updatedFields['address'] =
+                                                  _tempValues[field]!;
+                                              break;
+                                          }
+                                        }
+                                      });
+
+                                      // Gọi phương thức update từ provider
+                                      context
+                                          .read<UserProvider>()
+                                          .updateUserProfile(
+                                            context,
+                                            full_name:
+                                                updatedFields['full_name'],
+                                            email: updatedFields['email'],
+                                            phone: updatedFields['phone'],
+                                            address: updatedFields['address'],
+                                          )
+                                          .then((_) {
+                                        // Kiểm tra sau khi update
+                                        final userProvider =
+                                            context.read<UserProvider>();
+
+                                        if (userProvider.error == null) {
+                                          // Update thành công
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(
+                                            SnackBar(
+                                              content: Text(
+                                                  'Cập nhật thông tin thành công'),
+                                              backgroundColor: Colors.green,
+                                            ),
+                                          );
+
+                                          // Reset trạng thái editing
+                                          setState(() {
+                                            _editingFields.updateAll(
+                                                (key, value) => false);
+                                            _tempValues.clear();
+                                          });
+                                        } else {
+                                          // Update thất bại
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(
+                                            SnackBar(
+                                              content: Text(
+                                                  userProvider.error ??
+                                                      'Cập nhật thất bại'),
+                                              backgroundColor: Colors.red,
+                                            ),
+                                          );
+                                        }
+                                      });
+                                    }
+                                  }
+                                : null,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor:
+                                  isAnyFieldEditing ? Colors.blue : Colors.grey,
+                              foregroundColor: Colors.white,
+                              minimumSize: const Size(200, 45),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                            ),
+                            child: const Text('Cập nhật thông tin'),
+                          ),
+                          const SizedBox(height: 16),
+                          TextButton(
+                            onPressed: isAnyFieldEditing
+                                ? null
+                                : () {
+                                    Navigator.pushReplacement(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                ChangePassword()));
+                                  },
                             child: Text(
-                              _userData['name']![0].toUpperCase(),
+                              'Đổi mật khẩu',
                               style: TextStyle(
-                                fontSize: 30,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.blue[700],
+                                color: !isAnyFieldEditing
+                                    ? Colors.red
+                                    : Colors.grey,
+                                fontSize: 16,
                               ),
                             ),
                           ),
-                        ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                _userData['name']!,
-                                style: const TextStyle(
-                                  fontSize: 24,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white,
-                                ),
-                              ),
-                              Text(
-                                '@${_userData['username']}',
-                                style: const TextStyle(
-                                  fontSize: 16,
-                                  color: Colors.white70,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ],
-                ),
-              ),
-
-              // Form thông tin
-              Expanded(
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    children: [
-                      Card(
-                        elevation: 2,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(15),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(16),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Thông tin chi tiết',
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.blue[700],
-                                ),
-                              ),
-                              const SizedBox(height: 16),
-                              _buildInfoField(
-                                label: 'Họ và tên',
-                                field: 'name',
-                                value: _userData['name']!,
-                                icon: Icons.person,
-                              ),
-                              _buildInfoField(
-                                label: 'Email',
-                                field: 'email',
-                                value: _userData['email']!,
-                                icon: Icons.email,
-                              ),
-                              _buildInfoField(
-                                label: 'Số điện thoại',
-                                field: 'phone',
-                                value: _userData['phone']!,
-                                icon: Icons.phone,
-                              ),
-                              _buildInfoField(
-                                label: 'Địa chỉ',
-                                field: 'address',
-                                value: _userData['address']!,
-                                icon: Icons.location_on,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
                   ),
-                ),
-              ),
-
-              // Bottom buttons
-              Container(
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: const BorderRadius.vertical(
-                    top: Radius.circular(30),
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.withOpacity(0.2),
-                      spreadRadius: 1,
-                      blurRadius: 10,
-                      offset: const Offset(0, -3),
-                    ),
-                  ],
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    if (isAnyFieldEditing)
-                      ElevatedButton(
-                        onPressed: () {
-                          setState(() {
-                            _editingFields.forEach((field, editing) {
-                              if (editing) {
-                                _userData[field] = _tempValues[field] ?? _userData[field]!;
-                                _editingFields[field] = false;
-                              }
-                            });
-                            _tempValues.clear();
-                          });
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.blue[600],
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 32,
-                            vertical: 16,
-                          ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(15),
-                          ),
-                          minimumSize: const Size(double.infinity, 55),
-                          elevation: 2,
-                        ),
-                        child: const Text(
-                          "Lưu thay đổi",
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    if (!isAnyFieldEditing) ...[
-                      ElevatedButton(
-                        onPressed: () {},
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.blue[600],
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 32,
-                            vertical: 16,
-                          ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(15),
-                          ),
-                          minimumSize: const Size(double.infinity, 55),
-                          elevation: 2,
-                        ),
-                        child: const Text(
-                          "Cập nhật thông tin",
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      TextButton.icon(
-                        onPressed: () {
-                          // Xử lý đổi mật khẩu
-                        },
-                        icon: Icon(
-                          Icons.lock_outline,
-                          color: Colors.red[600],
-                        ),
-                        label: Text(
-                          'Đổi mật khẩu',
-                          style: TextStyle(
-                            color: Colors.red[600],
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ],
-                ),
-              ),
-            ],
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 
@@ -316,87 +308,60 @@ class _UserInformationState extends State<UserInformation> {
     String? field,
     required String value,
     bool editable = true,
-    required IconData icon,
   }) {
     bool isEditing = field != null && _editingFields[field] == true;
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      margin: const EdgeInsets.only(bottom: 16),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(
-                children: [
-                  Icon(icon, size: 20, color: Colors.grey[600]),
-                  const SizedBox(width: 8),
-                  Text(
-                    label,
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.grey[600],
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ],
-              ),
-              if (editable)
-                TextButton(
-                  onPressed: () => _toggleEdit(field!),
-                  style: TextButton.styleFrom(
-                    minimumSize: Size.zero,
-                    padding: const EdgeInsets.symmetric(horizontal: 8),
-                  ),
-                  child: Text(
-                    isEditing ? 'Hủy' : 'Sửa',
-                    style: TextStyle(
-                      color: Colors.blue[600],
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
+          SizedBox(
+            width: 80,
+            child: Text(
+              label,
+              style: const TextStyle(fontSize: 16),
+            ),
+          ),
+          Expanded(
+            child: TextFormField(
+              initialValue: isEditing ? (_tempValues[field] ?? value) : value,
+              enabled: isEditing,
+              onChanged: (newValue) {
+                if (field != null) {
+                  setState(() {
+                    _tempValues[field] = newValue;
+                  });
+                }
+              },
+              decoration: InputDecoration(
+                contentPadding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: const BorderSide(color: Colors.grey),
                 ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          TextFormField(
-            initialValue: isEditing ? (_tempValues[field] ?? value) : value,
-            enabled: isEditing,
-            onChanged: (newValue) {
-              if (field != null) {
-                setState(() {
-                  _tempValues[field] = newValue;
-                });
-              }
-            },
-            style: TextStyle(
-              fontSize: 16,
-              color: Colors.grey[800],
-              fontWeight: FontWeight.w500,
-            ),
-            decoration: InputDecoration(
-              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              filled: true,
-              fillColor: isEditing ? Colors.white : Colors.grey[100],
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(color: Colors.grey[300]!),
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(color: Colors.blue[200]!),
-              ),
-              disabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(color: Colors.grey[200]!),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(color: Colors.blue[400]!, width: 2),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: BorderSide(color: Colors.grey.shade300),
+                ),
+                disabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: BorderSide(color: Colors.grey.shade200),
+                ),
               ),
             ),
           ),
+          if (editable)
+            TextButton(
+              onPressed: () => _toggleEdit(field!),
+              child: Text(
+                isEditing ? 'Hủy' : 'Sửa',
+                style: const TextStyle(
+                  color: Colors.blue,
+                ),
+              ),
+            ),
         ],
       ),
     );
