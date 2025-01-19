@@ -22,7 +22,7 @@ class _UserAuthenticationState extends State<UserAuthentication> {
 
   Future<void> login() async {
     try {
-      final url = Uri.parse('http://192.168.52.126:3000/api/user/login');
+      final url = Uri.parse('http://192.168.1.6:3000/api/user/login');
       final response = await http.post(
         url,
         headers: {'Content-Type': 'application/json'},
@@ -164,7 +164,8 @@ class _UserAuthenticationState extends State<UserAuthentication> {
                         decoration: InputDecoration(
                           labelText: 'Tài khoản',
                           hintText: 'Nhập tên tài khoản',
-                          prefixIcon: Icon(Icons.person, color: Colors.blue[600]),
+                          prefixIcon:
+                              Icon(Icons.person, color: Colors.blue[600]),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(15),
                             borderSide: BorderSide.none,
