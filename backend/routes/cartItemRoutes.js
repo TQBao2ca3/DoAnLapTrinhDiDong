@@ -17,7 +17,7 @@ router.delete('/deleteCartItem', cartItemController.deleteCartItem);
 
 router.post('/clear', cartItemController.clearCart);
 
-router.get('/getCart/:userId', cartItemController.getOrCreateCart);
+router.get('/getOrCreateCart/:userId', cartItemController.getOrCreateCart);
 
 
 module.exports=router;

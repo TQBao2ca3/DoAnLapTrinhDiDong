@@ -118,6 +118,11 @@ class _UserAuthenticationState extends State<UserAuthentication> {
 
       if (mounted) {
         if (result) {
+          // Khởi tạo CartProvider với userId
+          final userId = await UserPreferences.getUserId();
+          if (userId != null) {
+            await context.read<CartProvider>().initializeWithUserId(userId);
+          }
           // Login thành công, chuyển đến HomeScreen
           Navigator.pushReplacement(
             context,

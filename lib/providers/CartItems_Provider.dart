@@ -43,24 +43,27 @@ class CartProvider with ChangeNotifier {
 
   Future<void> initializeWithUserId(int userId) async {
     _userId = userId;
-    // Cần thêm code để lấy cart_id từ userId
+
     try {
-      // Kiểm tra xem user có cart chưa
       final response = await http.get(
-        Uri.parse('${ApiService.baseUrl}/cart/getCart/$userId'),
+        Uri.parse('${ApiService.baseUrl}/cart/getOrCreateCart/$userId'),
         headers: {'Content-Type': 'application/json'},
       );
 
       final data = jsonDecode(response.body);
       if (data['success']) {
         _cart_id = data['cart_id'];
+        print('Initialized cart_id: $_cart_id for userId: $userId');
+
+        // Load cart items sau khi có cart_id
+        await loadCartItems();
+        notifyListeners();
+      } else {
+        print('Failed to get cart_id');
       }
     } catch (e) {
-      print('Error getting cart: $e');
+      print('Error initializing cart: $e');
     }
-    print(
-        'CartProvider initializing with userId: $_userId and cart_id: $_cart_id');
-    await loadCartItems();
   }
 
   // Sửa lại loadCartItems để dùng userId
