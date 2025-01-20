@@ -59,21 +59,28 @@ class _UserAuthenticationState extends State<UserAuthentication> {
       );
       return;
     }
-    if (_userNameController.text == "admin") {
-      try {
-        final response = await http.post(
-          Uri.parse("${ApiService.baseUrl}/login"),
-          headers: {'Content-Type': 'application/json'},
-          body: json.encode({
-            'username': _userNameController.text,
-            'password': _passwordController.text,
-          }),
-        );
-
-        if (response.statusCode == 200) {
-          final Map<String, dynamic> data = json.decode(response.body);
-          final user = data['user'];
-
+    try {
+      final responseUser = await http.post(
+        Uri.parse("${ApiService.baseUrl}/user/login"),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode({
+          'username': _userNameController.text,
+          'password': _passwordController.text,
+        }),
+      );
+      final responseAdmin = await http.post(
+        Uri.parse("${ApiService.baseUrl}/login"),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode({
+          'username': _userNameController.text,
+          'password': _passwordController.text,
+        }),
+      );
+      final responseData = jsonDecode(responseUser.body);
+      if (responseAdmin.statusCode == 200) {
+        final Map<String, dynamic> data = json.decode(responseAdmin.body);
+        final user = data['user'];
+        if (_userNameController.text == "admin") {
           if (mounted) {
             Navigator.pushReplacement(
               context,
@@ -81,82 +88,78 @@ class _UserAuthenticationState extends State<UserAuthentication> {
                   builder: (context) => AdminOrdersScreen(user: user)),
             );
           }
-        }
-        return; // Thêm return ở đây để không chạy tiếp code user
-      } catch (e) {
-        // Xử lý lỗi kết nối cho admin
-        if (mounted) {
-          showDialog(
-            context: context,
-            builder: (BuildContext context) {
-              return AlertDialog(
-                title: const Text('Lỗi'),
-                content: const Text('Không thể kết nối đến server'),
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.pop(context),
-                    child: const Text('Đóng'),
-                  ),
-                ],
-              );
-            },
-          );
-        }
-        return;
-      }
-    }
-
-    try {
-      // Lấy UserProvider
-      final userProvider = Provider.of<UserProvider>(context, listen: false);
-
-      // Gọi login từ UserProvider
-      final result = await userProvider.login(
-        _userNameController.text,
-        _passwordController.text,
-      );
-
-      if (mounted) {
-        if (result) {
-          // Khởi tạo CartProvider với userId
-          final userId = await UserPreferences.getUserId();
-          if (userId != null) {
-            await context.read<CartProvider>().initializeWithUserId(userId);
-          }
-          // Login thành công, chuyển đến HomeScreen
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (_) => const HomeScreen()),
-          );
+          return; // Thêm return ở đây để không chạy tiếp code user
         } else {
-          // Login thất bại, hiển thị lỗi
-          showDialog(
-            context: context,
-            builder: (BuildContext context) {
-              String errorMessage =
-                  userProvider.error ?? 'Đăng nhập không thành công';
-              return AlertDialog(
-                title: const Text('Lỗi'),
-                content: Text(errorMessage),
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.pop(context),
-                    child: const Text('Đóng'),
-                  ),
-                ],
-              );
-            },
+          final userProvider =
+              Provider.of<UserProvider>(context, listen: false);
+
+          // Gọi login từ UserProvider
+          final result = await userProvider.login(
+            _userNameController.text,
+            _passwordController.text,
           );
+
+          if (mounted) {
+            if (result) {
+              // Khởi tạo CartProvider với userId
+              final userId = await UserPreferences.getUserId();
+              if (userId != null) {
+                await context.read<CartProvider>().initializeWithUserId(userId);
+              }
+              // Login thành công, chuyển đến HomeScreen
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (_) => const HomeScreen()),
+              );
+            }
+          }
         }
+      } else if (responseUser.statusCode == 401) {
+        print(responseUser.statusCode);
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            String errorMessage = 'Sai tài khoản hoặc mật khẩu';
+            switch (responseUser.statusCode) {
+              case 401:
+                if (responseData['message']?.contains('User not found') ??
+                    false) {
+                  errorMessage = 'Tài khoản không tồn tại';
+                } else if (responseData['message']
+                        ?.contains('Invalid credentials') ??
+                    false) {
+                  errorMessage = 'Mật khẩu không chính xác';
+                }
+                break;
+              case 500:
+                errorMessage = 'Lỗi máy chủ. Vui lòng thử lại sau';
+                break;
+              default:
+                errorMessage = responseData['message'] ??
+                    'Tài khoản hoặc mật khẩu admin không chính xác';
+            }
+            return AlertDialog(
+              title: const Text('Lỗi'),
+              content: Text(errorMessage),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('Đóng'),
+                ),
+              ],
+            );
+          },
+        );
       }
     } catch (e) {
+      // Xử lý lỗi kết nối cho admin
       if (mounted) {
         showDialog(
           context: context,
           builder: (BuildContext context) {
             return AlertDialog(
               title: const Text('Lỗi'),
-              content: const Text('Không thể kết nối đến server'),
+              content: Text("Lỗi kết nối"),
               actions: [
                 TextButton(
                   onPressed: () => Navigator.pop(context),
@@ -170,6 +173,7 @@ class _UserAuthenticationState extends State<UserAuthentication> {
     }
   }
 
+  bool see = false;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -219,13 +223,24 @@ class _UserAuthenticationState extends State<UserAuthentication> {
               // TextField Password
               TextField(
                 controller: _passwordController,
-                obscureText: true,
-                decoration: const InputDecoration(
-                    labelText: 'Mật khẩu',
-                    prefixIcon: Icon(Icons.lock),
-                    border: OutlineInputBorder(),
-                    fillColor: Colors.white,
-                    filled: true),
+                obscureText: !see,
+                decoration: InputDecoration(
+                  labelText: 'Mật khẩu',
+                  prefixIcon: const Icon(Icons.lock),
+                  border: const OutlineInputBorder(),
+                  fillColor: Colors.white,
+                  filled: true,
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      see ? Icons.visibility_off : Icons.visibility,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        see = !see; // Đảo trạng thái ẩn/hiện mật khẩu
+                      });
+                    },
+                  ),
+                ),
               ),
 
               const SizedBox(height: 10),

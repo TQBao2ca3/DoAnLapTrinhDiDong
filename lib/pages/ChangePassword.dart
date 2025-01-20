@@ -26,6 +26,9 @@ class _ChangePasswordState extends State<ChangePassword> {
     );
   }
 
+  bool seeOldPass = false;
+  bool seeNewPass = false;
+  bool seeConfirmPass = false;
   // Trong ChangePassword.dart
   Future<void> _handleChangePassword() async {
     if (!_formKey.currentState!.validate()) {
@@ -97,10 +100,21 @@ class _ChangePasswordState extends State<ChangePassword> {
             children: [
               TextFormField(
                 controller: _oldPass,
-                obscureText: true,
-                decoration: const InputDecoration(
+                obscureText: !seeOldPass,
+                decoration: InputDecoration(
                   labelText: 'Mật khẩu cũ',
                   border: OutlineInputBorder(),
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      seeOldPass ? Icons.visibility_off : Icons.visibility,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        seeOldPass =
+                            !seeOldPass; // Đảo trạng thái ẩn/hiện mật khẩu
+                      });
+                    },
+                  ),
                 ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
@@ -112,10 +126,21 @@ class _ChangePasswordState extends State<ChangePassword> {
               const SizedBox(height: 20),
               TextFormField(
                 controller: _newPass,
-                obscureText: true,
-                decoration: const InputDecoration(
+                obscureText: !seeNewPass,
+                decoration: InputDecoration(
                   labelText: 'Mật khẩu mới',
                   border: OutlineInputBorder(),
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      seeNewPass ? Icons.visibility_off : Icons.visibility,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        seeNewPass =
+                            !seeNewPass; // Đảo trạng thái ẩn/hiện mật khẩu
+                      });
+                    },
+                  ),
                 ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
@@ -130,10 +155,21 @@ class _ChangePasswordState extends State<ChangePassword> {
               const SizedBox(height: 20),
               TextFormField(
                 controller: _confirmPass,
-                obscureText: true,
-                decoration: const InputDecoration(
+                obscureText: !seeConfirmPass,
+                decoration: InputDecoration(
                   labelText: 'Xác nhận mật khẩu mới',
                   border: OutlineInputBorder(),
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      seeConfirmPass ? Icons.visibility_off : Icons.visibility,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        seeConfirmPass =
+                            !seeConfirmPass; // Đảo trạng thái ẩn/hiện mật khẩu
+                      });
+                    },
+                  ),
                 ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {

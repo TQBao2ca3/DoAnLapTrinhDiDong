@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:phoneshop/pages/userAuthentication.dart';
 import 'package:phoneshop/providers/Product_provider.dart';
 import 'package:phoneshop/providers/user_provider.dart';
@@ -19,6 +20,17 @@ class _SignUpState extends State<SignUp> {
   @override
   void initState() {
     super.initState();
+    _phoneController.addListener(() {
+      final text = _phoneController.text;
+
+      // Nếu không bắt đầu bằng "0", tự động thêm "0" vào đầu
+      if (!text.startsWith('0')) {
+        _phoneController.value = _phoneController.value.copyWith(
+          text: '0$text',
+          selection: TextSelection.collapsed(offset: text.length + 1),
+        );
+      }
+    });
     //lấy ProductProvider và gọi loadProducts
     Future.microtask(() async {
       final userProvider = Provider.of<UserProvider>(context, listen: false);
@@ -55,6 +67,7 @@ class _SignUpState extends State<SignUp> {
         .showSnackBar(SnackBar(content: Text(message)));
   }
 
+  bool see = false;
   // Trong signUp.dart
   Future<void> register() async {
     // Validate các trường
@@ -160,7 +173,6 @@ class _SignUpState extends State<SignUp> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // AppBar với nút quay lại và tiêu đề động
       appBar: AppBar(
         automaticallyImplyLeading: false,
         title: const Text(
@@ -172,7 +184,6 @@ class _SignUpState extends State<SignUp> {
         ),
         centerTitle: true,
       ),
-
       body: SingleChildScrollView(
         child: Container(
           //scale full màn hình hiện tại sẽ lấy cả appbar nên nó dài hơn 1 xíu =))
@@ -206,13 +217,23 @@ class _SignUpState extends State<SignUp> {
               // TextField Password
               TextField(
                 controller: _passwordController,
-                obscureText: true,
-                decoration: const InputDecoration(
+                obscureText: !see,
+                decoration: InputDecoration(
                   labelText: 'Mật khẩu',
-                  prefixIcon: Icon(Icons.lock),
-                  border: OutlineInputBorder(),
+                  prefixIcon: const Icon(Icons.lock),
+                  border: const OutlineInputBorder(),
                   fillColor: Colors.white,
                   filled: true,
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      see ? Icons.visibility_off : Icons.visibility,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        see = !see; // Đảo trạng thái ẩn/hiện mật khẩu
+                      });
+                    },
+                  ),
                 ),
               ),
               const SizedBox(height: 30),
@@ -239,20 +260,33 @@ class _SignUpState extends State<SignUp> {
                   border: OutlineInputBorder(),
                   fillColor: Colors.white,
                   filled: true,
+                  hintText: 'example@example.com',
                 ),
+                keyboardType: TextInputType.emailAddress,
+                inputFormatters: [
+                  FilteringTextInputFormatter.allow(RegExp(
+                      r'[a-zA-Z0-9@._-]')), // Chỉ cho phép ký tự hợp lệ trong email
+                ],
               ),
               const SizedBox(height: 30),
 
               // TextField [phone]
               TextField(
                 controller: _phoneController,
+                keyboardType: TextInputType.number,
                 decoration: const InputDecoration(
                   labelText: 'Phone',
                   prefixIcon: Icon(Icons.phone),
+                  prefixText: "+84 ",
                   border: OutlineInputBorder(),
                   fillColor: Colors.white,
                   filled: true,
                 ),
+                inputFormatters: [
+                  FilteringTextInputFormatter.allow(
+                      RegExp(r'[0-9]')), // Chỉ cho phép chữ và số
+                ],
+                maxLength: 10,
               ),
               const SizedBox(height: 30),
 

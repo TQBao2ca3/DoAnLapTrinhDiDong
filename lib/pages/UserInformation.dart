@@ -1,5 +1,7 @@
 import 'dart:convert';
+import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:phoneshop/pages/ChangePassword.dart';
 import 'package:phoneshop/pages/Homepage.dart';
 import 'package:phoneshop/pages/userAuthentication.dart';
@@ -17,18 +19,18 @@ class UserInformation extends StatefulWidget {
 
 class _UserInformationState extends State<UserInformation> {
   final _formKey = GlobalKey<FormState>();
-
   @override
   void initState() {
     super.initState();
     print('UserInformation - initState called');
 
-    // Sử dụng addPostFrameCallback để đảm bảo widget đã được build
+    // addPostFrameCallback để đảm bảo widget đã được build
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _fetchUserInformation();
     });
   }
 
+  bool cancelUpdate = false;
   Future<void> _fetchUserInformation() async {
     print('UserInformation - Fetching user information');
 
@@ -63,14 +65,13 @@ class _UserInformationState extends State<UserInformation> {
   };
 
   final Map<String, String> _tempValues = {};
-
-  // Các hàm xử lý giữ nguyên
   void _toggleEdit(String field) {
     setState(() {
       if (_editingFields[field]!) {
         // Khi nhấn lưu, gọi phương thức update
         if (_tempValues[field] != null &&
-            _tempValues[field] != _userData[field]) {
+            _tempValues[field] != _userData[field] &&
+            cancelUpdate == false) {
           _updateSpecificField(field, _tempValues[field]!);
         }
         _userData[field] = _tempValues[field] ?? _userData[field]!;
@@ -82,7 +83,6 @@ class _UserInformationState extends State<UserInformation> {
   }
 
   void _updateSpecificField(String field, String value) {
-    // Ánh xạ field sang tên backend
     final Map<String, String> fieldMapping = {
       'name': 'full_name',
       'email': 'email',
@@ -132,6 +132,13 @@ class _UserInformationState extends State<UserInformation> {
             backgroundColor: Colors.white,
             foregroundColor: Colors.black,
             elevation: 0,
+            leading: IconButton(
+              icon: Icon(Icons.arrow_back),
+              onPressed: () {
+                cancelUpdate = true;
+                Navigator.pop(context);
+              },
+            ),
           ),
           body: Form(
             key: _formKey,
@@ -212,7 +219,6 @@ class _UserInformationState extends State<UserInformation> {
                                         }
                                       });
 
-                                      // Gọi phương thức update từ provider
                                       context
                                           .read<UserProvider>()
                                           .updateUserProfile(
@@ -224,22 +230,18 @@ class _UserInformationState extends State<UserInformation> {
                                             address: updatedFields['address'],
                                           )
                                           .then((_) {
-                                        // Kiểm tra sau khi update
                                         final userProvider =
                                             context.read<UserProvider>();
 
                                         if (userProvider.error == null) {
-                                          // Update thành công
                                           ScaffoldMessenger.of(context)
                                               .showSnackBar(
-                                            SnackBar(
+                                            const SnackBar(
                                               content: Text(
                                                   'Cập nhật thông tin thành công'),
                                               backgroundColor: Colors.green,
                                             ),
                                           );
-
-                                          // Reset trạng thái editing
                                           setState(() {
                                             _editingFields.updateAll(
                                                 (key, value) => false);
@@ -310,6 +312,24 @@ class _UserInformationState extends State<UserInformation> {
     bool editable = true,
   }) {
     bool isEditing = field != null && _editingFields[field] == true;
+    String? _validateInput(String? value) {
+      if (value == null || value.isEmpty) {
+        return 'Không được để trống';
+      }
+
+      if (label == "SĐT:") {
+        // Phone number validation
+        // Must start with 0, exactly 10 digits
+        if (!RegExp(r'^0\d{9}$').hasMatch(value)) {
+          return 'Số điện thoại phải bắt đầu bằng 0 và có đúng 10 chữ số';
+        }
+      } else if (label == "Email:") {
+        // Email validation
+        if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
+          return 'Email không đúng định dạng';
+        }
+      }
+    }
 
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
@@ -334,6 +354,13 @@ class _UserInformationState extends State<UserInformation> {
                   });
                 }
               },
+              validator: _validateInput,
+              maxLength: field == "phone" ? 10 : 100,
+              keyboardType:
+                  field == "phone" ? TextInputType.phone : TextInputType.text,
+              inputFormatters: field == "phone"
+                  ? [FilteringTextInputFormatter.digitsOnly]
+                  : null,
               decoration: InputDecoration(
                 contentPadding:
                     const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
