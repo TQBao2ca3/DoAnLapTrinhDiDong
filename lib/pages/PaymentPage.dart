@@ -346,23 +346,6 @@ class _PaymentPageState extends State<PaymentPage> {
               child: SingleChildScrollView(
                 child: Column(
                   children: [
-                    // Địa chỉ đã chọn với thiết kế mới
-                    Container(
-                      margin: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(20),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.grey.withOpacity(0.1),
-                            spreadRadius: 1,
-                            blurRadius: 10,
-                          ),
-                        ],
-                      ),
-                      child: _buildAddressSection(),
-                    ),
-
                     // Danh sách sản phẩm
                     Container(
                       margin: const EdgeInsets.symmetric(horizontal: 16),
@@ -386,7 +369,7 @@ class _PaymentPageState extends State<PaymentPage> {
 
                     // Voucher của Shop
                     Container(
-                      margin: const EdgeInsets.all(16),
+                      margin: const EdgeInsets.all(6),
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(20),
@@ -397,27 +380,6 @@ class _PaymentPageState extends State<PaymentPage> {
                             blurRadius: 10,
                           ),
                         ],
-                      ),
-                      child: ListTile(
-                        title: const Text(
-                          'Voucher của Shop',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        trailing: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              'Chọn hoặc nhập mã',
-                              style: TextStyle(color: Colors.blue[600]),
-                            ),
-                            Icon(Icons.chevron_right, color: Colors.blue[600]),
-                          ],
-                        ),
-                        onTap: () {
-                          // TODO: Implement voucher selection
-                        },
                       ),
                     ),
 
