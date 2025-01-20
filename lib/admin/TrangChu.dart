@@ -72,19 +72,19 @@ class _AdminOrdersScreenState extends State<AdminOrdersScreen> {
     // Lọc danh sách đơn hàng
     final filteredOrders = orders.where((order) {
       bool matchesSearch = searchQuery.isEmpty ||
-          order.id.toString().toLowerCase().contains(searchQuery.toLowerCase());
+          order.orderIds[0].toString().toLowerCase().contains(searchQuery.toLowerCase());
 
       bool matchesStatus = selectedStatus == 'all' ||
           (() {
             switch (selectedStatus) {
               case 'pending':
-                return order.status == 0;
+                return order.statuses[0] == 0;
               case 'approved':
-                return order.status == 1;
+                return order.statuses[0] == 1;
               case 'completed':
-                return order.status == 2;
+                return order.statuses[0] == 2;
               case 'cancelled':
-                return order.status == -1;
+                return order.statuses[0] == -1;
               default:
                 return true;
             }
@@ -153,34 +153,37 @@ class _AdminOrdersScreenState extends State<AdminOrdersScreen> {
                     icon: Icons.pending_actions_outlined,
                     title: 'Chờ xử lý',
                     value: orders
-                        .where((order) => order.status == 0)
+                        .where((order) => order.statuses.isNotEmpty && order.statuses[0] == 0)
                         .length
                         .toString(),
                     color: Colors.orange,
                   ),
+
                   _buildStatCard(
                     icon: Icons.check_circle_outline,
                     title: 'Đã duyệt',
                     value: orders
-                        .where((order) => order.status == 1)
+                        .where((order) => order.statuses.isNotEmpty && order.statuses[0] == 1)
                         .length
                         .toString(),
                     color: Colors.blue,
                   ),
+
                   _buildStatCard(
                     icon: Icons.verified_outlined,
                     title: 'Hoàn thành',
                     value: orders
-                        .where((order) => order.status == 2)
+                        .where((order) => order.statuses.isNotEmpty && order.statuses[0] == 2)
                         .length
                         .toString(),
                     color: Colors.green,
                   ),
+
                   _buildStatCard(
                     icon: Icons.cancel_outlined,
                     title: 'Đã hủy',
                     value: orders
-                        .where((order) => order.status == -1)
+                        .where((order) => order.statuses.isNotEmpty && order.statuses[0] == -1)
                         .length
                         .toString(),
                     color: Colors.red,
@@ -334,7 +337,7 @@ class _AdminOrdersScreenState extends State<AdminOrdersScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                if (order.img != null && order.img!.isNotEmpty)
+                if (order.imageUrls.isNotEmpty)
                   Container(
                     height: 100,
                     width: 100,
@@ -346,9 +349,11 @@ class _AdminOrdersScreenState extends State<AdminOrdersScreen> {
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(8),
                       child: Image.network(
-                        order.img!,
+                        order.imageUrls.isNotEmpty ? order.imageUrls[0] : '', // Safely handle empty list
                         fit: BoxFit.cover,
                         errorBuilder: (context, error, stackTrace) {
+                          // Optional: Log the error
+                          print('Image URL error: ${order.imageUrls.isNotEmpty ? order.imageUrls[0] : 'No image URL'}');
                           return Container(
                             color: Colors.grey[200],
                             child: Center(
@@ -366,7 +371,7 @@ class _AdminOrdersScreenState extends State<AdminOrdersScreen> {
                             child: CircularProgressIndicator(
                               value: loadingProgress.expectedTotalBytes != null
                                   ? loadingProgress.cumulativeBytesLoaded /
-                                      loadingProgress.expectedTotalBytes!
+                                  loadingProgress.expectedTotalBytes!
                                   : null,
                             ),
                           );
@@ -381,7 +386,7 @@ class _AdminOrdersScreenState extends State<AdminOrdersScreen> {
                     fontSize: 16,
                   ),
                 ),
-                _buildStatusBadge(order.status),
+                _buildStatusBadge(order.statuses[0]), // Lấy trạng thái đầu tiên
               ],
             ),
 
@@ -404,7 +409,7 @@ class _AdminOrdersScreenState extends State<AdminOrdersScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Ngày: ${order.date}',
+                  'Ngày: ${order.dates[0]}', // Lấy ngày đầu tiên
                   style: TextStyle(color: Colors.grey[600]),
                 ),
                 Text(
@@ -655,14 +660,15 @@ class _AdminOrdersScreenState extends State<AdminOrdersScreen> {
   Future<void> _showOrderDetails(
       BuildContext context, Order order, bool canEdit) async {
     try {
+      // Sử dụng cả user_id và order_id
       final response = await http.get(
-        Uri.parse('$apiUrl/ordersStatus/${order.id}/details'),
+        Uri.parse('$apiUrl/ordersStatus/${order.id}/order/${order.orderIds[0]}/details'),
       );
 
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(response.body);
         final List<OrderDetail> orderDetails =
-            data.map((json) => OrderDetail.fromJson(json)).toList();
+        data.map((json) => OrderDetail.fromJson(json)).toList();
 
         showModalBottomSheet(
           context: context,
@@ -721,7 +727,7 @@ class _AdminOrdersScreenState extends State<AdminOrdersScreen> {
                           _buildInfoRow(
                             icon: Icons.calendar_today_outlined,
                             label: 'Ngày đặt',
-                            value: order.date,
+                            value: order.dates[0],
                           ),
                         ],
                       ),
@@ -743,62 +749,62 @@ class _AdminOrdersScreenState extends State<AdminOrdersScreen> {
                   // Product List
                   ...orderDetails
                       .map((detail) => Card(
-                            margin: const EdgeInsets.only(bottom: 12),
-                            child: Padding(
-                              padding: const EdgeInsets.all(16),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    detail.name,
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16,
-                                    ),
-                                  ),
-                                  SizedBox(height: 8),
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Text('Số lượng: ${detail.quantity}'),
-                                      Text('Dung lượng: ${detail.storage}'),
-                                    ],
-                                  ),
-                                  SizedBox(height: 8),
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Text('Đơn giá:'),
-                                      Text(
-                                        formatCurrency(detail.price ?? 0),
-                                        style: TextStyle(
-                                          color: mainBlue,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  SizedBox(height: 8),
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Text('Thành tiền:'),
-                                      Text(
-                                        formatCurrency(detail.total ?? 0),
-                                        style: TextStyle(
-                                          color: mainBlue,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
+                    margin: const EdgeInsets.only(bottom: 12),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            detail.name,
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
                             ),
-                          ))
+                          ),
+                          SizedBox(height: 8),
+                          Row(
+                            mainAxisAlignment:
+                            MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text('Số lượng: ${detail.quantity}'),
+                              Text('Dung lượng: ${detail.storage}'),
+                            ],
+                          ),
+                          SizedBox(height: 8),
+                          Row(
+                            mainAxisAlignment:
+                            MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text('Đơn giá:'),
+                              Text(
+                                formatCurrency(detail.price ?? 0),
+                                style: TextStyle(
+                                  color: mainBlue,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: 8),
+                          Row(
+                            mainAxisAlignment:
+                            MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text('Thành tiền:'),
+                              Text(
+                                formatCurrency(detail.total ?? 0),
+                                style: TextStyle(
+                                  color: mainBlue,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ))
                       .toList(),
 
                   // Total Amount
@@ -897,7 +903,7 @@ class _AdminOrdersScreenState extends State<AdminOrdersScreen> {
   // Order Update Dialog (Mobile-friendly)
   void _showOrderUpdate(BuildContext context, Order order) {
     // Lấy trạng thái hiện tại của đơn hàng
-    int selectedStatus = order.status;
+    int selectedStatus = order.statuses[0];
 
     // Tạo danh sách các trạng thái có thể chuyển đến dựa trên trạng thái hiện tại
     List<DropdownMenuItem<int>> getAvailableStatusItems() {
@@ -982,7 +988,7 @@ class _AdminOrdersScreenState extends State<AdminOrdersScreen> {
                       _buildInfoRow(
                         icon: Icons.calendar_today_outlined,
                         label: 'Ngày đặt',
-                        value: order.date,
+                        value: order.dates[0], // Lấy ngày đầu tiên từ mảng dates
                       ),
                     ],
                   ),
@@ -1032,19 +1038,30 @@ class _AdminOrdersScreenState extends State<AdminOrdersScreen> {
                       headers: {
                         'Content-Type': 'application/json',
                       },
-                      body: json.encode({'status': selectedStatus}),
+                      body: json.encode({
+                        'status': selectedStatus,
+                        'order_id': order.orderIds[0] // Lấy order_id đầu tiên
+                      }),
                     );
+
+                    final responseBody = json.decode(response.body);
 
                     if (response.statusCode == 200) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
-                            content: Text('Cập nhật trạng thái thành công'),
-                            backgroundColor: Colors.green),
+                          content: Text(responseBody['message'] ?? 'Cập nhật trạng thái thành công'),
+                          backgroundColor: Colors.green,
+                        ),
                       );
                       Navigator.pop(context);
                       onUpdateSuccess();
                     } else {
-                      throw Exception('Failed to update order status');
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(responseBody['message'] ?? 'Cập nhật trạng thái thất bại'),
+                          backgroundColor: Colors.red,
+                        ),
+                      );
                     }
                   } catch (error) {
                     ScaffoldMessenger.of(context).showSnackBar(
