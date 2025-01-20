@@ -33,7 +33,7 @@ app.use('/api/cart', cartItemRoutes)
 
 
 
-app.get('/api/orders/:user_id', async (req, res) => {
+app.get('/api/ordersStatus/:user_id', async (req, res) => {
   try {
     const user_id = req.params.user_id;
 
@@ -127,7 +127,7 @@ app.get('/api/orders/:user_id', async (req, res) => {
 });
 
 // API endpoint để cập nhật status
-app.put('/api/orders/update-status/:orderId', async (req, res) => {
+app.put('/api/ordersStatus/update-status/:orderId', async (req, res) => {
   try {
     const orderId = req.params.orderId;
     const { status } = req.body;
@@ -146,7 +146,7 @@ app.put('/api/orders/update-status/:orderId', async (req, res) => {
 
 //admin
 // API lấy chi tiết đơn hàng
-app.get('/api/orders/:user_id/details', async (req, res) => {
+app.get('/api/ordersStatus/:user_id/details', async (req, res) => {
   try {
     const user_id = req.params.user_id;
 
@@ -239,7 +239,7 @@ app.put('/api/users/update', async (req, res) => {
   }
 });
 
-app.put('/api/orders/update/:user_id', async (req, res) => {
+app.put('/api/ordersStatus/update/:user_id', async (req, res) => {
   const user_id = req.params.user_id;
   const { status } = req.body;  // Lấy status từ request body
 
@@ -267,7 +267,7 @@ app.put('/api/orders/update/:user_id', async (req, res) => {
 });
 
 // API lấy danh sách đơn hàng
-app.get('/api/orders', async (req, res) => {
+app.get('/api/ordersStatus', async (req, res) => {
   try {
     const [orders] = await connection.promise().query(`
       SELECT

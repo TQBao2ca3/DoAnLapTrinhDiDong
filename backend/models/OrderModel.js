@@ -88,6 +88,18 @@ class OrderModel {
             throw error;
         }
     }
+    static async updateOrderStatus(orderId, status) {
+        try {
+            const [result] = await db.promise().query(
+                'UPDATE Orders SET status_order = ? WHERE order_id = ?',
+                [status, orderId]
+            );
+            return result;
+        } catch (error) {
+            console.error('Error updating order status:', error);
+            throw error;
+        }
+    }
 }
 
 module.exports = OrderModel;

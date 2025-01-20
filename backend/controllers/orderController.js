@@ -143,10 +143,8 @@ exports.getOrdersByUserId = async (req, res) => {
       const orderId = req.params.orderId;
       const { status } = req.body;
   
-      await connection.promise().query(
-        'UPDATE railway.Orders SET status_order = ? WHERE order_id = ?',
-        [status, orderId]
-      );
+      // Sử dụng OrderModel thay vì truy cập trực tiếp database
+      await OrderModel.updateOrderStatus(orderId, status);
   
       res.json({ message: 'Cập nhật trạng thái thành công' });
     } catch (error) {

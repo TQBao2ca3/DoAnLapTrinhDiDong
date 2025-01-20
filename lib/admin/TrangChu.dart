@@ -47,7 +47,7 @@ class _AdminOrdersScreenState extends State<AdminOrdersScreen> {
 
   Future<void> fetchOrders() async {
     try {
-      final response = await http.get(Uri.parse('$apiUrl/orders'));
+      final response = await http.get(Uri.parse('$apiUrl/ordersStatus'));
 
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(response.body);
@@ -334,8 +334,6 @@ class _AdminOrdersScreenState extends State<AdminOrdersScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-
-
                 if (order.img != null && order.img!.isNotEmpty)
                   Container(
                     height: 120,
@@ -368,7 +366,7 @@ class _AdminOrdersScreenState extends State<AdminOrdersScreen> {
                             child: CircularProgressIndicator(
                               value: loadingProgress.expectedTotalBytes != null
                                   ? loadingProgress.cumulativeBytesLoaded /
-                                  loadingProgress.expectedTotalBytes!
+                                      loadingProgress.expectedTotalBytes!
                                   : null,
                             ),
                           );
@@ -376,7 +374,6 @@ class _AdminOrdersScreenState extends State<AdminOrdersScreen> {
                       ),
                     ),
                   ),
-
                 Text(
                   'Đơn hàng #${order.id}',
                   style: TextStyle(
@@ -503,116 +500,116 @@ class _AdminOrdersScreenState extends State<AdminOrdersScreen> {
 
   // Admin Info Dialog
   void _showAdminInfoDialog() {
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          TextEditingController nameController = TextEditingController(
-            text: "${widget.user['username']}",
-          );
-          TextEditingController emailController = TextEditingController(
-            text: "${widget.user['email']}",
-          );
-          TextEditingController phoneController = TextEditingController(
-            text: "${widget.user['phone']}",
-          );
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        TextEditingController nameController = TextEditingController(
+          text: "${widget.user['username']}",
+        );
+        TextEditingController emailController = TextEditingController(
+          text: "${widget.user['email']}",
+        );
+        TextEditingController phoneController = TextEditingController(
+          text: "${widget.user['phone']}",
+        );
 
-          return AlertDialog(
-            title: Text('Thông tin Admin'),
-            content: SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  TextField(
-                    controller: nameController,
-                    decoration: InputDecoration(
-                      labelText: 'User Name',
-                      prefixIcon: Icon(Icons.person),
-                      border: OutlineInputBorder(),
-                    ),
+        return AlertDialog(
+          title: Text('Thông tin Admin'),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: nameController,
+                  decoration: InputDecoration(
+                    labelText: 'User Name',
+                    prefixIcon: Icon(Icons.person),
+                    border: OutlineInputBorder(),
                   ),
-                  SizedBox(height: 16),
-                  TextField(
-                    controller: emailController,
-                    decoration: InputDecoration(
-                      labelText: 'Email',
-                      prefixIcon: Icon(Icons.email),
-                      border: OutlineInputBorder(),
-                    ),
+                ),
+                SizedBox(height: 16),
+                TextField(
+                  controller: emailController,
+                  decoration: InputDecoration(
+                    labelText: 'Email',
+                    prefixIcon: Icon(Icons.email),
+                    border: OutlineInputBorder(),
                   ),
-                  SizedBox(height: 16),
-                  TextField(
-                    controller: phoneController,
-                    decoration: InputDecoration(
-                      labelText: 'Số điện thoại',
-                      prefixIcon: Icon(Icons.phone),
-                      border: OutlineInputBorder(),
-                    ),
+                ),
+                SizedBox(height: 16),
+                TextField(
+                  controller: phoneController,
+                  decoration: InputDecoration(
+                    labelText: 'Số điện thoại',
+                    prefixIcon: Icon(Icons.phone),
+                    border: OutlineInputBorder(),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: Text('Hủy'),
-              ),
-              ElevatedButton(
-                onPressed: () async {
-                  try {
-                    final response = await http.put(
-                      Uri.parse('$apiUrl/users/update'),
-                      headers: {
-                        'Content-Type': 'application/json',
-                      },
-                      body: json.encode({
-                        'username': nameController.text,
-                        'email': emailController.text,
-                        'phone': phoneController.text,
-                      }),
-                    );
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text('Hủy'),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                try {
+                  final response = await http.put(
+                    Uri.parse('$apiUrl/users/update'),
+                    headers: {
+                      'Content-Type': 'application/json',
+                    },
+                    body: json.encode({
+                      'username': nameController.text,
+                      'email': emailController.text,
+                      'phone': phoneController.text,
+                    }),
+                  );
 
-                    if (response.statusCode == 200) {
-                      // Parse response data
-                      final userData = json.decode(response.body);
+                  if (response.statusCode == 200) {
+                    // Parse response data
+                    final userData = json.decode(response.body);
 
-                      // Update widget state with new user data
-                      setState(() {
-                        widget.user['username'] = nameController.text;
-                        widget.user['email'] = emailController.text;
-                        widget.user['phone'] = phoneController.text;
-                      });
+                    // Update widget state with new user data
+                    setState(() {
+                      widget.user['username'] = nameController.text;
+                      widget.user['email'] = emailController.text;
+                      widget.user['phone'] = phoneController.text;
+                    });
 
-                      Navigator.of(context).pop();
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text('Cập nhật thông tin thành công!'),
-                          backgroundColor: Colors.green,
-                        ),
-                      );
-                    } else {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(
-                              'Lỗi: ${json.decode(response.body)['message']}'),
-                          backgroundColor: Colors.red,
-                        ),
-                      );
-                    }
-                  } catch (error) {
+                    Navigator.of(context).pop();
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
-                        content: Text('Đã có lỗi xảy ra: $error'),
+                        content: Text('Cập nhật thông tin thành công!'),
+                        backgroundColor: Colors.green,
+                      ),
+                    );
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                            'Lỗi: ${json.decode(response.body)['message']}'),
                         backgroundColor: Colors.red,
                       ),
                     );
                   }
-                },
-                child: Text('Lưu'),
-              ),
-            ],
-          );
-        },
-      );
+                } catch (error) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Đã có lỗi xảy ra: $error'),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                }
+              },
+              child: Text('Lưu'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   // Logout Confirmation Dialog
@@ -659,7 +656,7 @@ class _AdminOrdersScreenState extends State<AdminOrdersScreen> {
       BuildContext context, Order order, bool canEdit) async {
     try {
       final response = await http.get(
-        Uri.parse('$apiUrl/orders/${order.id}/details'),
+        Uri.parse('$apiUrl/ordersStatus/${order.id}/details'),
       );
 
       if (response.statusCode == 200) {
@@ -1031,7 +1028,7 @@ class _AdminOrdersScreenState extends State<AdminOrdersScreen> {
                 onPressed: () async {
                   try {
                     final response = await http.put(
-                      Uri.parse('$apiUrl/orders/update/${order.id}'),
+                      Uri.parse('$apiUrl/ordersStatus/update/${order.id}'),
                       headers: {
                         'Content-Type': 'application/json',
                       },
@@ -1042,8 +1039,7 @@ class _AdminOrdersScreenState extends State<AdminOrdersScreen> {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
                             content: Text('Cập nhật trạng thái thành công'),
-                            backgroundColor: Colors.green
-                        ),
+                            backgroundColor: Colors.green),
                       );
                       Navigator.pop(context);
                       onUpdateSuccess();

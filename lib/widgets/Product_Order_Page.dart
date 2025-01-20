@@ -136,7 +136,7 @@ class ProductOrderScreenState extends State<ProductOrderScreen>
     try {
       final response = await http
           .get(
-        Uri.parse('${ApiService.baseUrl}/orders/${widget.userId}'),
+        Uri.parse('${ApiService.baseUrl}/ordersStatus/${widget.userId}'),
       )
           .timeout(
         const Duration(seconds: 10),
