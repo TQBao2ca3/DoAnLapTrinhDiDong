@@ -97,10 +97,10 @@ class UserService {
         },
         body: jsonEncode(userData),
       );
-
-      return jsonDecode(response.body);
+      final responseData = jsonDecode(response.body);
+      return responseData;
     } catch (e) {
-      return {'success': false, 'message': 'Connection error: $e'};
+      return {'success': false, 'message': '$e'};
     }
   }
 

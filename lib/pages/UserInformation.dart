@@ -98,6 +98,21 @@ class _UserInformationState extends State<UserInformation> {
           phone: field == 'phone' ? value : null,
           address: field == 'address' ? value : null,
         );
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Lỗi'),
+          content: Text("Lỗi kết nối"),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Đóng'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   bool get isAnyFieldEditing => _editingFields.values.any((editing) => editing);
@@ -113,14 +128,14 @@ class _UserInformationState extends State<UserInformation> {
         print('User data: ${userProvider.userData}');
         print('Error: ${userProvider.error}');
 
-        if (userProvider.error != null) {
-          return Center(
-            child: Text(
-              'Error: ${userProvider.error}',
-              style: const TextStyle(color: Colors.red),
-            ),
-          );
-        }
+        // if (userProvider.error != null) {
+        //   return Center(
+        //     child: Text(
+        //       'Error: ${userProvider.error}',
+        //       style: const TextStyle(color: Colors.red),
+        //     ),
+        //   );
+        // }
         return Scaffold(
           appBar: AppBar(
             title: Text(
@@ -188,6 +203,42 @@ class _UserInformationState extends State<UserInformation> {
                           ElevatedButton(
                             onPressed: isAnyFieldEditing
                                 ? () {
+                                    // if (userProvider.error
+                                    //         ?.contains('message') ==
+                                    //     "Email already exists") {
+                                    //   AlertDialog(
+                                    //     title: const Text('Cập nhật thất bại'),
+                                    //     content:
+                                    //         const Text('Email đã được sử dụng'),
+                                    //     actions: <Widget>[
+                                    //       TextButton(
+                                    //         onPressed: () {
+                                    //           Navigator.of(context)
+                                    //               .pop(); // Đóng dialog
+                                    //         },
+                                    //         child: Text('OK'),
+                                    //       ),
+                                    //     ],
+                                    //   );
+                                    // } else if (userProvider.error
+                                    //         ?.contains('message') ==
+                                    //     "Phone already exists") {
+                                    //   AlertDialog(
+                                    //     title: const Text('Cập nhật thất bại'),
+                                    //     content: const Text(
+                                    //         'Số điện thoại đã được sử dụng'),
+                                    //     actions: <Widget>[
+                                    //       TextButton(
+                                    //         onPressed: () {
+                                    //           Navigator.of(context)
+                                    //               .pop(); // Đóng dialog
+                                    //         },
+                                    //         child: Text('OK'),
+                                    //       ),
+                                    //     ],
+                                    //   );
+                                    // }
+                                    userProvider.error?.contains('message');
                                     // Kiểm tra form validation nếu cần
                                     if (_formKey.currentState!.validate()) {
                                       // Tạo map chứa các field cần update
@@ -381,7 +432,9 @@ class _UserInformationState extends State<UserInformation> {
           ),
           if (editable)
             TextButton(
-              onPressed: () => _toggleEdit(field!),
+              onPressed: () => isEditing
+                  ? {cancelUpdate = true, _toggleEdit(field)}
+                  : _toggleEdit(field!),
               child: Text(
                 isEditing ? 'Hủy' : 'Sửa',
                 style: const TextStyle(

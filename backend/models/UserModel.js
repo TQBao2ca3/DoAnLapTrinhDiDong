@@ -18,6 +18,14 @@ const User = {
             return callback(null, results[0]);
         })
     },
+    findByEmailUpdate: (email, callback) => {
+        const query = 'SELECT * FROM Users WHERE email = ?';
+        db.query(query, [email], (err, results) => {
+            if (err) return callback(err, null);
+            if (results.length >= 1) return callback(null, null);
+            return callback(null, results[0]);
+        })
+    },
     findByPhone: (phone, callback) => {
         const query = 'SELECT * FROM Users WHERE phone = ?';
         db.query(query, [phone], (err, results) => {
@@ -44,7 +52,6 @@ const User = {
             return callback(null, result);
         });
     },
-    // UserModel.js
     getProfileById: (userId, callback) => {
         const query = `
         SELECT user_id, username, full_name, email, phone, address

@@ -162,44 +162,8 @@ exports.getProfile = (req, res) => {
     });
 };
 exports.updateProfile = async (req, res) => {
-    const { full_name,email,phone,address} = req.body;
+
     
-        // Kiểm tra email đã tồn tại chưa
-        User.findByEmail(email, (err, existingEmail) => {
-            if (err) return res.status(500).send({ message: 'Server error' });
-            if (existingEmail) return res.status(400).send({ message: 'Email already exists' });
-            User.findByPhone(phone, (err, existingPhone) => {
-                if (err) return res.status(500).send({ message: 'Server error' });
-                if (existingPhone) return res.status(400).send({ message: 'Phone already exists' });
-                const newUser = {
-                    username: username,
-                    password: password, // Nên mã hóa password trước khi lưu
-                    email: email,
-                    full_name: full_name,
-                    phone: phone,
-                    address: address,
-                    created_at: new Date()
-                };
-
-                // Lưu user vào database
-                User.create(newUser, (err, user) => {
-                    if (err) return res.status(500).send({ message: 'Error creating user' });
-
-                    // Tạo JWT token cho user mới
-                    const token = jwt.sign(
-                        { id: user.id, username: user.username },
-                        SECRET_KEY,
-                        { expiresIn: '1h' }
-                    );
-
-                    // Trả về thông báo thành công và token
-                    res.status(201).send({
-                        message: 'Registration successful',
-                        token: token
-                    });
-                });
-            });
-        });
   try {
     const userId = req.user.id;
     const { full_name, email, phone, address } = req.body;
@@ -228,7 +192,7 @@ exports.updateProfile = async (req, res) => {
         console.error('Update error:', err);
         return res.status(500).json({ 
           success: false, 
-          message: 'Database update error' 
+          message: 'Trùng email hoặc password' 
         });
       }
 

@@ -149,7 +149,7 @@ class UserProvider with ChangeNotifier {
       if (address != null) updateData['address'] = address;
 
       final response = await _userService.updateUserProfile(updateData);
-
+      print(response['success']);
       if (response['success'] == true) {
         _userData = response['data'];
         _error = null;
