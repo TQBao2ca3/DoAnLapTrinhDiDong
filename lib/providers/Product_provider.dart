@@ -7,6 +7,7 @@ class ProductProvider with ChangeNotifier {
   List<Product> _products = [];
   List<Product> _filteredProducts = [];
   bool _isLoading = false;
+  String _searchQuery = '';
 
   List<Product> get products =>
       _selectedBrand.isEmpty ? _products : _filteredProducts;
@@ -47,4 +48,7 @@ class ProductProvider with ChangeNotifier {
     _filteredProducts = [];
     notifyListeners();
   }
+
+
+
 }

@@ -24,7 +24,8 @@ class _CartPageState extends State<CartPage> {
       selectedItems.add(CartItem(
         cart_id: cartItem.cart_id,
         cart_item_id: cartItem.cart_item_id,
-        product_detail_id: cartItem.product_detail_id, // Thêm product_detail_id
+        product_detail_id: cartItem.product_detail_id,
+        // Thêm product_detail_id
         description: cartItem.description,
         price: cartItem.price,
         quantity: cartItem.quantity,
@@ -141,428 +142,417 @@ class _CartPageState extends State<CartPage> {
                 ),
 
                 // Main Content
+                // Main Content
                 Expanded(
                   child: cartItems.isEmpty
                       ? Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                Icons.shopping_cart_outlined,
-                                size: 80,
-                                color: Colors.blue[200],
-                              ),
-                              const SizedBox(height: 16),
-                              const Text(
-                                "Giỏ hàng của bạn đang trống",
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              const SizedBox(height: 8),
-                              Text(
-                                "Hãy thêm sản phẩm vào giỏ hàng",
-                                style: TextStyle(
-                                  color: Colors.grey[600],
-                                ),
-                              ),
-                            ],
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.shopping_cart_outlined,
+                          size: 80,
+                          color: Colors.blue[200],
+                        ),
+                        const SizedBox(height: 16),
+                        const Text(
+                          "Giỏ hàng của bạn đang trống",
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
                           ),
-                        )
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          "Hãy thêm sản phẩm vào giỏ hàng",
+                          style: TextStyle(
+                            color: Colors.grey[600],
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
                       : ListView.builder(
-                          padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
-                          itemCount: cartItems.length,
-                          itemBuilder: (context, index) {
-                            CartItem cartItem = cartItems[index];
-                            double totalPrice =
-                                cartItem.price * cartItem.quantity.toDouble();
+                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
+                    itemCount: cartItems.length,
+                    itemBuilder: (context, index) {
+                      CartItem cartItem = cartItems[index];
+                      double totalPrice = cartItem.price * cartItem.quantity.toDouble();
 
-                            return Container(
-                              margin: const EdgeInsets.only(bottom: 16),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(20),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.grey.withOpacity(0.1),
-                                    spreadRadius: 1,
-                                    blurRadius: 10,
-                                  ),
-                                ],
-                              ),
-                              child: Stack(
+                      return Container(
+                        margin: const EdgeInsets.only(bottom: 16),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(15),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.grey.withOpacity(0.1),
+                              spreadRadius: 1,
+                              blurRadius: 8,
+                            ),
+                          ],
+                        ),
+                        child: Stack(
+                          children: [
+                            // Main Item Content
+                            Padding(
+                              padding: const EdgeInsets.fromLTRB(8, 8, 32, 8),
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  // Delete Button
-                                  Positioned(
-                                    top: 8,
-                                    right: 8,
-                                    child: IconButton(
-                                      icon: Icon(
-                                        Icons.delete_outline,
-                                        color: Colors.red[400],
+                                  // Checkbox
+                                  SizedBox(
+                                    width: 32,
+                                    height: 32,
+                                    child: Transform.scale(
+                                      scale: 1.1,
+                                      child: Checkbox(
+                                        value: _selectedProductIndices.contains(index),
+                                        activeColor: Colors.blue[600],
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(4),
+                                        ),
+                                        onChanged: (bool? value) {
+                                          _toggleProductSelection(index);
+                                        },
                                       ),
-                                      onPressed: () {
-                                        showDialog(
-                                          context: context,
-                                          builder: (context) => AlertDialog(
-                                            shape: RoundedRectangleBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(20),
-                                            ),
-                                            title: Row(
-                                              children: [
-                                                Icon(Icons.warning,
-                                                    color: Colors.orange[700]),
-                                                const SizedBox(width: 8),
-                                                const Text('Xác nhận xóa'),
-                                              ],
-                                            ),
-                                            content: const Text(
-                                                'Bạn có chắc muốn xóa sản phẩm này?'),
-                                            actions: [
-                                              TextButton(
-                                                onPressed: () =>
-                                                    Navigator.pop(context),
-                                                child: Text(
-                                                  'Hủy',
-                                                  style: TextStyle(
-                                                      color: Colors.grey[600]),
-                                                ),
-                                              ),
-                                              ElevatedButton(
-                                                onPressed: () async {
-                                                  try {
-                                                    await cartProvider
-                                                        .remove(cartItem);
-                                                    Navigator.pop(context);
-                                                    // Hiển thị thông báo thành công
-                                                    ScaffoldMessenger.of(
-                                                            context)
-                                                        .showSnackBar(
-                                                      const SnackBar(
-                                                        content: Text(
-                                                            'Đã xóa sản phẩm khỏi giỏ hàng'),
-                                                        backgroundColor:
-                                                            Colors.green,
-                                                      ),
-                                                    );
-                                                  } catch (e) {
-                                                    Navigator.pop(context);
-                                                    // Hiển thị thông báo lỗi
-                                                    ScaffoldMessenger.of(
-                                                            context)
-                                                        .showSnackBar(
-                                                      const SnackBar(
-                                                        content: Text(
-                                                            'Có lỗi xảy ra khi xóa sản phẩm'),
-                                                        backgroundColor:
-                                                            Colors.red,
-                                                      ),
-                                                    );
-                                                  }
-                                                },
-                                                style: ElevatedButton.styleFrom(
-                                                  backgroundColor:
-                                                      Colors.red[400],
-                                                  shape: RoundedRectangleBorder(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            10),
-                                                  ),
-                                                ),
-                                                child: const Text(
-                                                  'Xóa',
-                                                  style: TextStyle(
-                                                      color: Colors.white),
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        );
-                                      },
                                     ),
                                   ),
 
-                                  // Main Content
-                                  Padding(
-                                    padding: const EdgeInsets.all(16),
-                                    child: Row(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
+                                  // Product Image
+                                  Container(
+                                    width: 70,
+                                    height: 70,
+                                    margin: const EdgeInsets.symmetric(horizontal: 8),
+                                    child: ClipRRect(
+                                      borderRadius: BorderRadius.circular(8),
+                                      child: Image.network(
+                                        cartItem.image_url,
+                                        fit: BoxFit.cover,
+                                      ),
+                                    ),
+                                  ),
+
+                                  // Product Details
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      mainAxisSize: MainAxisSize.min,
                                       children: [
-                                        // Checkbox
-                                        Transform.scale(
-                                          scale: 1.2,
-                                          child: Checkbox(
-                                            value: _selectedProductIndices
-                                                .contains(index),
-                                            activeColor: Colors.blue[600],
-                                            shape: RoundedRectangleBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(4),
-                                            ),
-                                            onChanged: (bool? value) {
-                                              _toggleProductSelection(index);
-                                            },
+                                        Text(
+                                          cartItem.description,
+                                          maxLines: 2,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: const TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.bold,
                                           ),
                                         ),
-                                        const SizedBox(width: 8),
-
-                                        // Product Image
-                                        ClipRRect(
-                                          borderRadius:
-                                              BorderRadius.circular(12),
-                                          child: Image.network(
-                                            cartItem.image_url,
-                                            width: 80,
-                                            height: 80,
-                                            fit: BoxFit.cover,
+                                        const SizedBox(height: 4),
+                                        Text(
+                                          "Màu: ${cartItem.colors}, ${cartItem.storage}",
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            color: Colors.grey[600],
                                           ),
                                         ),
-                                        const SizedBox(width: 16),
-
-                                        // Product Details
-                                        Expanded(
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Text(
-                                                cartItem.description,
-                                                maxLines: 2,
-                                                overflow: TextOverflow.ellipsis,
-                                                style: const TextStyle(
-                                                  fontSize: 16,
-                                                  fontWeight: FontWeight.bold,
-                                                ),
+                                        const SizedBox(height: 4),
+                                        Text(
+                                          _formatCurrency(totalPrice),
+                                          style: TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.blue[700],
+                                          ),
+                                        ),
+                                        const SizedBox(height: 8),
+                                        Row(
+                                          children: [
+                                            Container(
+                                              decoration: BoxDecoration(
+                                                color: Colors.grey[100],
+                                                borderRadius: BorderRadius.circular(15),
                                               ),
-                                              const SizedBox(height: 4),
-                                              Text(
-                                                "Màu sắc: ${cartItem.colors}, ${cartItem.storage}",
-                                                style: TextStyle(
-                                                  fontSize: 14,
-                                                  color: Colors.grey[600],
-                                                ),
-                                              ),
-                                              const SizedBox(height: 8),
-                                              Text(
-                                                _formatCurrency(totalPrice),
-                                                style: TextStyle(
-                                                  fontSize: 16,
-                                                  fontWeight: FontWeight.bold,
-                                                  color: Colors.blue[700],
-                                                ),
-                                              ),
-                                              const SizedBox(height: 8),
-
-                                              // Quantity Controls
-                                              Container(
-                                                padding:
-                                                    const EdgeInsets.symmetric(
-                                                  horizontal: 8,
-                                                  vertical: 4,
-                                                ),
-                                                decoration: BoxDecoration(
-                                                  color: Colors.grey[100],
-                                                  borderRadius:
-                                                      BorderRadius.circular(20),
-                                                ),
-                                                child: Row(
-                                                  mainAxisSize:
-                                                      MainAxisSize.min,
-                                                  children: [
-                                                    IconButton(
-                                                      padding: EdgeInsets.zero,
-                                                      constraints:
-                                                          const BoxConstraints(),
+                                              child: Row(
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: [
+                                                  SizedBox(
+                                                    width: 28,
+                                                    height: 28,
+                                                    child: IconButton(
                                                       icon: Icon(
-                                                        Icons
-                                                            .remove_circle_outline,
+                                                        Icons.remove,
+                                                        size: 16,
                                                         color: Colors.blue[700],
                                                       ),
+                                                      padding: EdgeInsets.zero,
                                                       onPressed: () async {
-                                                        if (cartItem.quantity >
-                                                            1) {
+                                                        if (cartItem.quantity > 1) {
                                                           try {
-                                                            await cartProvider
-                                                                .updateQuantity(
-                                                                    cartItem,
-                                                                    cartItem.quantity -
-                                                                        1);
+                                                            await cartProvider.updateQuantity(
+                                                                cartItem,
+                                                                cartItem.quantity - 1);
                                                           } catch (e) {
-                                                            ScaffoldMessenger
-                                                                    .of(context)
+                                                            ScaffoldMessenger.of(context)
                                                                 .showSnackBar(
                                                               const SnackBar(
                                                                 content: Text(
                                                                     'Có lỗi xảy ra khi cập nhật số lượng'),
-                                                                backgroundColor:
-                                                                    Colors.red,
+                                                                backgroundColor: Colors.red,
                                                               ),
                                                             );
                                                           }
                                                         } else {
-                                                          // Hiện dialog xác nhận xóa khi số lượng = 1
                                                           showDialog(
                                                             context: context,
                                                             builder:
                                                                 (context) =>
-                                                                    AlertDialog(
-                                                              shape:
+                                                                AlertDialog(
+                                                                  shape:
                                                                   RoundedRectangleBorder(
-                                                                borderRadius:
+                                                                    borderRadius:
                                                                     BorderRadius
                                                                         .circular(
-                                                                            20),
-                                                              ),
-                                                              title: Row(
-                                                                children: [
-                                                                  Icon(
-                                                                      Icons
-                                                                          .warning,
-                                                                      color: Colors
+                                                                        20),
+                                                                  ),
+                                                                  title: Row(
+                                                                    children: [
+                                                                      Icon(
+                                                                          Icons
+                                                                              .warning,
+                                                                          color: Colors
                                                                               .orange[
                                                                           700]),
-                                                                  const SizedBox(
-                                                                      width: 8),
-                                                                  const Text(
-                                                                      'Xác nhận xóa'),
-                                                                ],
-                                                              ),
-                                                              content: const Text(
-                                                                  'Bạn có chắc muốn xóa sản phẩm này?'),
-                                                              actions: [
-                                                                TextButton(
-                                                                  onPressed: () =>
-                                                                      Navigator.pop(
-                                                                          context),
-                                                                  child: Text(
-                                                                    'Hủy',
-                                                                    style: TextStyle(
-                                                                        color: Colors
-                                                                            .grey[600]),
+                                                                      const SizedBox(
+                                                                          width: 8),
+                                                                      const Text(
+                                                                          'Xác nhận xóa'),
+                                                                    ],
                                                                   ),
-                                                                ),
-                                                                ElevatedButton(
-                                                                  onPressed:
-                                                                      () async {
-                                                                    try {
-                                                                      await cartProvider
-                                                                          .remove(
+                                                                  content: const Text(
+                                                                      'Bạn có chắc muốn xóa sản phẩm này?'),
+                                                                  actions: [
+                                                                    TextButton(
+                                                                      onPressed: () =>
+                                                                          Navigator.pop(
+                                                                              context),
+                                                                      child: Text(
+                                                                        'Hủy',
+                                                                        style: TextStyle(
+                                                                            color: Colors
+                                                                                .grey[600]),
+                                                                      ),
+                                                                    ),
+                                                                    ElevatedButton(
+                                                                      onPressed:
+                                                                          () async {
+                                                                        try {
+                                                                          await cartProvider
+                                                                              .remove(
                                                                               cartItem);
-                                                                      Navigator.pop(
-                                                                          context);
-                                                                      ScaffoldMessenger.of(
+                                                                          Navigator.pop(
+                                                                              context);
+                                                                          ScaffoldMessenger.of(
                                                                               context)
-                                                                          .showSnackBar(
-                                                                        const SnackBar(
-                                                                          content:
+                                                                              .showSnackBar(
+                                                                            const SnackBar(
+                                                                              content:
                                                                               Text('Đã xóa sản phẩm khỏi giỏ hàng'),
-                                                                          backgroundColor:
+                                                                              backgroundColor:
                                                                               Colors.green,
-                                                                        ),
-                                                                      );
-                                                                    } catch (e) {
-                                                                      Navigator.pop(
-                                                                          context);
-                                                                      ScaffoldMessenger.of(
+                                                                            ),
+                                                                          );
+                                                                        } catch (e) {
+                                                                          Navigator.pop(
+                                                                              context);
+                                                                          ScaffoldMessenger.of(
                                                                               context)
-                                                                          .showSnackBar(
-                                                                        const SnackBar(
-                                                                          content:
+                                                                              .showSnackBar(
+                                                                            const SnackBar(
+                                                                              content:
                                                                               Text('Có lỗi xảy ra khi xóa sản phẩm'),
-                                                                          backgroundColor:
+                                                                              backgroundColor:
                                                                               Colors.red,
-                                                                        ),
-                                                                      );
-                                                                    }
-                                                                  },
-                                                                  style: ElevatedButton
-                                                                      .styleFrom(
-                                                                    backgroundColor:
+                                                                            ),
+                                                                          );
+                                                                        }
+                                                                      },
+                                                                      style: ElevatedButton
+                                                                          .styleFrom(
+                                                                        backgroundColor:
                                                                         Colors.red[
-                                                                            400],
-                                                                    shape:
+                                                                        400],
+                                                                        shape:
                                                                         RoundedRectangleBorder(
-                                                                      borderRadius:
+                                                                          borderRadius:
                                                                           BorderRadius.circular(
                                                                               10),
-                                                                    ),
-                                                                  ),
-                                                                  child:
+                                                                        ),
+                                                                      ),
+                                                                      child:
                                                                       const Text(
-                                                                    'Xóa',
-                                                                    style: TextStyle(
-                                                                        color: Colors
-                                                                            .white),
-                                                                  ),
+                                                                        'Xóa',
+                                                                        style: TextStyle(
+                                                                            color: Colors
+                                                                                .white),
+                                                                      ),
+                                                                    ),
+                                                                  ],
                                                                 ),
-                                                              ],
-                                                            ),
                                                           );
                                                         }
                                                       },
                                                     ),
-                                                    Padding(
-                                                      padding: const EdgeInsets
-                                                          .symmetric(
-                                                          horizontal: 12),
-                                                      child: Text(
-                                                        cartItem.quantity
-                                                            .toString(),
-                                                        style: const TextStyle(
-                                                          fontSize: 16,
-                                                          fontWeight:
-                                                              FontWeight.bold,
-                                                        ),
+                                                  ),
+                                                  SizedBox(
+                                                    width: 32,
+                                                    child: Text(
+                                                      '${cartItem.quantity}',
+                                                      textAlign: TextAlign.center,
+                                                      style: const TextStyle(
+                                                        fontSize: 14,
+                                                        fontWeight: FontWeight.bold,
                                                       ),
                                                     ),
-                                                    IconButton(
-                                                      padding: EdgeInsets.zero,
-                                                      constraints:
-                                                          const BoxConstraints(),
+                                                  ),
+                                                  SizedBox(
+                                                    width: 28,
+                                                    height: 28,
+                                                    child: IconButton(
                                                       icon: Icon(
-                                                        Icons
-                                                            .add_circle_outline,
+                                                        Icons.add,
+                                                        size: 16,
                                                         color: Colors.blue[700],
                                                       ),
+                                                      padding: EdgeInsets.zero,
                                                       onPressed: () async {
                                                         try {
-                                                          await cartProvider
-                                                              .updateQuantity(
-                                                                  cartItem,
-                                                                  cartItem.quantity +
-                                                                      1);
+                                                          await cartProvider.updateQuantity(
+                                                              cartItem,
+                                                              cartItem.quantity + 1);
                                                         } catch (e) {
-                                                          // Hiển thị thông báo lỗi
-                                                          ScaffoldMessenger.of(
-                                                                  context)
+                                                          ScaffoldMessenger.of(context)
                                                               .showSnackBar(
                                                             const SnackBar(
                                                               content: Text(
                                                                   'Có lỗi xảy ra khi cập nhật số lượng'),
-                                                              backgroundColor:
-                                                                  Colors.red,
+                                                              backgroundColor: Colors.red,
                                                             ),
                                                           );
                                                         }
                                                       },
                                                     ),
-                                                  ],
-                                                ),
+                                                  ),
+                                                ],
                                               ),
-                                            ],
-                                          ),
+                                            ),
+                                          ],
                                         ),
                                       ],
                                     ),
                                   ),
                                 ],
                               ),
-                            );
-                          },
+                            ),
+
+                            // Delete Button
+                            Positioned(
+                              top: 8,
+                              right: 8,
+                              child: IconButton(
+                                icon: Icon(
+                                  Icons.delete_outline,
+                                  size: 20,
+                                  color: Colors.red[400],
+                                ),
+                                padding: EdgeInsets.zero,
+                                constraints: const BoxConstraints(),
+                                onPressed: () {
+                                  showDialog(
+                                    context: context,
+                                    builder: (context) => AlertDialog(
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius:
+                                        BorderRadius.circular(20),
+                                      ),
+                                      title: Row(
+                                        children: [
+                                          Icon(Icons.warning,
+                                              color: Colors.orange[700]),
+                                          const SizedBox(width: 8),
+                                          const Text('Xác nhận xóa'),
+                                        ],
+                                      ),
+                                      content: const Text(
+                                          'Bạn có chắc muốn xóa sản phẩm này?'),
+                                      actions: [
+                                        TextButton(
+                                          onPressed: () =>
+                                              Navigator.pop(context),
+                                          child: Text(
+                                            'Hủy',
+                                            style: TextStyle(
+                                                color: Colors.grey[600]),
+                                          ),
+                                        ),
+                                        ElevatedButton(
+                                          onPressed: () async {
+                                            try {
+                                              await cartProvider
+                                                  .remove(cartItem);
+                                              Navigator.pop(context);
+                                              // Hiển thị thông báo thành công
+                                              ScaffoldMessenger.of(
+                                                  context)
+                                                  .showSnackBar(
+                                                const SnackBar(
+                                                  content: Text(
+                                                      'Đã xóa sản phẩm khỏi giỏ hàng'),
+                                                  backgroundColor:
+                                                  Colors.green,
+                                                ),
+                                              );
+                                            } catch (e) {
+                                              Navigator.pop(context);
+                                              // Hiển thị thông báo lỗi
+                                              ScaffoldMessenger.of(
+                                                  context)
+                                                  .showSnackBar(
+                                                const SnackBar(
+                                                  content: Text(
+                                                      'Có lỗi xảy ra khi xóa sản phẩm'),
+                                                  backgroundColor:
+                                                  Colors.red,
+                                                ),
+                                              );
+                                            }
+                                          },
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor:
+                                            Colors.red[400],
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                              BorderRadius.circular(
+                                                  10),
+                                            ),
+                                          ),
+                                          child: const Text(
+                                            'Xóa',
+                                            style: TextStyle(
+                                                color: Colors.white),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                          ],
                         ),
+                      );
+                    },
+                  ),
                 ),
 
                 // Bottom Bar

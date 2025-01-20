@@ -9,124 +9,157 @@ class ItemsWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
-    int crossAxisCount = (screenWidth ~/ 200);
-    double childAspectRatio = 0.60;
+
+    int crossAxisCount;
+    if (screenWidth < 600) {
+      crossAxisCount = 2;
+    } else if (screenWidth < 900) {
+      crossAxisCount = 3;
+    } else {
+      crossAxisCount = 4;
+    }
+
+    // Tăng childAspectRatio để tăng chiều cao của item
+    double childAspectRatio = 0.65;
 
     return GridView.count(
       crossAxisCount: crossAxisCount,
       childAspectRatio: childAspectRatio,
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+      mainAxisSpacing: 10,
+      crossAxisSpacing: 10,
       children: products.map((product) {
         return Container(
-          padding: const EdgeInsets.all(8),
-          margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.circular(15),
+            borderRadius: BorderRadius.circular(12),
             boxShadow: [
               BoxShadow(
-                color: Colors.grey.withOpacity(0.2),
+                color: Colors.grey.withOpacity(0.15),
                 spreadRadius: 1,
                 blurRadius: 5,
-                offset: const Offset(0, 3),
+                offset: const Offset(0, 2),
               ),
             ],
           ),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(5),
-                    decoration: BoxDecoration(
-                      color: Colors.red,
-                      borderRadius: BorderRadius.circular(15),
-                    ),
-                    child: const Text(
-                      "-20%",
-                      style: const TextStyle(
-                        fontSize: 14,
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                  const Icon(
-                    Icons.favorite_border,
-                    color: Colors.red,
-                  ),
-                ],
-              ),
-              InkWell(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => ItemPage(
-                        product: product,
-                      ),
-                    ),
-                  );
-                },
-                child: Container(
-                  margin: const EdgeInsets.only(top: 10, bottom: 10),
-                  child: Center(
-                    child: Image.network(
-                      product.image_url,
-                      height: 120,
-                      width: 120,
-                      fit: BoxFit.contain,
-                    ),
-                  ),
-                ),
-              ),
-              Text(
-                product.name,
-                style: const TextStyle(
-                  fontSize: 16,
-                  color: Color(0xFF4C53A5),
-                  fontWeight: FontWeight.bold,
-                ),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-              ),
-              const SizedBox(height: 5),
-              Expanded(
-                child: Text(
-                  product.description,
-                  style: const TextStyle(
-                    fontSize: 12,
-                    color: Colors.black54,
-                  ),
-                  maxLines: 3,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-              const Padding(
-                padding: EdgeInsets.symmetric(vertical: 10),
+              // Discount và favorite - giảm padding
+              Padding(
+                padding: const EdgeInsets.all(6.0),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      "Xem chi tiết",
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                      decoration: BoxDecoration(
                         color: Colors.red,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: const Text(
+                        "-20%",
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
-                    Text(
-                      "Đã bán 2.5k",
-                      style: TextStyle(
-                        fontSize: 10,
-                        color: Colors.grey,
-                        fontWeight: FontWeight.bold,
-                      ),
+                    const Icon(
+                      Icons.favorite_border,
+                      color: Colors.red,
+                      size: 18,
                     ),
                   ],
+                ),
+              ),
+
+              // Hình ảnh sản phẩm
+              Flexible(
+                flex: 5,
+                child: InkWell(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ItemPage(product: product),
+                      ),
+                    );
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    child: Center(
+                      child: Image.network(
+                        product.image_url,
+                        height: 90,
+                        width: 90,
+                        fit: BoxFit.contain,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+
+              // Thông tin sản phẩm
+              Flexible(
+                flex: 6,
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(8, 4, 8, 8),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Tên sản phẩm
+                      Text(
+                        product.name,
+                        style: const TextStyle(
+                          fontSize: 13,
+                          color: Color(0xFF4C53A5),
+                          fontWeight: FontWeight.bold,
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 3),
+
+                      // Mô tả sản phẩm
+                      Text(
+                        product.description,
+                        style: const TextStyle(
+                          fontSize: 11,
+                          color: Colors.black54,
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+
+                      const Spacer(),
+
+                      // Chi tiết và số lượng đã bán
+                      const Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            "Xem chi tiết",
+                            style: TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.red,
+                            ),
+                          ),
+                          Text(
+                            "Đã bán 2.5k",
+                            style: TextStyle(
+                              fontSize: 9,
+                              color: Colors.grey,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ],

@@ -207,6 +207,7 @@ class _ItemPageState extends State<ItemPage> {
                       ),
 
                       // Price, Favorite and Sold Count
+                      // Phần code liên quan đến container chứa giá và thông tin
                       Container(
                         margin: const EdgeInsets.symmetric(horizontal: 16),
                         padding: const EdgeInsets.all(16),
@@ -222,12 +223,18 @@ class _ItemPageState extends State<ItemPage> {
                           ],
                         ),
                         child: Column(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Row(
+                            // Row chứa giá và discount
+                            Wrap(
+                              alignment: WrapAlignment.spaceBetween,
+                              crossAxisAlignment: WrapCrossAlignment.center,
                               children: [
                                 Text(
-                                  "đ${widget.product.price.toString().replaceAllMapped(RegExp(r'(\d)(?=(\d{3})+(?!\d))'), (match) => '${match[1]}.')}",
+                                  "đ${widget.product.price.toString().replaceAllMapped(
+                                      RegExp(r'(\d)(?=(\d{3})+(?!\d))'),
+                                          (match) => '${match[1]}.'
+                                  )}",
                                   style: TextStyle(
                                     fontSize: 20,
                                     fontWeight: FontWeight.bold,
@@ -237,8 +244,7 @@ class _ItemPageState extends State<ItemPage> {
                                 if (widget.product.discount > 0)
                                   Container(
                                     margin: const EdgeInsets.only(left: 8),
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 8, vertical: 4),
+                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                                     decoration: BoxDecoration(
                                       color: Colors.red[50],
                                       borderRadius: BorderRadius.circular(8),
@@ -253,16 +259,12 @@ class _ItemPageState extends State<ItemPage> {
                                   ),
                               ],
                             ),
-                            const SizedBox(
-                              height: 10,
-                            ),
+                            const SizedBox(height: 10),
+                            // Container cho số lượng đã bán
                             Align(
                               alignment: Alignment.centerRight,
                               child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 12,
-                                  vertical: 6,
-                                ),
+                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                                 decoration: BoxDecoration(
                                   color: Colors.blue[50],
                                   borderRadius: BorderRadius.circular(20),
@@ -272,10 +274,11 @@ class _ItemPageState extends State<ItemPage> {
                                   style: TextStyle(
                                     color: Colors.blue[700],
                                     fontWeight: FontWeight.bold,
+                                    fontSize: 13,
                                   ),
                                 ),
                               ),
-                            )
+                            ),
                           ],
                         ),
                       ),
@@ -301,38 +304,48 @@ class _ItemPageState extends State<ItemPage> {
                             const Text(
                               "Màu sắc",
                               style: TextStyle(
-                                fontSize: 18,
+                                fontSize: 16,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
                             const SizedBox(height: 12),
-                            Wrap(
-                              spacing: 10,
-                              children: widget.product.colors.map((colors) {
-                                return ChoiceChip(
-                                  label: Text(colors),
-                                  selected: _selectedColor == colors,
-                                  selectedColor: Colors.blue[100],
-                                  onSelected: (selected) {
-                                    setState(() {
-                                      _selectedColor = colors;
-                                    });
-                                  },
-                                  backgroundColor: Colors.grey[100],
-                                  labelStyle: TextStyle(
-                                    color: _selectedColor == colors
-                                        ? Colors.blue[700]
-                                        : Colors.grey[700],
-                                    fontWeight: _selectedColor == colors
-                                        ? FontWeight.bold
-                                        : FontWeight.normal,
-                                  ),
-                                );
-                              }).toList(),
+                            SingleChildScrollView(
+                              scrollDirection: Axis.horizontal,
+                              child: Row(
+                                children: widget.product.colors.map((colors) {
+                                  return Padding(
+                                    padding: const EdgeInsets.only(right: 8),
+                                    child: ChoiceChip(
+                                      label: Text(
+                                        colors,
+                                        style: TextStyle(
+                                          fontSize: 13,
+                                          color: _selectedColor == colors
+                                              ? Colors.blue[700]
+                                              : Colors.grey[700],
+                                          fontWeight: _selectedColor == colors
+                                              ? FontWeight.bold
+                                              : FontWeight.normal,
+                                        ),
+                                      ),
+                                      selected: _selectedColor == colors,
+                                      selectedColor: Colors.blue[100],
+                                      onSelected: (selected) {
+                                        setState(() {
+                                          _selectedColor = colors;
+                                        });
+                                      },
+                                      backgroundColor: Colors.grey[100],
+                                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                                    ),
+                                  );
+                                }).toList(),
+                              ),
                             ),
                           ],
                         ),
                       ),
+
 
                       // Storage Options
                       Container(
@@ -355,34 +368,43 @@ class _ItemPageState extends State<ItemPage> {
                             const Text(
                               "Dung lượng",
                               style: TextStyle(
-                                fontSize: 18,
+                                fontSize: 16,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
                             const SizedBox(height: 12),
-                            Wrap(
-                              spacing: 10,
-                              children: widget.product.storage.map((storage) {
-                                return ChoiceChip(
-                                  label: Text(storage),
-                                  selected: _selectedStorage == storage,
-                                  selectedColor: Colors.blue[100],
-                                  onSelected: (selected) {
-                                    setState(() {
-                                      _selectedStorage = storage;
-                                    });
-                                  },
-                                  backgroundColor: Colors.grey[100],
-                                  labelStyle: TextStyle(
-                                    color: _selectedStorage == storage
-                                        ? Colors.blue[700]
-                                        : Colors.grey[700],
-                                    fontWeight: _selectedStorage == storage
-                                        ? FontWeight.bold
-                                        : FontWeight.normal,
-                                  ),
-                                );
-                              }).toList(),
+                            SingleChildScrollView(
+                              scrollDirection: Axis.horizontal,
+                              child: Row(
+                                children: widget.product.storage.map((storage) {
+                                  return Padding(
+                                    padding: const EdgeInsets.only(right: 8),
+                                    child: ChoiceChip(
+                                      label: Text(
+                                        storage,
+                                        style: TextStyle(
+                                          fontSize: 13,
+                                          color: _selectedStorage == storage
+                                              ? Colors.blue[700]
+                                              : Colors.grey[700],
+                                          fontWeight: _selectedStorage == storage
+                                              ? FontWeight.bold
+                                              : FontWeight.normal,
+                                        ),
+                                      ),
+                                      selected: _selectedStorage == storage,
+                                      selectedColor: Colors.blue[100],
+                                      onSelected: (selected) {
+                                        setState(() {
+                                          _selectedStorage = storage;
+                                        });
+                                      },
+                                      backgroundColor: Colors.grey[100],
+                                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                                    ),
+                                  );
+                                }).toList(),
+                              ),
                             ),
                           ],
                         ),

@@ -336,8 +336,8 @@ class _AdminOrdersScreenState extends State<AdminOrdersScreen> {
               children: [
                 if (order.img != null && order.img!.isNotEmpty)
                   Container(
-                    height: 120,
-                    width: 120,
+                    height: 100,
+                    width: 100,
                     margin: EdgeInsets.only(bottom: 16),
                     alignment: Alignment.center,
                     decoration: BoxDecoration(

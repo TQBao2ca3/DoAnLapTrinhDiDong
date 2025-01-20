@@ -130,48 +130,56 @@ class _PaymentWaitingPageState extends State<PaymentWaitingPage> {
                   const SizedBox(height: 20),
 
                   // Payment Amount
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        'Số tiền cần thanh toán:',
-                        style: TextStyle(
-                          color: Colors.grey[600],
-                          fontSize: 16,
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    child: Wrap(
+                      alignment: WrapAlignment.center,
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      spacing: 8,
+                      children: [
+                        Text(
+                          'Số tiền cần thanh toán:',
+                          style: TextStyle(
+                            color: Colors.grey[600],
+                            fontSize: 15,
+                          ),
                         ),
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        _formatCurrency(widget.totalAmount),
-                        style: TextStyle(
-                          color: Colors.blue[700],
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
+                        Text(
+                          _formatCurrency(widget.totalAmount),
+                          style: TextStyle(
+                            color: Colors.blue[700],
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                   const SizedBox(height: 16),
 
                   // Payment Instructions
                   Container(
+                    margin: const EdgeInsets.symmetric(horizontal: 16),
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
                       color: Colors.blue[50],
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Row(
                           children: [
                             Icon(Icons.info_outline,
-                                color: Colors.blue[700], size: 20),
+                                color: Colors.blue[700], size: 18),
                             const SizedBox(width: 8),
                             Text(
                               'Lưu ý quan trọng:',
                               style: TextStyle(
                                 color: Colors.blue[700],
                                 fontWeight: FontWeight.bold,
+                                fontSize: 14,
                               ),
                             ),
                           ],
@@ -181,7 +189,8 @@ class _PaymentWaitingPageState extends State<PaymentWaitingPage> {
                           'Vui lòng thanh toán trước ${DateTime.now().day + 1}-${DateTime.now().month}-2025 ${DateTime.now().hour}:${DateTime.now().minute}. Thường xuyên kiểm tra tin nhắn từ Người bán tại PhoneShop/Chỉ nhận & thanh toán khi đơn mua ở trạng thái "Đang giao hàng".',
                           style: TextStyle(
                             color: Colors.grey[800],
-                            height: 1.5,
+                            height: 1.4,
+                            fontSize: 13,
                           ),
                         ),
                       ],
