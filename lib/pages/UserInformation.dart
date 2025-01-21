@@ -248,7 +248,9 @@ class _UserInformationState extends State<UserInformation> {
                                       _editingFields
                                           .forEach((field, isEditing) {
                                         if (isEditing &&
-                                            _tempValues[field] != null) {
+                                            _tempValues[field] != null &&
+                                            _tempValues[field] !=
+                                                _userData[field]) {
                                           switch (field) {
                                             case 'name':
                                               updatedFields['full_name'] =
