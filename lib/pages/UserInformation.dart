@@ -8,7 +8,6 @@ import 'package:phoneshop/pages/userAuthentication.dart';
 import 'package:phoneshop/providers/user_provider.dart';
 import 'package:phoneshop/services/userPreference.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class UserInformation extends StatefulWidget {
   const UserInformation({super.key});

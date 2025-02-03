@@ -7,7 +7,6 @@ import 'package:phoneshop/pages/userAuthentication.dart';
 import 'package:phoneshop/services/api_service.dart';
 import 'package:phoneshop/services/userPreference.dart';
 import 'package:phoneshop/services/user_service.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class UserProvider with ChangeNotifier {
   final UserService _userService = UserService();

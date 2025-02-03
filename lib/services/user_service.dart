@@ -3,7 +3,6 @@ import 'package:phoneshop/models/User.dart';
 import 'package:phoneshop/services/api_service.dart';
 import 'package:http/http.dart' as http;
 import 'package:phoneshop/services/userPreference.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class UserService {
   static const String baseUrl = '${ApiService.baseUrl}';
