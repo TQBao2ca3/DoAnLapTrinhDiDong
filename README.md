@@ -50,7 +50,7 @@ PhoneShop là ứng dụng bán điện thoại trực tuyến được xây d�
 **3.2.6. Chạy ứng dụng:**
    - Ta sẽ mở một tab terminal mới để chạy ứng dụng
 
-    >flutter run
+    flutter run
 
 ## IV. Hình ảnh và demo
 
