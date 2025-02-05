@@ -17,30 +17,37 @@ PhoneShop là ứng dụng bán điện thoại trực tuyến được xây d�
 ### 3.1. Yêu cầu
 - Flutter SDK phiên bản mới nhât
 - Android Studio hoặc VS Code
-- MySQL Workbench 8.0 Code
+- MySQL Workbench 8.0 CE
 
 ### 3.2. Cách chạy ứng dụng
 
 **3.2.1. Clone repository:**
 
-    >git clone https://github.com/TQBao2ca3/DoAnLapTrinhDiDong.git
+    git clone https://github.com/TQBao2ca3/DoAnLapTrinhDiDong.git
 
-**3.2.2. Cài đặt dependencies:**
+**3.2.2. Import phoneshop.sql file vào MySQL**
 
-    >flutter pub get
+**3.2.3. Cài đặt dependencies:**
 
-**3.2.3. Thay đổi địa chỉ IP ở file api_service.dart**
+    flutter pub get
+
+**3.2.4. Thay đổi địa chỉ IP ở file api_service.dart**
    - Đầu tiên ta sẽ lấy địa chỉ ip bằng cách mở cmd lên và gõ lệnh "ipconfig", và và kết quả sẽ như ảnh bên dưới, ta tìm mục Wireless LAN adapter Wi-Fi: và lấy địa chỉ ip IPv4 Adress:
     ![Screenshot](screenshots/iplocation.png)
 - Sau đó ta thay địa chỉ vừa lấy vào địa chỉ của file api_service.dart:
    ![Screenshot](screenshots/ipconfig.png)
 
-**3.2.4. Chạy server backend:**
+**3.2.5. Chạy server backend:**
    - Ta mở terminal lên và chạy câu lệnh: 
-    >npm run start-backend
+  
+    npm run start-backend
+
    - **Lưu ý**: sẽ có một vài máy chạy không thành công câu lệnh này, nếu gặp trường hợp này ta sẽ phải điều hướng đến thư mục chứa file server.js để chạy câu lệnh:
-    >node server.js
-**3.2.5. Chạy ứng dụng:**
+
+    node server.js
+
+
+**3.2.6. Chạy ứng dụng:**
    - Ta sẽ mở một tab terminal mới để chạy ứng dụng
 
     >flutter run
