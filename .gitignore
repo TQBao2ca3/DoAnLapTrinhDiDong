@@ -44,5 +44,5 @@ lib/providers/User_Provider.dart
 # Bỏ qua tất cả các file trong thư mục Flutter generated
 **/flutter/generated_*
 /json
-/screenshots
+
 macos/Flutter/GeneratedPluginRegistrant.swift
